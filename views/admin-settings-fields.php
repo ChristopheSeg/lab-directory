@@ -28,7 +28,7 @@ jQuery(document).ready(function($){
   #new-field-template {
     display: none;
   }
-
+ .input-in-td{ width:100%; border:0; padding-left:0; padding-right:0; }
 </style>
 
 <?php if($did_update_options): ?>
@@ -73,6 +73,7 @@ jQuery(document).ready(function($){
           <th id="columnname" class="manage-column column-columnname" scope="col">Name</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Type</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue</th>
 <?php if ($use_ldap) : ?> 
           <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields</th>
           <?php endif; ?>
@@ -85,7 +86,11 @@ jQuery(document).ready(function($){
         <?php
         	$index = 0;
         	$lab_directory_meta_field_types = Lab_Directory::get_lab_directory_meta_field_types();
+        	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
+        	
+        	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
+
         	foreach(get_option('lab_directory_staff_meta_fields') as $field): 
         		$index++; 
         ?>
@@ -95,7 +100,7 @@ jQuery(document).ready(function($){
               <input name="lab_directory_staff_meta_fields_orders[]" value="<?php echo $index; ?>" style="width: 40px;" />
             </td>
             <td>
-              <?php echo $fields_name[$field['slug']]; ?>
+              <?php echo $lab_directory_meta_field_names[$field['slug']]; ?>
             </td>
             <td>
               [<?php echo $field['slug']; ?>]
@@ -104,18 +109,18 @@ jQuery(document).ready(function($){
             </td>
             <td>
               	<?php echo create_select('lab_directory_staff_meta_fields_types[]', 
-              		$lab_directory_meta_field_types, $field['type']); ?>
+              		$lab_directory_meta_field_types, $field['type'], 'input-in-td'); ?>
             </td>
             <td>
- 				<?php echo create_select('lab_directory_staff_meta_fields_types[]', 
-              		$lab_directory_multivalues, $field['multivalue']); ?>
+ 				<?php echo create_select('lab_directory_staff_meta_fields_multivalues[]', 
+              		$lab_directory_multivalues, $field['multivalue'], 'input-in-td'); ?>
             </td>
             <?php if ($use_ldap) : ?> 
 	        <td>
-	        ldapfields
+ 				<?php echo create_select('lab_directory_staff_meta_fields_ldap_attributes[]', 
+              		$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', true); ?>
 	        </td>
 	        <?php endif; ?>
-            
             
             <td>
 			    <select name="lab_directory_staff_meta_fields_activateds[]" data-role="flipswitch" data-mini="true">
@@ -124,7 +129,10 @@ jQuery(document).ready(function($){
 			    </select>
             </td>
             <td>
-              xxxx
+ 			    <select name="lab_directory_staff_meta_fields_hide_frontends[]" data-role="flipswitch" data-mini="true">
+			        <option value="1" <?php selected( true,  ($field['hide_frontend']==true), true); ?> ><?php _e('Yes');?></option>
+			        <option value="0" <?php selected( false, ($field['hide_frontend']==true), true); ?> ><?php _e('No');?></option>
+			    </select>
             </td>
           </tr>
         <?php endforeach; ?>

@@ -18,15 +18,14 @@ class Lab_Directory_Admin {
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
 		
 		$tabs = array(
-				'general'   => __( 'general', 'lab-directory' ),
+				'general'   => __( 'General', 'lab-directory' ),
 				'ldap'   => __( 'LDAP server', 'lab-directory' ),
 				'fields'  => __( 'Directory fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
-				'acronyms'   => __( 'acronyms', 'lab-directory' ),
+				'acronyms'   => __( 'Acronyms', 'lab-directory' ),
 				'taxonomy'  => __( 'Taxonomies', 'lab-directory' ),
-				'third'  => __( 'TODO list', 'lab-directory' ),
+				'third'  => 'TODO list',
 		);
-		
 		$html = '<h2>Lab Directory Settings</h2>'; 
 		$html .= '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
@@ -58,6 +57,7 @@ class Lab_Directory_Admin {
 			// Temporary TODO lidt 
 			?>
 			<p>
+		      TODO séparer admin et frontend (avant traduction) 
 		      TODO ajouter wp_nonce partout !! <br/> 
 		      TODO ajouter field timestamp dans onglet LDAP<br/>
 		      TODO ajouter onglet traduction acronymes <br/>
@@ -70,8 +70,6 @@ class Lab_Directory_Admin {
 
 <li>champ système (à saisir ou calculer OU IMPORTER!!)</li>
 <li>
-			'ldap'               => 'tinyint(1) NOT NULL DEFAULT "0"',
-			'ldap_timestamp'     => 'timestamp NULL DEFAULT NULL',
 			'statut_permanent_recherche' => 'tinyint(1) NOT NULL DEFAULT "0"',
 			'statut_administratif' => 'tinyint(1) NOT NULL DEFAULT "0"',
 			'statut_doctorant'   => 'tinyint(1) NOT NULL DEFAULT "0"',
@@ -96,10 +94,6 @@ class Lab_Directory_Admin {
 
 </li>
 
-<li>champ inutiles</li>
-<li>
-			'statut'             => 'varchar(20)  DEFAULT "0" NOT NULL',
-</li>
 </ul>
 
 </p>		    
@@ -195,13 +189,25 @@ class Lab_Directory_Admin {
 			if ( !empty($_POST['admin-settings-ldap']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-ldap' )){
 	
 				// Process/save form fields
-
+				$ldap_server = array(); 
+				$ldap_server['ldap_server'] = sanitize_text_field($_POST['ldap_server']);
+				$ldap_server['ldap_dn'] = sanitize_text_field($_POST['ldap_dn']);
+				$ldap_server['ldap_set_time_limit'] = intval($_POST['ldap_set_time_limit']);
+				$ldap_server['ldap_filter'] = sanitize_text_field($_POST['ldap_filter']);
+				$ldap_server['ldap_attributes'] = sanitize_text_field($_POST['ldap_attributes']);
+				$ldap_server['ldap_timestamp_attribute'] = sanitize_text_field($_POST['ldap_timestamp_attribute']);
+				// $ldap_server['ldap_test_filter'] = sanitize_text_field($_POST['ldap_test_filter']);
+				update_option( 'lab_directory_ldap_server', $ldap_server);
+				$did_update_options = true;
+				
+				
 			}else{
 				// Error
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
 		
+		$ldap_server = get_option( 'lab_directory_ldap_server' );
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-ldap.php' );
 	}
 
@@ -210,7 +216,7 @@ class Lab_Directory_Admin {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$did_update_options = false;
 	
-		// Remove LDAP tab if not used
+		// Remove LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
 			echo 'no LDAP ';
 		}
@@ -227,6 +233,7 @@ class Lab_Directory_Admin {
 			}
 		}
 	
+		
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-acronyms.php' );
 	}
 	
@@ -234,24 +241,72 @@ class Lab_Directory_Admin {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$did_update_options = false;
+		$sync_test_result="";
 	
-			// Empty LDAP tab if not used
+			// Empty LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
 			echo '<div class="notice notice-warning"><p>Please active ldap usage in "general settings" before testing LDAP sync</p></div>';
 			return; 
 		} 			
 		// Check $_POST and _wpnonce
-		if(isset($_POST['admin-settings-test-sync'])) {
-			if ( !empty($_POST['admin-settings-test-sync']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-test-sync' )){
+		$save = false; 
+		$test_sync = false;
+		
+		if (isset($_POST['admin-settings-test-sync-with-filter'])) {
+			$save = true;
+			$test_sync = 'test_filter'; 
+		}
+		if (isset($_POST['admin-settings-test-sync-with-email'])) {
+			$save = true;
+			$test_sync = 'email';
+		}
+		if (isset($_POST['admin-settings-test-sync-with-sync_filter'])) {
+			$save = true;
+			$test_sync = 'sync_filter';
+		}
+		if (isset($_POST['admin-settings-test-sync'])) {
+			//only save without test
+			$save = true;
+		}
+		
+		if($save) {
+			if ( wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-test-sync' ) ){
 	
 				// Process/save form fields
-	
+				update_option( 'lab_directory_ldap_test_avec_import', isset( $_POST['ldap_test_avec_import'] ) ? '1' : '0'  );
+				
+				$lab_directory_ldap_test_filter = sanitize_text_field($_POST['ldap_test_filter']);
+				update_option( 'lab_directory_ldap_test_filter', $lab_directory_ldap_test_filter);
+				$lab_directory_ldap_test_email = sanitize_text_field($_POST['ldap_test_email']);
+				update_option( 'lab_directory_ldap_test_email', $lab_directory_ldap_test_email);
+				
+				$did_update_options = true;
 			}else{
 				// Error
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
-	
+		
+		$lab_directory_ldap_test_filter = get_option( 'lab_directory_ldap_test_filter' );
+		$lab_directory_ldap_test_email = get_option( 'lab_directory_ldap_test_email' );
+		$lab_directory_ldap_test_avec_import = (get_option( 'lab_directory_ldap_test_avec_import' ) == '1');
+		if ($test_sync) {
+			// do synchronisation tests
+			if ($test_sync == 'test_filter') {
+				// Test Sync with test filter 
+				$sync_test_result = Lab_Directory_Settings::import_annuaire_ldap($lab_directory_ldap_test_filter, '', true, $lab_directory_ldap_test_avec_import);
+			}
+		elseif ($test_sync == 'email') {
+				// Test Sync with email filter 
+				$sync_test_result = $lab_directory_staff_settings->import_annuaire_ldap('', $lab_directory_ldap_test_email, true, $lab_directory_ldap_test_avec_import);
+			}	
+		else {
+				// Test Sync with synchronisation filter 
+				$sync_test_result = $lab_directory_staff_settings->import_annuaire_ldap('', '', true, $lab_directory_ldap_test_avec_import);
+			}		
+		}
+
+		$lab_directory_ldap_last10syncs = get_option( 'lab_directory_ldap_last10syncs', array('No sync operation performed up to now') );
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-test-sync.php' );
 	}
 	
@@ -260,7 +315,7 @@ class Lab_Directory_Admin {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$did_update_options = false;
 	
-		// Remove LDAP tab if not used
+		// Remove LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
 			echo 'no LDAP ';
 		}
@@ -279,9 +334,6 @@ class Lab_Directory_Admin {
 	
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomy.php' );
 	}
-
-	
-	
 
 	static function help() {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-help.php' );
@@ -355,4 +407,5 @@ class Lab_Directory_Admin {
 
 		<?php
 	}
+
 }

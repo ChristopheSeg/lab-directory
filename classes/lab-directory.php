@@ -205,9 +205,9 @@ class Lab_Directory {
 			}
 		</style>
 
-		<?php foreach ( $lab_directory_staff_settings->get_lab_directory_staff_details_fields() as $field ): ?>
+		<?php foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ): ?>
 			<p>
-				<label for="lab_directory_staff[<?php echo $field['slug'] ?>]" class="lab_directory_staff-label"><?php _e( $field['name'] ); ?>
+				<label for="lab_directory_staff[<?php echo $field['slug'] ?>]" class="lab_directory_staff-label"><?php echo $field['slug']; echo $field['name']; ?>
 					:</label>
 				<?php if ( $field['type'] == 'text' ): ?>
 					<input type="text" name="lab_directory_staff_meta[<?php echo $field['slug'] ?>]"
@@ -303,6 +303,14 @@ class Lab_Directory {
 					'hide_frontend' =>'0',
 					'activated' => '1',
 				),						
+				array(
+					'type' => 'longtext',
+					'slug' => 'bio',
+					'ldap_field' => '',
+					'multivalue' => 'sv',
+					'hide_frontend' =>'0',
+					'activated' => '1',
+				),	
 				array(
 					'type' => 'text',
 					'slug' => 'idhal',
@@ -999,27 +1007,42 @@ EOT;
 	public function get_lab_directory_multivalues() {
 		
 		// Define the list of option related to single and multivalue of fields
+		$note1 = ' (' . __('only first values list will be extracted if LDAP attribute is multivalued', 'lab-directory'). ')'; 
 		$default_multivalue = array(
-			// TODO how to add __() to this?
-			'SV' => 'Single valued (only take first value if LDAP fields si multivalued)' ,
-			'MV' => 'Multiple valued (take all values if LDAP fields has multiple values)' ,
-			','  => 'Comma separated list' ,
-			';'  => 'Semicolumn separated list' ,
-			'|'  => ' | separated values' ,
-			'CR' => 'Carriage return separated values' ,
+			
+			'SV' => __('Single valued (only first value will be extracted if LDAP attribute is multivalued)', 'lab-directory'),
+			'MV' => __('Multiple valued (extract all values if LDAP attribute is multivalued)', 'lab-directory'),
+			','  => __("Comma (') separated values", 'lab-directory') . $note1,
+			';'  => __('Semicolumn (;) separated values', 'lab-directory') . $note1,
+			'|'  => __('Vertical bar (|) separated values', 'lab-directory') . $note1,
+			'CR' => __('Carriage return separated values', 'lab-directory') . $note1,
 		);
 		return $default_multivalue;
 	}
 	
-	static function get_lab_directory_default_meta_fields_name() {
+	static function get_lab_directory_ldap_attributes() {
+    
+        	$ldap_attributes = array();
+        	$ldap_server = get_option( 'lab_directory_ldap_server' );
+        	$keys = explode (';',$ldap_server['ldap_attributes']);
+        	foreach ($keys as $key){
+        		$ldap_attributes[$key] = $key;
+        	}
+        	return $ldap_attributes;
+        	
+}
+
+	static function get_lab_directory_default_meta_field_names() {
 		
 		// Transation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
-		$default_meta_fields_name = array(
+		$default_meta_field_names = array(
 				'firstname' => __( 'Firstname', 'lab-directory'),
 				'name' => __( 'Name', 'lab-directory'),
 				'position' => __( 'Position', 'lab-directory'),
 				'login' => __( 'Login', 'lab-directory'),
-				'mails' => __( 'Mails', 'lab-directory'),
+				'mails' => __( 'Mail', 'lab-directory'),
+				'bio' => __('Biography', 'lab-directory'),
+				'other_mails' => __( 'Other mails', 'lab-directory'),
 				'idhal' => __( 'ID HAL', 'lab-directory'),
 				'photo_url' => __( 'Photo URL', 'lab-directory'),
 				'webpage' => __( 'Professionnal webpage', 'lab-directory'),
@@ -1059,18 +1082,28 @@ EOT;
 				'cdd_end_date' => __( 'Fixed-term contract end date', 'lab-directory'),
 				'cdd_goal' => __( 'Fixed-term contract goal', 'lab-directory'),
 				'cdd_position' => __( 'Fixed-term contract position', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_1' => __( 'custom_fields_1', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_2' => __( 'custom_fields_2', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_3' => __( 'custom_fields_3', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_4' => __( 'custom_fields_4', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_5' => __( 'custom_fields_5', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_6' => __( 'custom_fields_6', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_7' => __( 'custom_fields_7', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_8' => __( 'custom_fields_8', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_9' => __( 'custom_fields_9', 'lab-directory'),
+				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_10' => __( 'custom_fields_10', 'lab-directory'),
 		);
-		return $default_meta_fields_name;
+		return $default_meta_field_names;
 	}
 
 } 

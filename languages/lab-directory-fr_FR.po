@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-24 13:50+0000\n"
-"PO-Revision-Date: 2017-10-24 13:50+0000\n"
+"POT-Creation-Date: 2017-11-08 13:47+0000\n"
+"PO-Revision-Date: 2017-11-08 14:45+0000\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr-FR\n"
@@ -13,10 +13,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: views/admin-settings-fields.php:33
-msgctxt "test traduit"
-msgid "test_test"
-msgstr "taduction de test_test"
+#: views/admin-settings-fields.php:65 views/admin-settings-fields.php:80
+msgid "Activated"
+msgstr ""
 
 #: classes/lab-directory-admin.php:21
 msgid "general"
@@ -42,200 +41,264 @@ msgstr ""
 msgid "TODO list"
 msgstr ""
 
-#: classes/lab-directory.php:275
-msgid "Name"
-msgstr ""
-
-#: classes/lab-directory.php:283
-msgid "Position"
-msgstr ""
-
-#: classes/lab-directory.php:291
-msgid "Login"
-msgstr ""
-
-#: classes/lab-directory.php:299
-msgid "Mails"
-msgstr ""
-
-#: classes/lab-directory.php:307
-msgid "ID HAL"
-msgstr ""
-
-#: classes/lab-directory.php:315
-msgid "Photo URL"
-msgstr ""
-
-#: classes/lab-directory.php:323
-msgid "Personnal webpage"
-msgstr ""
-
-#: classes/lab-directory.php:331
-msgid "Fonction"
-msgstr ""
-
-#: classes/lab-directory.php:339
-msgid "Title"
-msgstr ""
-
-#: classes/lab-directory.php:347 classes/lab-directory.php:1016
-msgid "Phone number"
-msgstr ""
-
-#: classes/lab-directory.php:355 classes/lab-directory.php:379
-msgid "Fax number"
-msgstr ""
-
-#: classes/lab-directory.php:363
-msgid "Office"
-msgstr ""
-
-#: classes/lab-directory.php:371
-msgid "Team"
-msgstr ""
-
-#: classes/lab-directory.php:387
-msgid "End activity date"
-msgstr ""
-
-#: classes/lab-directory.php:395
-msgid "HDR subject"
-msgstr ""
-
-#: classes/lab-directory.php:403
-msgid "HDR defense date"
-msgstr ""
-
-#: classes/lab-directory.php:411
-msgid "HDR defense location"
-msgstr ""
-
-#: classes/lab-directory.php:419
-msgid "HDR jury"
-msgstr ""
-
-#: classes/lab-directory.php:427
-msgid "HDR resume"
-msgstr ""
-
-#: classes/lab-directory.php:435
-msgid "PHD start date"
-msgstr ""
-
-#: classes/lab-directory.php:443
-msgid "PHD subject"
-msgstr ""
-
-#: classes/lab-directory.php:451
-msgid "PHD defense date"
-msgstr ""
-
-#: classes/lab-directory.php:459
-msgid "PHD defense location"
-msgstr ""
-
-#: classes/lab-directory.php:467
-msgid "PHD jury"
-msgstr ""
-
-#: classes/lab-directory.php:475
-msgid "PHD resume"
-msgstr ""
-
-#: classes/lab-directory.php:483
-msgid "Post Doct. start date"
-msgstr ""
-
-#: classes/lab-directory.php:491
-msgid "Post Doct. end date"
-msgstr ""
-
-#: classes/lab-directory.php:499
-msgid "Post Doct. subject"
-msgstr ""
-
-#: classes/lab-directory.php:507
-msgid "__( 'start date"
-msgstr ""
-
-#: classes/lab-directory.php:515
-msgid "__( 'end date"
-msgstr ""
-
-#: classes/lab-directory.php:523
-msgid "__( 'subject"
-msgstr ""
-
-#: classes/lab-directory.php:531
-msgid "__( 'resume"
-msgstr ""
-
-#: classes/lab-directory.php:539
-msgid "Studying school"
-msgstr ""
-
-#: classes/lab-directory.php:547
-msgid "Studying level"
-msgstr ""
-
-#: classes/lab-directory.php:555
-msgid "Invitation start date"
-msgstr ""
-
-#: classes/lab-directory.php:563
-msgid "Invitation end date"
-msgstr ""
-
-#: classes/lab-directory.php:571
-msgid "Invitation goal"
-msgstr ""
-
-#: classes/lab-directory.php:579
-msgid "Invitated position"
-msgstr ""
-
-#: classes/lab-directory.php:587
-msgid "Invitated origin"
-msgstr ""
-
-#: classes/lab-directory.php:595
-msgid "Fixed-term contract start date"
-msgstr ""
-
-#: classes/lab-directory.php:603
-msgid "Fixed-term contract end date"
-msgstr ""
-
-#: classes/lab-directory.php:611
-msgid "Fixed-term contract goal"
-msgstr ""
-
-#: classes/lab-directory.php:619
-msgid "Fixed-term contract position"
-msgstr ""
-
-#: classes/lab-directory.php:1013
+#: classes/lab-directory.php:988
 msgid "text"
 msgstr ""
 
-#: classes/lab-directory.php:1014
+#: classes/lab-directory.php:989
 msgid "mail"
 msgstr ""
 
-#: classes/lab-directory.php:1015
+#: classes/lab-directory.php:990
 msgid "URL"
 msgstr ""
 
-#: classes/lab-directory.php:1017
+#: classes/lab-directory.php:991 classes/lab-directory.php:1041
+msgid "Phone number"
+msgstr ""
+
+#: classes/lab-directory.php:992
 msgid "Date"
 msgstr ""
 
-#: classes/lab-directory.php:1018
+#: classes/lab-directory.php:993
 msgid "Long text"
 msgstr ""
 
-#: classes/lab-directory.php:1019
-msgid "Jury"
+#: classes/lab-directory.php:1004
+msgid "Single valued (only extract first value if LDAP fields is multivalued"
+msgstr ""
+
+#: classes/lab-directory.php:1005
+msgid "Multiple valued (extract all values if LDAP fields has multiple values"
+msgstr ""
+
+#: classes/lab-directory.php:1006
+msgid "Comma separated list"
+msgstr ""
+
+#: classes/lab-directory.php:1007
+msgid "Semicolumn separated list"
+msgstr ""
+
+#: classes/lab-directory.php:1008
+msgid "| separated values"
+msgstr ""
+
+#: classes/lab-directory.php:1009
+msgid "Carriage return separated values"
+msgstr ""
+
+#: classes/lab-directory.php:1031
+msgid "Name"
+msgstr ""
+
+#: classes/lab-directory.php:1032
+msgid "Position"
+msgstr ""
+
+#: classes/lab-directory.php:1033
+msgid "Login"
+msgstr ""
+
+#: classes/lab-directory.php:1034
+msgid "Mail"
+msgstr ""
+
+#: classes/lab-directory.php:1035
+msgid "Other mails"
+msgstr ""
+
+#: classes/lab-directory.php:1036
+msgid "ID HAL"
+msgstr ""
+
+#: classes/lab-directory.php:1037
+msgid "Photo URL"
+msgstr ""
+
+#: classes/lab-directory.php:1038
+msgid "Professionnal webpage"
+msgstr ""
+
+#: classes/lab-directory.php:1039
+msgid "Function"
+msgstr ""
+
+#: classes/lab-directory.php:1040
+msgid "Title"
+msgstr ""
+
+#: classes/lab-directory.php:1042
+msgid "Fax number"
+msgstr ""
+
+#: classes/lab-directory.php:1043
+msgid "Office"
+msgstr ""
+
+#: classes/lab-directory.php:1044
+msgid "Team"
+msgstr ""
+
+#: classes/lab-directory.php:1045
+msgid "End activity date"
+msgstr ""
+
+#: classes/lab-directory.php:1046
+msgid "HDR subject"
+msgstr ""
+
+#: classes/lab-directory.php:1047
+msgid "HDR defense date"
+msgstr ""
+
+#: classes/lab-directory.php:1048
+msgid "HDR defense location"
+msgstr ""
+
+#: classes/lab-directory.php:1049
+msgid "HDR jury"
+msgstr ""
+
+#: classes/lab-directory.php:1050
+msgid "HDR resume"
+msgstr ""
+
+#: classes/lab-directory.php:1051
+msgid "PHD start date"
+msgstr ""
+
+#: classes/lab-directory.php:1052
+msgid "PHD subject"
+msgstr ""
+
+#: classes/lab-directory.php:1053
+msgid "PHD defense date"
+msgstr ""
+
+#: classes/lab-directory.php:1054
+msgid "PHD defense location"
+msgstr ""
+
+#: classes/lab-directory.php:1055
+msgid "PHD jury"
+msgstr ""
+
+#: classes/lab-directory.php:1056
+msgid "PHD resume"
+msgstr ""
+
+#: classes/lab-directory.php:1057
+msgid "Post Doct. start date"
+msgstr ""
+
+#: classes/lab-directory.php:1058
+msgid "Post Doct. end date"
+msgstr ""
+
+#: classes/lab-directory.php:1059
+msgid "Post Doct. subject"
+msgstr ""
+
+#: classes/lab-directory.php:1060
+msgid "Internship start date"
+msgstr ""
+
+#: classes/lab-directory.php:1061
+msgid "Internship end date"
+msgstr ""
+
+#: classes/lab-directory.php:1062
+msgid "Internship subject"
+msgstr ""
+
+#: classes/lab-directory.php:1063
+msgid "Internship resume"
+msgstr ""
+
+#: classes/lab-directory.php:1064
+msgid "Studying school"
+msgstr ""
+
+#: classes/lab-directory.php:1065
+msgid "Studying level"
+msgstr ""
+
+#: classes/lab-directory.php:1066
+msgid "Invitation start date"
+msgstr ""
+
+#: classes/lab-directory.php:1067
+msgid "Invitation end date"
+msgstr ""
+
+#: classes/lab-directory.php:1068
+msgid "Invitation goal"
+msgstr ""
+
+#: classes/lab-directory.php:1069
+msgid "Invited position"
+msgstr ""
+
+#: classes/lab-directory.php:1070
+msgid "Invited origin"
+msgstr ""
+
+#: classes/lab-directory.php:1071
+msgid "Fixed-term contract start date"
+msgstr ""
+
+#: classes/lab-directory.php:1072
+msgid "Fixed-term contract end date"
+msgstr ""
+
+#: classes/lab-directory.php:1073
+msgid "Fixed-term contract goal"
+msgstr ""
+
+#: classes/lab-directory.php:1074
+msgid "Fixed-term contract position"
+msgstr ""
+
+#: classes/lab-directory.php:1075
+msgid "custom_fields_1"
+msgstr ""
+
+#: classes/lab-directory.php:1076
+msgid "custom_fields_2"
+msgstr ""
+
+#: classes/lab-directory.php:1077
+msgid "custom_fields_3"
+msgstr ""
+
+#: classes/lab-directory.php:1078
+msgid "custom_fields_4"
+msgstr ""
+
+#: classes/lab-directory.php:1079
+msgid "custom_fields_5"
+msgstr ""
+
+#: classes/lab-directory.php:1080
+msgid "custom_fields_6"
+msgstr ""
+
+#: classes/lab-directory.php:1081
+msgid "custom_fields_7"
+msgstr ""
+
+#: classes/lab-directory.php:1082
+msgid "custom_fields_8"
+msgstr ""
+
+#: classes/lab-directory.php:1083
+msgid "custom_fields_9"
+msgstr ""
+
+#: classes/lab-directory.php:1084
+msgid "custom_fields_10"
 msgstr ""
 
 #. Description of the plugin
@@ -253,11 +316,15 @@ msgstr ""
 msgid "Christophe Seguinot"
 msgstr ""
 
+#: classes/lab-directory.php:994
+msgid "Jury"
+msgstr "Jury"
+
 #: classes/lab-directory-admin.php:22
 msgid "LDAP server"
 msgstr "Serveur LDAP"
 
-#: classes/lab-directory.php:266
+#: classes/lab-directory.php:1030
 msgid "Firstname"
 msgstr "Prénom"
 
