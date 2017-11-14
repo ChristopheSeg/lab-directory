@@ -12,10 +12,7 @@ function show_hide_unactivated() {
     	    } else {
     	    	elems[i].style.display = 'table-row';
     	    }
-
     }
-    
- 
 } 
  
 jQuery(document).ready(function($){
@@ -36,18 +33,28 @@ jQuery(document).ready(function($){
     <p>Settings updated.</p>
   </div>
 <?php endif; ?>
-
+<?php if($did_reset_options): ?>
+  <div id="message" class="updated notice notice-success is-dismissible below-h2 ">
+    <p>All meta fields have been reset to their default values. Please press <b>Save</b> to validate this reset.</p>
+  </div>
+<?php endif; ?>
 
 <form method="post">
     <h2>Custom Details Fields</h2>
 
     <p>
-      This allows you to create custom details fields for each Staff member.
-      Name and bio fields are provided by default, so you don't need to add those here.
+    This page allows you to set details fields and to create custom details fields for each Staff member. In case a group of fields is disabled, note that corresponding fields can be set but will never be used in the directory. 
+    </p>
+    <p>  
+    In order to use one meta field: this one must be enabled, and the corresponding group must also be activated. 
     </p>
 	<p>
     	<input type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save">
+    	<?php if( current_user_can('administrator')): ?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
+    	<?php endif; ?>
+    	&nbsp;&nbsp;&nbsp;&nbsp; <input type="submit" name="admin-resettings-fields" class="button button-primary button-large" 
+    	 value="Reset all meta fields" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;">
     	
   	</p>
 
@@ -57,6 +64,7 @@ jQuery(document).ready(function($){
           <th id="columnname" class="manage-column column-columnname" scope="col">Order</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Name</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Type</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue</th>
           <?php if ($use_ldap) : ?> 
@@ -72,6 +80,7 @@ jQuery(document).ready(function($){
           <th id="columnname" class="manage-column column-columnname" scope="col">Order</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Name</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Type</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue</th>
 <?php if ($use_ldap) : ?> 
@@ -87,12 +96,17 @@ jQuery(document).ready(function($){
         	$index = 0;
         	$lab_directory_meta_field_types = Lab_Directory::get_lab_directory_meta_field_types();
         	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
+        	$lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
-        	
+        	$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+        	$group_activations = get_option( 'lab_directory_group_activations' ) ;
+       	
         	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
 
         	foreach(get_option('lab_directory_staff_meta_fields') as $field): 
-        		$index++; 
+        		$index++;
+        		$custom = (strpos($field['slug'], 'custom') !== false);
+        	
         ?>
           <tr class="column-<?php echo $field['slug']; ?> <?php echo (($field['activated']=='0')? 'unactivated' : ''); ?>" 
           style="<?php echo (($field['activated']=='0')? 'display:none;' : 'display:table-row;'); ?> ">
@@ -107,6 +121,13 @@ jQuery(document).ready(function($){
               <input name="lab_directory_staff_meta_fields_slugs[]" type="hidden" 
               value="<?php echo $field['slug']; ?>" />
             </td>
+            <td>
+               	<?php echo create_select('lab_directory_staff_meta_fields_groups[]', 
+              		$lab_directory_group_names, $field['group'], 'input-in-td', false, !$custom); 
+					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Jump to Footnotes at end of page"><sup>(1)</sup></a>');    
+					
+               	?>
+			</td>
             <td>
               	<?php echo create_select('lab_directory_staff_meta_fields_types[]', 
               		$lab_directory_meta_field_types, $field['type'], 'input-in-td'); ?>
@@ -146,6 +167,6 @@ jQuery(document).ready(function($){
     <input type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save">
   </p>
   <?php wp_nonce_field('admin-settings-fields', '_wpnonce'); ?>
- 
 </form>
-
+<h4 id="footnote">Notes</h4>
+<p>1. This group of field is disabled. Corresponding field will not be used in the directory (even if it is activated). </p>

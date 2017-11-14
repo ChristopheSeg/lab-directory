@@ -45,3 +45,8 @@ if ( Lab_Directory::show_import_message() ) {
 }
 
 register_activation_hook( __FILE__, array( 'Lab_Directory', 'set_default_templates_if_necessary' ) );
+
+function modify_the_link($post_url,$post) {
+	return '/wp-content/plugins/lab-directory/view.php?id='.$post->ID;
+}
+add_filter('lab_directory_staff',"modify_the_link",10,2);

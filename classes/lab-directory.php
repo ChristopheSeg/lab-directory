@@ -9,6 +9,7 @@ class Lab_Directory {
 	static function register_post_types() {
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
+		
 		add_filter( "manage_edit-lab_directory_staff_columns", array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ) );
 		add_filter( "manage_lab_directory_staff_posts_custom_column", array(
 			'Lab_Directory',
@@ -23,32 +24,37 @@ class Lab_Directory {
 		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
+		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs') );
 
 		add_action( 'init', array( 'Lab_Directory', 'init_tinymce_button' ) );
 		add_action( 'wp_ajax_get_my_form', array( 'Lab_Directory', 'thickbox_ajax_form' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'manage_listing_query' ) );
+		add_filter( 'post_row_actions', array( 'Lab_Directory', 'modify_quick_edit'), 10, 1 );
+		
+	    //load single-page/profile template
+	    add_filter('single_template', array( 'Lab_Directory', 'load_profile_template' ) );
+	
+	    add_action( 'restrict_manage_posts', array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
+	    add_action( 'pre_get_posts', array( 'Lab_Directory', 'filter_admin_lab_directory_staff_by_category' ) );
 
-    //load single-page/profile template
-    add_filter('single_template', array( 'Lab_Directory', 'load_profile_template' ) );
 
-    add_action( 'restrict_manage_posts', array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
-    add_action( 'pre_get_posts', array( 'Lab_Directory', 'filter_admin_lab_directory_staff_by_category' ) );
 	}
 
 	static function create_post_types() {
 		register_post_type( 'lab_directory_staff',
 			array(
 				'labels'     => array(
-					'name' => __( 'Lab_dir_Staff' )
+					'name' => __( 'Lab_dir_Staff' ), 
+						'add_new' => 'test_add new staff', // This only change the title
 				),
 				'supports'   => array(
-					'title',
-					'editor',
+					// 'title',
+					// 'editor',
 					'thumbnail'
 				),
 				'public'     => true,
-				'menu_icon'  => 'dashicons-groups',
-				'taxonomies' => array( 'lab_category')
+				'menu_icon'  => 'dashicons-id',
+				'taxonomies' => array( 'lab_category', ),
 			)
 		);
 	}
@@ -105,7 +111,7 @@ class Lab_Directory {
 			'cb'             => '<input type="checkbox" />',
 			'title'          => __( 'Title' ),
 			'id'             => __( 'ID' ),
-			'featured_image' => __( 'Featured Image' ),
+			'featured_image' => __( 'Staff photo' ),
 			'date'           => __( 'Date' )
 		);
 
@@ -157,6 +163,24 @@ class Lab_Directory {
 		return $out;
 	}
 
+// enqueue tabs script
+	static function lab_directory_scripts_and_css_for_tabs() {
+	 wp_enqueue_script( 'jquery-ui-tabs' );
+	 wp_enqueue_script( 'jquery-ui-datepicker' );
+	 wp_enqueue_script( 'custom-tabs', plugins_url( '/js/tabs.js', dirname(__FILE__) ), array('jquery'));
+	 wp_enqueue_script( 'timepicker-addon', plugins_url( '/js/jquery.datetimepicker.js', dirname(__FILE__) ), array('jquery'));
+	 
+	 $wp_scripts = wp_scripts();
+	wp_enqueue_style('timepicker-addon-css',
+	                plugins_url( '/css/jquery.datetimepicker.css', dirname(__FILE__) ));
+	
+	wp_enqueue_style('plugin_name-admin-ui-css',
+			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.css',
+			false,
+			PLUGIN_VERSION,
+			false);
+	}
+	
 	static function enqueue_fontawesome() {
 		wp_enqueue_style( 'font-awesome', '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
 			array(), '4.0.3' );
@@ -187,457 +211,916 @@ class Lab_Directory {
 			'Lab_Directory',
 			'lab_directory_staff_meta_box_output'
 		), 'lab_directory_staff', 'normal', 'high' );
+		add_meta_box( 'lab_directory_staff-meta-box_statut', __( 'Staff Statute' ), array(
+			'Lab_Directory',
+			'lab_directory_staff_meta_box_statut'
+		), 'lab_directory_staff', 'side', 'high' );
 	}
 
+	/* 
+	 * Simply add a link to change statut page
+	 */
+	 
+	static function lab_directory_staff_meta_box_statut( $post ) {
+		?>
+		<a href="edit.php?post_type=lab_directory_staff&page=modify-staff-statute" title="">
+	    <?php _e( 'Change staff statute', 'lab-directory') ; ?>
+	    </a>
+		<?php 
+	}
+	
 	static function lab_directory_staff_meta_box_output( $post ) {
 
-		wp_nonce_field( 'lab_directory_staff_meta_box_nonce_action', 'lab_directory_staff_meta_box_nonce' );
-
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-
-		?>
-
+		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
+		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields);
+		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
+		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
+		?> 
+		<script type="text/javascript">
+		jQuery(document).ready(function($){
+		
+			$('#add-new-jury-member').on('click', function(ev){
+				ev.preventDefault();
+				var tr = $('<tr/>');
+				tr.html($('#new-jury-member').html());
+				$("#add-new-jury-member-row").before(tr);
+			});
+		
+				$(document).on('click', '.remove-field', function(ev){
+					ev.preventDefault();
+					$(this).parent().parent().remove();
+				});
+		});
+		</script>
+		
 		<style type="text/css">
+			#new-jury-member {display: none;}
 			label.lab_directory_staff-label {
 				float: left;
 				line-height: 27px;
 				width: 130px;
 			}
+
+ 			input.large-text{ width: 80%; }
+			.input-in-td{ width:100%; padding-left:0; padding-right:0; }
+			a.normal {color:#0073aa;}
+			textarea { resize:both; width: 100%;} 
+			p{ padding-left: 5px; background-color: rgb(245, 245, 245);}
 		</style>
+		<?php
+		// Display Form 
+		?>
+		<form method="post">
 
-		<?php foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ): ?>
-			<p>
-				<label for="lab_directory_staff[<?php echo $field['slug'] ?>]" class="lab_directory_staff-label"><?php echo $field['slug']; echo $field['name']; ?>
-					:</label>
-				<?php if ( $field['type'] == 'text' ): ?>
-					<input type="text" name="lab_directory_staff_meta[<?php echo $field['slug'] ?>]"
-					       value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>
-				<?php elseif ( $field['type'] == 'textarea' ): ?>
-					<textarea cols=40 rows=5
-					          name="lab_directory_staff_meta[<?php echo $field['slug'] ?>]"><?php echo get_post_meta( $post->ID,
-							$field['slug'], true ); ?></textarea>
-				<?php endif; ?>
-			</p>
-		<?php endforeach; ?>
-
+		<?php if($did_update_options): ?>
+		  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
+		    <p>Settings updated.</p>
+		  </div>
+		<?php endif; ?>
+		<?php if($messages): ?>
+		  <?php if($messages['message_ok']): ?>
+			  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
+			    <p><?php echo $messages['message_ok']; ?></p>
+			  </div>
+		  <?php endif; ?>
+		  <?php if($messages['message_erreur']): ?>
+			  <div id="error" class="updated error is-dismissible below-h2 lab_directory_staff-success-message">
+			    <p><?php echo $messages['message_erreur']; ?></p>
+			  </div>
+		  <?php endif; ?>
+		<?php endif;?>
+   
+     <div id="demoTabsId" class="labDirectoryTabsClass">
+        <ul>
+            <?php
+            foreach ($used_groups as $key => $group_name) {
+            	echo '<li><a href="#Tab-'. $key .'">' . $group_name . '</a></li>';
+            }
+            ?>
+        </ul>
+        <?php
+        // TODO disable input depending on capability , LDAP...
+        foreach ($used_groups as $key => $group_name) {
+        	echo '<div id="Tab-'. $key .'">';
+             foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
+            	if ($field['group'] == $key) {
+            		Lab_Directory::lab_directory_staff_meta_box_render_input($post, $field, $lab_directory_meta_field_names[$field['slug']], 
+            				$studying_levels, $jury_functions); 
+          		}
+            }
+        	echo '</div>';
+        }
+        ?>
+       
+    </div>
+    <p>
+    <input name="save" class="button button-primary button-large" id="publish2" value="Update" type="submit">
+    </p>
+    <?php wp_nonce_field( 'lab_directory_staff_meta_box_nonce_action', 'lab_directory_staff_meta_box_nonce' ); ?>
+    
 		<?php
 	}
 
+	function lab_directory_staff_meta_box_render_input($post, $field, $field_name, $studying_levels, $jury_functions ){
+		
+		$label = '<label for="lab_directory_staff_meta_' . $field['slug'] . '" class="lab_directory_staff-label">'. 
+			$field_name .'</label>';
+		echo '<p>'; 
+		
+		
+		// TODO disable depending on capability , LDAP...
+		$mv_cr=false; // only true if "multiple values separated with CR" used
+		
+		switch ($field['multivalue']) {
+			case ',' :
+				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __("Comma (,) separated values", 'lab-directory') . ')</i>';
+				break; 
+			case ';' :
+				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Semicolumn (;) separated values', 'lab-directory') . ')</i>';
+				break; 
+			case  '|' :
+				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Vertical bar (|) separated values', 'lab-directory') . ')</i>';
+				break; 
+			case 'MV': 
+			case 'CR':	
+				$mv = '<br /><i>' . __('This entry accept multiple values (one value per line, values separated by a carriage return)', 'lab-directory') . ')</i>';
+				$mv_cr=true; 
+				break; 
+			default: 
+				$mv = '';
+				break; 
+				
+		}
+	
+		$field_type = $field['type'] ; 
+		// override $field_type in case of multiple value accepted 
+		if ($mv_cr){
+			// Switch to a textarea as input because value separated by a CR 
+			if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')
+					 OR ($field_type == 'longtext') )  {
+				$field_type = 'textarea'; 
+			}
+		}
+		elseif ($mv) {
+			// else switch to a longtext
+			if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')) {
+				$field_type = 'long_text';
+			}		
+		}
+		
+		switch ($field_type) {
+			case 'text' :
+			case 'mail' :
+			case 'url' :
+			case 'phone_number' :
+				echo $label;
+				?>
+					<input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
+						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>  
+					<?php
+					echo $mv;
+					break;
+				case 'long_text' : 
+					echo $label; 
+					?>
+					<textarea rows=1
+						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo get_post_meta( $post->ID,
+					$field['slug'], true ); ?></textarea>
+					<?php
+					echo $mv;
+					break;
+				case 'textarea' :
+					echo $label; 
+					?>
+					<textarea rows=2
+						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo get_post_meta( $post->ID,
+					$field['slug'], true ); ?></textarea>
+					<?php
+					echo $mv;
+					break;
+				case 'editor' :
+					wp_editor( $post->post_content, 'attachment_content', $editor_args );
+					break;
+				case 'date' :
+					echo $label; 
+					?>
+					<input type="text" class="datepicker" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
+						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>
+					<?php
+					break;
+				case 'datetime' :
+					echo $label; 
+					?>
+					<input type="text" class="datetimepicker" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
+						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>
+					<?php
+					break;
+				case 'url' :
+				case 'phone_number' :
+		
+				case 'studying_level' :
+					echo $label; 
+					echo create_select('lab_directory_staff_meta_'.$field['slug'], 
+		              		$studying_levels, get_post_meta( $post->ID, $field['slug'], true ) ); 
+					break;
+				case 'jury' :
+					echo $label; 
+					$jury_members = get_post_meta( $post->ID,$field['slug'], true );
+					if (is_array($jury_members)) {
+						$nb_members = count($jury_members);
+					} else {
+						$nb_members = 0;
+						$jury_members = array();
+					}
+		
+					for ($i=$nb_members; $i<max($nb_members,8); $i++ ) {
+						$jury_members[] = array(
+								'order' => $i+1 ,
+								'function' => '',
+								'name' =>  '',
+								'title' => ''
+						);
+					}
+					?> 
+					<table class="widefat fixed striped" cellspacing="0" id="lab_directory_staff-meta-fields">
+					<thead>
+					<tr>
+					<th id="columnname" scope="col" style="width:5%;">Order</th>
+					<th id="columnname" scope="col" style="width:20%;">Function</th>
+					<th id="columnname" scope="col" style="width:25%;">Name</th>
+					<th id="columnname" scope="col" ">Title, University, enterprise</th>
+					</tr>
+					</thead>
+					<tfoot>
+					<tr>
+					<th id="columnname" scope="col">Order</th>
+					<th id="columnname" scope="col">Function</th>
+					<th id="columnname" scope="col">Name</th>
+					<th id="columnname" scope="col">Title, University, enterprise</th>
+					</tr>
+					</tfoot>
+					
+			        <tbody>
+					<?php 
+					$index = 0;
+					foreach($jury_members as $jury_member) {
+						$index++; 
+						?>
+					<tr>
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_orders[]" style="width:40px;"
+						value="<?php echo $index; ?>"/>
+					</td>
+					<td><?php echo create_select($field['slug'].'_functions[]', 
+		              		$jury_functions, $jury_member['function'], 'input-in-td', true);?>
+					</td>
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_names[]" class="input-in-td" 
+						value="<?php echo $jury_member['name']; ?>"/>
+					</td>
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_titles[]" class="input-in-td" 
+						value="<?php echo $jury_member['title']; ?>"/>
+					</td>
+					</tr>
+					<?php }
+					?>
+					<tr id="add-new-jury-member-row" valign="top">
+		          	<td colspan=4>
+		            <a href="#" class="normal" id="add-new-jury-member">+ Add New jury member</a>
+		          	</td>
+		        	</tr>
+		        	<tr id="new-jury-member">
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_orders[]" style="width:40px;"
+						value="<?php echo $index; ?>"/>
+					</td>
+					<td><?php echo create_select('lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
+		              		$jury_functions, $jury_member['function'], 'input-in-td', true);?>
+					</td>
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_names[]" class="input-in-td" 
+						value="<?php echo $jury_member['firstname_name']; ?>"/>
+					</td>
+					<td><input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_titles[]" class="input-in-td" 
+						value="<?php echo $jury_member['title']; ?>"/>
+					</td>
+					</tr>			
+			        </tbody>
+			        </table>
+					<?php 	
+					break;
+				default : // We should never arrive there !!
+					// TODO But in case we arrive there put a hidden input[] 
+					echo $label; 
+					echo '--' . $field['type'] .'-- '. get_post_meta( $post->ID,$field['slug'], true );
+					break; 
+				}
+		?>
+		</p>
+		<div class="clear"></div> 
+        <?php
+	}
 	static function save_meta_boxes( $post_id ) {
+
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-
+		
 		if ( ! isset( $_POST['lab_directory_staff_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['lab_directory_staff_meta_box_nonce'],
 				'lab_directory_staff_meta_box_nonce_action' )
 		) {
 			return;
 		}
-
+		
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
-
-		foreach ( array_keys( $_POST['lab_directory_staff_meta'] ) as $meta_field_slug ) {
-			update_post_meta( $post_id, $meta_field_slug, esc_attr( $_POST['lab_directory_staff_meta'][ $meta_field_slug ] ) );
+		
+		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
+		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields);
+		
+		
+		// Process form
+		$did_update_options = false;
+		$messages=array();
+		$messages['message_erreur'] = '';
+		$messages['message_ok']= '';
+		
+		// Do this for each group first (to simply add capacity 
+		foreach ($used_groups as $key => $group_name) {
+			// Then do it for each field in a group 
+			foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
+				if ($field['group'] == $key) {
+								
+					Lab_Directory::lab_directory_save_meta_boxes_save_meta($post_id, $field, $lab_directory_meta_field_names[$field['slug']]);
+				}
+			}
 		}
+		
 	}
 
+	static function lab_directory_save_meta_boxes_save_meta($post_id, $field, $field_name){
+	
+		$slug = 'lab_directory_staff_meta_' . $field['slug'];
+		$value = null;
+	
+		switch ($field['type']) {
+			case 'text' :
+				$value = sanitize_text_field($_POST[$slug]); 
+				break;
+			case 'longtext' : 
+				$value = sanitize_text_field($_POST[$slug]);
+				break;
+			case 'textarea' :
+				$value = esc_textarea($_POST[$slug]);
+				break;
+			case 'editor' :
+				$value = esc_textarea($_POST[$slug]);
+				break;
+			case 'date' :
+				$value = lab_directory_strtotime($_POST[$slug], "Y-m-d");
+				break;
+			case 'datetime' :
+				$value = lab_directory_strtotime($_POST[$slug], "Y-m-d h:m"); 
+				break;
+			case 'mail' :
+				$value = sanitize_email($_POST[$slug]);
+				break;
+			case 'url' :
+				$value = esc_url($_POST[$slug]);
+				break;
+			case 'phone_number' :
+				$value = sanitize_text_field($_POST[$slug]);
+				break;
+			case 'studying_level' :
+				$value = sanitize_text_field($_POST[$slug]);
+				break;
+			case 'jury' :
+				$orders = $_POST[$slug . '_orders'];
+				$names = $_POST[$slug . '_names'];
+				$functions = $_POST[$slug . '_functions'];
+				$titles = $_POST[$slug . '_titles'];
+				var_dump($names);
+				$index = 0;
+				
+				$value = array();
+				foreach ( $orders as $order ) {
+					if ($names[ $index ]) { 
+						$value[] = array(
+							'order' => (int) $order,
+							'function' => sanitize_text_field($functions[ $index ]),
+							'name' => sanitize_text_field($names[ $index ]),
+							'title' => sanitize_text_field($titles[ $index ]),
+						);
+					}
+					$index ++;
+				}
+				usort($value, __NAMESPACE__ . '\compare_jury_order');
+				break;
+			default : // We should never arrive there !!
+				// update_post_meta( $post_id, $meta_field_slug, esc_attr( $_POST['lab_directory_staff_meta'][ $meta_field_slug ] ) );
+				$value= esc_attr($_POST[$slug]); 
+				
+				break; 
+		}
+	
+		if ($value !== null) {
+			update_post_meta( $post_id, $field['slug'], $value );
+		}
+	}
+		
 	
 	static function set_default_meta_fields_if_necessary() {
 		$current_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 
-		if ( $current_meta_fields == null || $current_meta_fields = '' ) {
+		if ( $current_meta_fields == null || $current_meta_fields = '' ) {				 
+			$default_meta_fields = array();
+			update_option( 'lab_directory_staff_meta_fields', $default_meta_fields );
+		}
+	}
+
+	static function get_default_meta_fields() {
 					
-				/* $default_meta_fields  list all predefined filed ussable in lab directory 
-				 * 
-				 * structure of this variable: 
-				 * 
-				 * name : the name of the field in english default language (translatable)
-				 * type : type of this field (see $default_type)
-				 * slug : the slug define the field, it cannot be changed
-				 * ldap_field : optionnal ldap field used to import or sync
-				 * multivalue : as defined in $default_multivalue
-				 * hide_frontend : '1' if this field should not be displayed in frontend
-				 * predefined : '1' if this field is predefined by the plugin (always here) 
-				 */
-				 
-			$default_meta_fields = array(
+		/* $default_meta_fields  list all predefined filed ussable in lab directory 
+		 * 
+		 * structure of this variable: 
+		 * 
+		 * name : the name of the field in english default language (translatable)
+		 * type : type of this field (see $default_type)
+		 * slug : the slug define the field, it cannot be changed
+		 * ldap_field : optionnal ldap field used to import or sync
+		 * multivalue : as defined in $default_multivalue
+		 * hide_frontend : '1' if this field should not be displayed in frontend
+		 * predefined : '1' if this field is predefined by the plugin (always here) 
+		 */
+		 
+		$default_meta_fields = array(
+			array(
+				'order' => 1, 
+				'type'=> 'text',
+				'slug' => 'firstname',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),
+			array(
+				'order' => 2, 
+				'type'=> 'text',
+				'slug' => 'name',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),	
+			array(
+				'order' => 3, 
+				'type'=> 'text',
+				'slug' => 'position',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'MV',
+				'hide_frontend' =>'0',				
+				'activated' => '1',
+			),
+			array(
+				'order' => 4,
+				'type'=> 'text',
+				'slug' => 'login',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'1',
+				'activated' => '1',
+			),
+			array(
+				'order' => 5, 
+				'type'=> 'text',
+				'slug' => 'mails',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'MV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),						
+			array(
+				'order' => 6, 
+				'type'=> 'editor',
+				'slug' => 'bio',
+				'group' => 'BIO',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),	
+			array(
+				'order' => 7, 
+				'type'=> 'text',
+				'slug' => 'idhal',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),						
 				array(
-					'type' => 'text',
-					'slug' => 'firstname',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
-					'hide_frontend' =>'0',
-					'activated' => '1',
+				'order' => 8,
+				'type'=> 'url',
+				'slug' => 'photo_url',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
 				),
-				array(
-					'type' => 'text',
-					'slug' => 'name',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+			array(
+				'order' => 9, 
+				'type'=> 'url',
+				'slug' => 'webpage',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'SV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),
+			array(
+				'order' => 10, 
+				'type'=> 'text',
+				'slug' => 'function',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'MV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),
+			array(
+				'order' => 11, 
+				'type'=> 'text',
+				'slug' => 'title',
+				'group' => 'CV',
+				'ldap_field' => '',
+				'multivalue' => 'MV',
+				'hide_frontend' =>'0',
+				'activated' => '1',
+			),
+			array(
+					'order' => 12, 
+				'type'=> 'text',
+					'slug' => 'phone',
+					'group' => 'CV',
+				'ldap_field' => '',
+					'multivalue' => 'MV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),	
-				array(
-					'type' => 'text',
-					'slug' => 'position',
-					'ldap_field' => '',
-					'multivalue' => 'mv',
-					'hide_frontend' =>'0',				
-					'activated' => '1',
-				),
-				array(
-					'type' => 'text',
-					'slug' => 'login',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 13, 
+				'type'=> 'text',
+					'slug' => 'fax',
+					'group' => 'CV',
+				'ldap_field' => '',
+					'multivalue' => 'MV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 14, 
+				'type'=> 'text',
+					'slug' => 'office',
+					'group' => 'CV',
+				'ldap_field' => '',
+					'multivalue' => 'MV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 15, 
+				'type'=> 'text',
+					'slug' => 'team',
+					'group' => 'CV',
+				'ldap_field' => '',
+					'multivalue' => 'MV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 16, 
+				'type'=> 'date',
+					'slug' => 'exit_date',
+					'group' => 'CV',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'1',
-					'activated' => '1',
-				),
-				array(
-					'type' => 'text',
-					'slug' => 'mails',
-					'ldap_field' => '',
-					'multivalue' => 'mv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 17, 
+				'type'=> 'longtext',
+					'slug' => 'hdr_subject',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),						
-				array(
-					'type' => 'longtext',
-					'slug' => 'bio',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 18, 
+				'type'=> 'date',
+					'slug' => 'hdr_date',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),	
-				array(
-					'type' => 'text',
-					'slug' => 'idhal',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 19, 
+				'type'=> 'text',
+					'slug' => 'hdr_location',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),						
-					array(
-					'type' => 'url',
-					'slug' => 'photo_url',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 22, 
+				'type'=> 'jury',
+					'slug' => 'hdr_jury',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-					),
-				array(
-					'type' => 'url',
-					'slug' => 'webpage',
-					'ldap_field' => '',
-					'multivalue' => 'sv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 21, 
+				'type'=> 'longtext',
+					'slug' => 'hdr_resume',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),
-				array(
-					'type' => 'text',
-					'slug' => 'function',
-					'ldap_field' => '',
-					'multivalue' => 'mv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 22, 
+				'type'=> 'date',
+					'slug' => 'phd_start_date',
+					'group' => 'HDR',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),
-				array(
-					'type' => 'text',
-					'slug' => 'title',
-					'ldap_field' => '',
-					'multivalue' => 'mv',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 23, 
+				'type'=> 'longtext',
+					'slug' => 'phd_subject',
+					'group' => 'doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
 					'hide_frontend' =>'0',
-					'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'phone',
-						'ldap_field' => '',
-						'multivalue' => 'mv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'fax',
-						'ldap_field' => '',
-						'multivalue' => 'mv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'office',
-						'ldap_field' => '',
-						'multivalue' => 'mv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'team',
-						'ldap_field' => '',
-						'multivalue' => 'mv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'exit_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'1',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'hdr_subject',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'hdr_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'hdr_location',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'jury',
-						'slug' => 'hdr_jury',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'hdr_resume',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'phd_start_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'phd_subject',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'phd_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'phd_location',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'jury',
-						'slug' => 'phd_jury',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'phd_resume',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),						
-				array(
-						'type' => 'date',
-						'slug' => 'post_doc_start_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),			
-				array(
-						'type' => 'date',
-						'slug' => 'post_doc_end_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'post_doc_subject',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'internship_start_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'internship_end_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'internship_subject',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'internship_resume',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'studying_school',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'studying_level',
-						'slug' => 'studying_level',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'invitation_start_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'invitation_end_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'invitation_goal',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'invited_position',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'invited_origin',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'cdd_start_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'date',
-						'slug' => 'cdd_end_date',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'text',
-						'slug' => 'cdd_goal',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),
-				array(
-						'type' => 'longtext',
-						'slug' => 'cdd_position',
-						'ldap_field' => '',
-						'multivalue' => 'sv',
-						'hide_frontend' =>'0',
-			 			'activated' => '1',
-				),						
-					
-			);
-			for ($i = 1; $i <= 10; $i++) {
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 24, 
+				'type'=> 'date',
+					'slug' => 'phd_date',
+					'group' => 'doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 25, 
+				'type'=> 'text',
+					'slug' => 'phd_location',
+					'group' => 'doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 26, 
+				'type'=> 'jury',
+					'slug' => 'phd_jury',
+					'group' => 'doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 27, 
+				'type'=> 'longtext',
+					'slug' => 'phd_resume',
+					'group' => 'doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),						
+			array(
+					'order' => 28, 
+				'type'=> 'date',
+					'slug' => 'post_doc_start_date',
+					'group' => 'post-doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),			
+			array(
+					'order' => 29, 
+				'type'=> 'date',
+					'slug' => 'post_doc_end_date',
+					'group' => 'post-doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 30, 
+				'type'=> 'longtext',
+					'slug' => 'post_doc_subject',
+					'group' => 'post-doctorate',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 31, 
+				'type'=> 'date',
+					'slug' => 'internship_start_date',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 32, 
+				'type'=> 'date',
+					'slug' => 'internship_end_date',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 32.1, 
+				'type'=> 'text',
+					'slug' => 'internship_subject',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 32.2, 
+				'type'=> 'longtext',
+					'slug' => 'internship_resume',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 33, 
+				'type'=> 'longtext',
+					'slug' => 'studying_school',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 34, 
+				'type'=> 'studying_level',
+					'slug' => 'studying_level',
+					'group' => 'internship',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 35, 
+				'type'=> 'date',
+					'slug' => 'invitation_start_date',
+					'group' => 'invited',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 36, 
+				'type'=> 'date',
+					'slug' => 'invitation_end_date',
+					'group' => 'invited',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 37, 
+				'type'=> 'text',
+					'slug' => 'invitation_goal',
+					'group' => 'invited',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 38, 
+				'type'=> 'longtext',
+					'slug' => 'invited_position',
+					'group' => 'invited',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 39, 
+				'type'=> 'longtext',
+					'slug' => 'invited_origin',
+					'group' => 'invited',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 40, 
+				'type'=> 'date',
+					'slug' => 'cdd_start_date',
+					'group' => 'CDD',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 41, 
+				'type'=> 'date',
+					'slug' => 'cdd_end_date',
+					'group' => 'CDD',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 42, 
+				'type'=> 'text',
+					'slug' => 'cdd_goal',
+					'group' => 'CDD',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),
+			array(
+					'order' => 43, 
+				'type'=> 'longtext',
+					'slug' => 'cdd_position',
+					'group' => 'CDD',
+				'ldap_field' => '',
+					'multivalue' => 'SV',
+					'hide_frontend' =>'0',
+		 			'activated' => '1',
+			),						
+				
+		);
+	for ($i = 1; $i <= 10; $i++) {
 				$default_meta_fields[] = array(
-						'type' => 'text',
+						'order' => 50+$i, 
+				'type'=> 'text',
 						'slug' => "custom_$i",
-						'ldap_field' => '',
-						'multivalue' => 'sv',
+						'group' => 'others',
+					'ldap_field' => '',
+						'multivalue' => 'SV',
 						'hide_frontend' =>'0',
 						'activated' => '0',
 				);
 			}
 				
-			update_option( 'lab_directory_staff_meta_fields', $default_meta_fields );
-		}
+	return $default_meta_fields;
 	}
 
 	#
@@ -929,7 +1412,25 @@ EOT;
 			$query->set( 'order', $order );
 		}
 	}
-
+	
+	/** 
+	 * Remove quick-edit action
+	 */
+	static function modify_quick_edit( $actions ) {
+		
+	if( get_post_type() === 'lab_directory_staff' ) {
+        // unset( $actions['edit'] );
+        unset( $actions['view'] );
+        unset( $actions['trash'] );
+        unset( $actions['inline hide-if-no-js'] );
+		}
+    $actions['inline hide-if-no-js'] = '<a href="edit.php?post_type=lab_directory_staff&page=modify-staff-statute" title="">';
+    $actions['inline hide-if-no-js'] .= __( 'Change staff statute' );
+    $actions['inline hide-if-no-js'] .= '</a>';
+		return $actions;
+	}
+	
+	
 	static function add_lab_directory_staff_categories_admin_filter(){
     global $post_type;
 
@@ -976,6 +1477,8 @@ EOT;
 	public function get_lab_directory_meta_field_input_types() {
 
 		// Define the default type and the input type to use for input
+		
+		// Deprecatedand unused , don't use this 
 		$default_type_input_types = array(
 			'text' =>'text',
 			'mail' =>'text',
@@ -998,12 +1501,36 @@ EOT;
 			'url' =>__( 'URL', 'lab-directory'),
 			'phone_number' =>__( 'Phone number', 'lab-directory'),
 			'date' =>__( 'Date', 'lab-directory'),
+			'datetime' =>__( 'Date and Time', 'lab-directory'),
 			'long_text' =>__( 'Long text', 'lab-directory'),
+			'studying_level' => __( 'Studying_level', 'lab-directory'),
+			'editor' =>__( 'HTML Text', 'lab-directory'),
 			'jury' =>__( 'Jury', 'lab-directory'),
 		);
 		return $default_type_texts; 
 	}
 
+	function get_lab_directory_default_group_names() {
+	
+		// Define the default groups used for meta field grouping
+		$groups = array(
+				/* translators: CV Curriculum Vitae (no need to translate this) */ 
+				'CV' => __( 'CV', 'lab-directory'),
+				'BIO' => __('Biography', 'lab-directory'),
+				/* translators: HDR frecnh acronym for Habilitation à Diriger les Recherches */
+				'HDR' =>__( 'HDR', 'lab-directory'),
+				'doctorate' =>__( 'Doctorate', 'lab-directory'),
+				'post-doctorate' =>__( 'Post-doctorate', 'lab-directory'),
+				'internship' =>__( 'Internship', 'lab-directory'),
+				'invited' =>__( 'Invited', 'lab-directory'),
+				/* translators: CDD is a french acronym for Fixed term contract*/ 
+				'CDD' =>__( 'CDD', 'lab-directory'),
+				'others' =>__( 'Others', 'lab-directory'),		
+		);
+		return $groups;
+	}
+	
+	
 	public function get_lab_directory_multivalues() {
 		
 		// Define the list of option related to single and multivalue of fields
@@ -1018,6 +1545,47 @@ EOT;
 			'CR' => __('Carriage return separated values', 'lab-directory') . $note1,
 		);
 		return $default_multivalue;
+	}
+
+	public function get_lab_directory_studying_levels() {
+	
+		// Define the list of studying levels
+		$studying_levels = array(
+	
+		'L1' => __('L1 (Bachelor  1st year)', 'lab-directory'),
+		'L2' => __('L2 (Bachelor 2nd year)', 'lab-directory'),
+		'L3' => __('L3 (Bachelor 3rd yaer)', 'lab-directory'),
+		'M1' => __('M1 (Master 1st year)', 'lab-directory'),
+		'M2' => __('M2 (Master 2ème année)', 'lab-directory'),
+		'ING' => __('Engineering School', 'lab-directory'),
+			);
+	return $studying_levels;
+	}
+	
+	public function get_lab_directory_jury_functions() {
+	
+		// Define the list of function use in HDR and PHD jury
+		$jury_functions = array(
+	
+	'guarantor' => 'Garant de la HDR',
+	'chairman' => 'President',
+	'chairwoman' => 'Presidente',
+	'director' => 'Directeur',
+	'directress' => 'Directrice',
+	'directors' => 'Directeurs',
+	'examiner' => 'Examinateur',
+	/* translator examiner (female)*/
+	'examiner_f' => 'Examinatrice',
+	'examiners' => 'Examinateurs',
+	'referee' => 'Rapporteur',
+	/* translator referee (female)*/
+	'referee_f' => 'Rapportrice',
+	'referees' => 'Rapporteurs',
+	'invited' => 'Invité',
+	'invited_f' => 'Invitée',
+	'inviteds' => 'Invités',
+			);
+	return $jury_functions;
 	}
 	
 	static function get_lab_directory_ldap_attributes() {
@@ -1073,15 +1641,19 @@ EOT;
 				'internship_resume' => __( 'Internship resume', 'lab-directory'),
 				'studying_school' => __( 'Studying school', 'lab-directory'),
 				'studying_level' => __( 'Studying level', 'lab-directory'),
-				'invitation_start_date' => __( 'Invitation start date', 'lab-directory'),
-				'invitation_end_date' => __( 'Invitation end date', 'lab-directory'),
+				'invitation_start_date' => __( 'Start date', 'lab-directory'),
+				'invitation_end_date' => __( 'End date', 'lab-directory'),
 				'invitation_goal' => __( 'Invitation goal', 'lab-directory'),
-				'invited_position' => __( 'Invited position', 'lab-directory'),
+				'invited_position' => __( 'Position', 'lab-directory'),
 				'invited_origin' => __( 'Invited origin', 'lab-directory'),
-				'cdd_start_date' => __( 'Fixed-term contract start date', 'lab-directory'),
-				'cdd_end_date' => __( 'Fixed-term contract end date', 'lab-directory'),
-				'cdd_goal' => __( 'Fixed-term contract goal', 'lab-directory'),
-				'cdd_position' => __( 'Fixed-term contract position', 'lab-directory'),
+				/* translators Fixed term contract information */
+				'cdd_start_date' => __( 'Contract start date', 'lab-directory'),
+				/* translators Fixed term contract information */
+				'cdd_end_date' => __( 'Contract end date', 'lab-directory'),
+				/* translators Fixed term contract information */
+				'cdd_goal' => __( 'Contract goal', 'lab-directory'),
+				/* translators Fixed term contract information */
+				'cdd_position' => __( 'Occupied position', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
 				'custom_1' => __( 'custom_fields_1', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
@@ -1105,5 +1677,20 @@ EOT;
 		);
 		return $default_meta_field_names;
 	}
+}
 
-} 
+function lab_directory_strtotime($time, $format="Y-m-d") {
+	$out = ''; 
+	if ($time) {
+		$out = date($format, strtotime($time));
+	}
+	return $out; 
+}
+
+function compare_jury_order($a, $b)
+{
+	return (int)$a['order']-(int)$b['order'];
+}
+
+
+	

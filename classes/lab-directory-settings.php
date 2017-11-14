@@ -58,10 +58,19 @@ class Lab_Directory_Settings {
 		update_option( 'lab_directory_custom_templates', $updated_templates_array );
 	}
 
+	public function reset_custom_lab_directory_staff_meta_fields() {
+		// sort by activated, then by order
+		$meta_fields_array = Lab_Directory::get_default_meta_fields(); 
+		usort($meta_fields_array, __NAMESPACE__ . '\compare_order');
+		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
+		
+	}
+	
 	public function update_custom_lab_directory_staff_meta_fields()  {
 		
 		$slugs = $_POST['lab_directory_staff_meta_fields_slugs'];
 		$types = $_POST['lab_directory_staff_meta_fields_types'];
+		$groups = $_POST['lab_directory_staff_meta_fields_groups'];
 		$activateds = $_POST['lab_directory_staff_meta_fields_activateds'];
 		$orders = $_POST['lab_directory_staff_meta_fields_orders'];
 		$multivalues = $_POST['lab_directory_staff_meta_fields_multivalues'];
@@ -74,7 +83,9 @@ class Lab_Directory_Settings {
 		foreach ( $slugs as $slug ) {
 			$meta_fields_array[] = array(
 					'slug' => $slug,
-					'type' => $types[ $index ],
+					'order' => $orders[ $index ],
+					'type'=> $types[ $index ],
+					'group' => $groups[ $index ],
 					'activated' => $activateds[ $index ],
 					'order' => $orders[ $index ],
 					'multivalue' => $multivalues[ $index ],
@@ -364,7 +375,10 @@ class Lab_Directory_Settings {
 		if ($test){ $messages['message_ok'] .= '<br><b>Il y a '. $nb_fiches . " entrées dans l'annuaire LDAP </b><br/> \n";}
 		ldap_close($ds);
 
-		global $wpdb;		
+		global $wpdb;	
+		
+		//TODO revoir pour les MV CR
+		// et pour les mails si MV 
 		for ($i=0; $i<$entrees_ldap["count"]; $i++) {
 	
 			$mails='';
@@ -590,7 +604,8 @@ class Lab_Directory_Settings {
 	 *
 	 $meta_fields_array[] = array(
 	 'slug' => $slug,
-	 'type' => $types[ $index ],
+	 'order' => 2, 
+				'type'=> $types[ $index ],
 	 'activated' => $activateds[ $index ],
 	 'order' => $orders[ $index ],
 	 );
@@ -632,7 +647,32 @@ class Lab_Directory_Settings {
 		$LDAPattributes = array_values($LDAPattributes);
 		return $LDAPattributes;
 	}
+
+	/*
+	 Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
+	
+	 */
+	function get_used_groups($active_meta_fields = null){
+	
+		if (! $active_meta_fields) {return false; }
+		$group_activations = get_option( 'lab_directory_group_activations' ) ;
+		
+		$group_names = Lab_Directory::get_lab_directory_default_group_names();
+		$used_groups = array();
+		// TODO add group activation detection 
+		foreach ($active_meta_fields as $active_meta_field)
+		{
+			$group = $active_meta_field['group'];
+			if ($group AND !array_key_exists ( $group , $used_groups) ) {
+				$used_groups[$group] = $group_names[$group];
+			}
+		}
+	
+		return $used_groups;
+	}
+
 }
+
 
 function compare_order($a, $b)
 {

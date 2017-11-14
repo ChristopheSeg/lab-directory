@@ -6,6 +6,8 @@ class Lab_Directory_Admin {
 	}
 
 	static function add_admin_menu_items() {
+		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Add staff', 'Add staff', 'publish_posts',
+			'add-staff', array( 'Lab_Directory_Admin', 'addstaff' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
@@ -20,7 +22,8 @@ class Lab_Directory_Admin {
 		$tabs = array(
 				'general'   => __( 'General', 'lab-directory' ),
 				'ldap'   => __( 'LDAP server', 'lab-directory' ),
-				'fields'  => __( 'Directory fields', 'lab-directory' ),
+				'groups'   => __( 'Meta fields groups', 'lab-directory' ),
+				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
 				'acronyms'   => __( 'Acronyms', 'lab-directory' ),
 				'taxonomy'  => __( 'Taxonomies', 'lab-directory' ),
@@ -37,6 +40,9 @@ class Lab_Directory_Admin {
 		
 		if ( $current_tab == 'general' ) {
 			Lab_Directory_Admin::settings_general();
+		}
+		elseif ( $current_tab == 'groups' ) {
+			Lab_Directory_Admin::settings_groups();
 		}
 		elseif ( $current_tab == 'fields' ) {
 			Lab_Directory_Admin::settings_fields();
@@ -151,21 +157,25 @@ class Lab_Directory_Admin {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$did_update_options = false;
+		$did_reset_options = false;
 
-		// Check $_POST and _wpnonce
-		if(isset($_POST['admin-settings-fields'])) {
-			if ( !empty($_POST['admin-settings-fields']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
+		// Check $_POST and _wpnonce	
+		if ( isset($_POST['admin-settings-fields']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
 
-				// Process/save form fields
-				if ( isset( $_POST['lab_directory_staff_meta_fields_slugs'] ) ) {
+			// Process/save form fields
+			if ( isset( $_POST['lab_directory_staff_meta_fields_slugs'] ) ) {
 
-					$lab_directory_staff_settings->update_custom_lab_directory_staff_meta_fields();
-					$did_update_options = true;
-				}
-			}else{
-				// Error
-				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
+				$lab_directory_staff_settings->update_custom_lab_directory_staff_meta_fields();
+				$did_update_options = true;
 			}
+				
+		}elseif ( isset($_POST['admin-resettings-fields']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
+			// reset meta fields
+			$lab_directory_staff_settings->reset_custom_lab_directory_staff_meta_fields();
+			$did_reset_options = true;
+		}else{
+			// Error
+			echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 		}
 		
 		$use_ldap = (get_option( 'lab_directory_use_ldap' ) == '1');
@@ -211,6 +221,46 @@ class Lab_Directory_Admin {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-ldap.php' );
 	}
 
+	static function settings_groups() {
+		
+		$default_group_names = Lab_Directory::get_lab_directory_default_group_names();
+		$group_activations = get_option( 'lab_directory_group_activations' ) ;
+		
+		if (!is_array($group_activations)) {
+			//Initiate $group_activations (fist use)
+			$group_activations = array();
+			foreach ($default_group_names as $key =>$default_group_name) {
+				$group_activations[$key] = true;
+			}
+		}
+		// Always activate CV
+		$group_activations['CV'] = true;
+		
+		// Check $_POST and _wpnonce
+		if(isset($_POST['admin-settings-groups'])) {
+			if ( !empty($_POST['admin-settings-groups']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-groups' )){
+					// Process form
+					foreach ($default_group_names as $key =>$default_group_name) {
+						if (isset($_POST['activated_'.$key])) {
+							$group_activations[$key] = true;
+						} else {
+							$group_activations[$key] = false;
+							}
+					}	
+			}else{
+				// Error
+				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
+			}
+		// Always activate CV
+		$group_activations['CV'] = true;
+			update_option( 'lab_directory_group_activations', $group_activations);
+		}
+			
+		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-groups.php' );
+		
+		
+	}
+	
 	static function settings_acronyms() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -407,5 +457,10 @@ class Lab_Directory_Admin {
 
 		<?php
 	}
+	static function addstaff() {
+		require_once( plugin_dir_path( __FILE__ ) . '../views/edit.php' );
+	}
+	
+	
 
 }
