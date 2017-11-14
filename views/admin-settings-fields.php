@@ -61,7 +61,7 @@ jQuery(document).ready(function($){
     <table class="widefat fixed striped" cellspacing="0" id="lab_directory_staff-meta-fields">
       <thead>
        <tr>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Order</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Order <a href="#footnote" title="Note"><sup>(1)</sup></a></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Name</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
@@ -77,7 +77,7 @@ jQuery(document).ready(function($){
 
       <tfoot>
         <tr>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Order</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Order <a href="#footnote" title="Note"><sup>(1)</sup></a></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Name</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
@@ -124,7 +124,7 @@ jQuery(document).ready(function($){
             <td>
                	<?php echo create_select('lab_directory_staff_meta_fields_groups[]', 
               		$lab_directory_group_names, $field['group'], 'input-in-td', false, !$custom); 
-					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Jump to Footnotes at end of page"><sup>(1)</sup></a>');    
+					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
 					
                	?>
 			</td>
@@ -169,4 +169,5 @@ jQuery(document).ready(function($){
   <?php wp_nonce_field('admin-settings-fields', '_wpnonce'); ?>
 </form>
 <h4 id="footnote">Notes</h4>
-<p>1. This group of field is disabled. Corresponding field will not be used in the directory (even if it is activated). </p>
+<p>1. If order is set to n, the corresponding fiels will be place just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
+<p>2. This group of field is disabled. Corresponding field will not be used in the directory (even if it is activated). </p>

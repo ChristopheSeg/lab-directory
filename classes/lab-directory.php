@@ -2,6 +2,9 @@
 
 class Lab_Directory {
 
+	// messages for forms
+	private static $messages = array(); 
+	
 	#
 	# Init custom post types
 	#
@@ -45,7 +48,7 @@ class Lab_Directory {
 			array(
 				'labels'     => array(
 					'name' => __( 'Lab_dir_Staff' ), 
-						'add_new' => 'test_add new staff', // This only change the title
+						'add_new' => 'add new staff', // This only change the title
 				),
 				'supports'   => array(
 					// 'title',
@@ -211,21 +214,59 @@ class Lab_Directory {
 			'Lab_Directory',
 			'lab_directory_staff_meta_box_output'
 		), 'lab_directory_staff', 'normal', 'high' );
-		add_meta_box( 'lab_directory_staff-meta-box_statut', __( 'Staff Statute' ), array(
+		add_meta_box( 'lab_directory_staff-meta-box_statut', __( 'Staff status' ), array(
 			'Lab_Directory',
 			'lab_directory_staff_meta_box_statut'
-		), 'lab_directory_staff', 'side', 'high' );
+		), 'lab_directory_staff', 'normal', 'high' );
 	}
 
 	/* 
-	 * Simply add a link to change statut page
+	 * Simply add a metabox to change statut of this staff
 	 */
 	 
 	static function lab_directory_staff_meta_box_statut( $post ) {
-		?>
-		<a href="edit.php?post_type=lab_directory_staff&page=modify-staff-statute" title="">
-	    <?php _e( 'Change staff statute', 'lab-directory') ; ?>
-	    </a>
+		
+		$statuss = Lab_Directory::get_lab_directory_default_statuss();
+		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+		$group_activations = get_option( 'lab_directory_group_activations' ) ;
+		
+		foreach ($statuss as $key =>$status) {
+			$staff_status = false; 
+			// TODO add capability 
+			
+			$activated = false; 
+			if ( ( $key=='permanent' )  OR ($key=='administrator') 
+					OR 
+					(isset ($group_activations[$key]) AND $group_activations[$key])) {
+				$activated = true; 
+			}
+			$disabled = $activated? '':'disabled ';  
+			// initially  is not set  
+			if (isset($staff_statuss[$key])){
+				$staff_status = $staff_statuss[$key];
+			}
+			
+			?>
+			<p>
+			<?php if (!$activated) {echo '<span class="dashicons dashicons-lock"></span>';} else {echo '<span class="dashicons"></span>';}
+			?>
+			<input name="status_<?php echo $key; ?>" type="checkbox" <?php echo $disabled; ?> value="1" <?php checked( true, $staff_status ); ?> /> 
+			<?php 
+			echo $statuss[$key]; 
+			?>
+			</p>
+
+			<?php 
+		}
+		?> 
+		<p>
+		<button name="save" class="button button-primary button-large" id="publish2" value="Update_Status" type="submit"><?php _e('Update staff status')?></button>
+    	</p>
+    	<p>
+		Note: Staff details and staff status cannot be modified at the same time. Please, first modify staff status, then modify staff details.  
+    	</p>
+    	<p><span class="dashicons dashicons-lock"></span> When this lock is displayed the corresponding group is disabled.</p>
+    
 		<?php 
 	}
 	
@@ -234,9 +275,11 @@ class Lab_Directory {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields);
 		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
+		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss);
+		
 		?> 
 		<script type="text/javascript">
 		jQuery(document).ready(function($){
@@ -272,9 +315,12 @@ class Lab_Directory {
 		<?php
 		// Display Form 
 		?>
-		<form method="post">
+	
 
-		<?php if($did_update_options): ?>
+		<?php 
+		$messages = get_post_meta( $post->ID, 'messages', true);
+		delete_post_meta( $post->ID, 'messages');
+		if($did_update_options): ?>
 		  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
 		    <p>Settings updated.</p>
 		  </div>
@@ -291,6 +337,10 @@ class Lab_Directory {
 			  </div>
 		  <?php endif; ?>
 		<?php endif;?>
+		
+		<?php 
+		
+		?>
    
      <div id="demoTabsId" class="labDirectoryTabsClass">
         <ul>
@@ -316,8 +366,9 @@ class Lab_Directory {
        
     </div>
     <p>
-    <input name="save" class="button button-primary button-large" id="publish2" value="Update" type="submit">
+    <button name="save" class="button button-primary button-large" id="publish2" value="Update" type="submit"><?php _e('Update')?></button>
     </p>
+    <p><span class="dashicons dashicons-lock"></span> When this lock is displayed the correponding field is synced with LDAP and cannot be modified.</p>
     <?php wp_nonce_field( 'lab_directory_staff_meta_box_nonce_action', 'lab_directory_staff_meta_box_nonce' ); ?>
     
 		<?php
@@ -325,51 +376,69 @@ class Lab_Directory {
 
 	function lab_directory_staff_meta_box_render_input($post, $field, $field_name, $studying_levels, $jury_functions ){
 		
-		$label = '<label for="lab_directory_staff_meta_' . $field['slug'] . '" class="lab_directory_staff-label">'. 
-			$field_name .'</label>';
-		echo '<p>'; 
-		
-		
-		// TODO disable depending on capability , LDAP...
-		$mv_cr=false; // only true if "multiple values separated with CR" used
-		
-		switch ($field['multivalue']) {
-			case ',' :
-				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __("Comma (,) separated values", 'lab-directory') . ')</i>';
-				break; 
-			case ';' :
-				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Semicolumn (;) separated values', 'lab-directory') . ')</i>';
-				break; 
-			case  '|' :
-				$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Vertical bar (|) separated values', 'lab-directory') . ')</i>';
-				break; 
-			case 'MV': 
-			case 'CR':	
-				$mv = '<br /><i>' . __('This entry accept multiple values (one value per line, values separated by a carriage return)', 'lab-directory') . ')</i>';
-				$mv_cr=true; 
-				break; 
-			default: 
-				$mv = '';
-				break; 
-				
-		}
 	
-		$field_type = $field['type'] ; 
-		// override $field_type in case of multiple value accepted 
-		if ($mv_cr){
-			// Switch to a textarea as input because value separated by a CR 
-			if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')
-					 OR ($field_type == 'longtext') )  {
-				$field_type = 'textarea'; 
+		$field_type = $field['type'] ;
+
+		// TODO disable input depending on capability , LDAP...
+		
+		// Disable input when field is synsced with LDAP 
+		if (isset($field['ldap_attribute'])) {
+			if ($field['ldap_attribute']){ 
+				$field_type = 'disabled';
 			}
 		}
-		elseif ($mv) {
-			// else switch to a longtext
-			if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')) {
-				$field_type = 'long_text';
-			}		
-		}
 		
+		if ($field_type != 'disabled') {
+			// handle Multivalue
+			$mv_cr=false; // only true if "multiple values separated with CR" used
+			
+			switch ($field['multivalue']) {
+				case ',' :
+					$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __("Comma (,) separated values", 'lab-directory') . ')</i>';
+					break;
+				case ';' :
+					$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Semicolumn (;) separated values', 'lab-directory') . ')</i>';
+					break;
+				case  '|' :
+					$mv = '<br /><i>' . __('This entry accept multiple values', 'lab-directory') . ' (' . __('Vertical bar (|) separated values', 'lab-directory') . ')</i>';
+					break;
+				case 'MV':
+				case 'CR':
+					$mv = '<br /><i>' . __('This entry accept multiple values (one value per line, values separated by a carriage return)', 'lab-directory') . ')</i>';
+					$mv_cr=true;
+					break;
+				default:
+					$mv = '';
+					break;
+			
+			}
+			
+			
+			// override $field_type in case of multiple value accepted
+			if ($mv_cr){
+				// Switch to a textarea as input because value separated by a CR
+				if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')
+						OR ($field_type == 'longtext') )  {
+							$field_type = 'textarea';
+						}
+			}
+			elseif ($mv) {
+				// else switch to a longtext
+				if (($field_type == 'text') OR ($field_type == 'mail') OR ($field_type == 'url') OR ($field_type == 'phone_number')) {
+					$field_type = 'long_text';
+				}
+			}
+		}
+
+		$label = '<label for="lab_directory_staff_meta_' . $field['slug'] . '" class="lab_directory_staff-label">'.
+				$field_name ;
+		
+		// Label 
+		if ($field_type == 'disabled') {
+			$label .= '<span class="dashicons dashicons-lock"></span>';
+		}
+		$label .='</label>';
+		echo '<p>';		
 		switch ($field_type) {
 			case 'text' :
 			case 'mail' :
@@ -507,10 +576,11 @@ class Lab_Directory {
 			        </table>
 					<?php 	
 					break;
+				case 'disabled' : 
 				default : // We should never arrive there !!
-					// TODO But in case we arrive there put a hidden input[] 
-					echo $label; 
-					echo '--' . $field['type'] .'-- '. get_post_meta( $post->ID,$field['slug'], true );
+					// Only display field value
+					echo $label;
+					echo get_post_meta( $post->ID,$field['slug'], true );
 					break; 
 				}
 		?>
@@ -519,7 +589,8 @@ class Lab_Directory {
         <?php
 	}
 	static function save_meta_boxes( $post_id ) {
-
+		
+				
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -529,7 +600,18 @@ class Lab_Directory {
 		) {
 			return;
 		}
+		if ($_POST['save']=='Update_Status'){
+			// Update staff status
+			$statuss = Lab_Directory::get_lab_directory_default_statuss();
+			$staff_statuss = array(); 
+			foreach ($statuss as $key =>$status) {
+				$staff_statuss[$key] = isset($_POST['status_'.$key]); 					
+			}
+			update_post_meta( $post_id, 'staff_statuss', $staff_statuss);
+			return; 
+		}
 		
+		// Else update staff entry 
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
@@ -537,14 +619,19 @@ class Lab_Directory {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields);
+		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss);
 		
 		
-		// Process form
+		// Process form 
+		// TODO this is not displayed !!
 		$did_update_options = false;
-		$messages=array();
-		$messages['message_erreur'] = '';
-		$messages['message_ok']= '';
+		$messages = array();
+		$messages['message_erreur'] = 'test erreur';
+		$messages['message_ok']= 'test';
+		// Notice: this error detection fails if 2 users save the same staff detail at the same time
+		update_post_meta( $post_id, 'messages', $messages);
+		
 		
 		// Do this for each group first (to simply add capacity 
 		foreach ($used_groups as $key => $group_name) {
@@ -556,6 +643,7 @@ class Lab_Directory {
 				}
 			}
 		}
+		return; 
 		
 	}
 
@@ -1424,9 +1512,6 @@ EOT;
         unset( $actions['trash'] );
         unset( $actions['inline hide-if-no-js'] );
 		}
-    $actions['inline hide-if-no-js'] = '<a href="edit.php?post_type=lab_directory_staff&page=modify-staff-statute" title="">';
-    $actions['inline hide-if-no-js'] .= __( 'Change staff statute' );
-    $actions['inline hide-if-no-js'] .= '</a>';
 		return $actions;
 	}
 	
@@ -1517,7 +1602,7 @@ EOT;
 				/* translators: CV Curriculum Vitae (no need to translate this) */ 
 				'CV' => __( 'CV', 'lab-directory'),
 				'BIO' => __('Biography', 'lab-directory'),
-				/* translators: HDR frecnh acronym for Habilitation à Diriger les Recherches */
+				/* translators: HDR french acronym for Habilitation à Diriger les Recherches */
 				'HDR' =>__( 'HDR', 'lab-directory'),
 				'doctorate' =>__( 'Doctorate', 'lab-directory'),
 				'post-doctorate' =>__( 'Post-doctorate', 'lab-directory'),
@@ -1529,6 +1614,27 @@ EOT;
 		);
 		return $groups;
 	}
+
+	function get_lab_directory_default_statuss() {
+	
+		// Define the default groups used for meta field grouping
+		$statuss = array(
+				/* translators: CV Curriculum Vitae (no need to translate this) */
+				'permanent' => __( 'Permanent staff', 'lab-directory'),
+				'administrator' => __('Administrative staff', 'lab-directory'),
+				/* translators: HDR french acronym for Habilitation à Diriger les Recherches */
+				'HDR' =>__( 'HDR', 'lab-directory'),
+				'doctorate' =>__( 'Doctorate', 'lab-directory'),
+				'post-doctorate' =>__( 'Post-doctorate', 'lab-directory'),
+				'internship' =>__( 'Internship', 'lab-directory'),
+				'invited' =>__( 'Invited', 'lab-directory'),
+				/* translators: CDD is a french acronym for Fixed term contract*/
+				'CDD' =>__( 'CDD', 'lab-directory'),
+				'Others' =>__( 'Others', 'lab-directory'), 
+		);
+		return $statuss;
+	}
+	
 	
 	
 	public function get_lab_directory_multivalues() {

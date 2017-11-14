@@ -6,8 +6,6 @@ class Lab_Directory_Admin {
 	}
 
 	static function add_admin_menu_items() {
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Add staff', 'Add staff', 'publish_posts',
-			'add-staff', array( 'Lab_Directory_Admin', 'addstaff' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
@@ -22,7 +20,7 @@ class Lab_Directory_Admin {
 		$tabs = array(
 				'general'   => __( 'General', 'lab-directory' ),
 				'ldap'   => __( 'LDAP server', 'lab-directory' ),
-				'groups'   => __( 'Meta fields groups', 'lab-directory' ),
+				'groups'   => __( 'Groups of fields', 'lab-directory' ),
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
 				'acronyms'   => __( 'Acronyms', 'lab-directory' ),

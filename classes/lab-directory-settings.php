@@ -207,7 +207,7 @@ class Lab_Directory_Settings {
 		
 		if ($test) {
 			write_log('TEST LDAP', 'Annuaire', _LOG_INFO);
-			$messages=array();
+			
 			$messages['message_erreur'] = '';
 			$messages['message_ok']= "Debut du TEST IMPORT LDAP<br>\n";
 			$messages['message_ok']= "Filtre de test: $filter<br>\n";
@@ -652,18 +652,20 @@ class Lab_Directory_Settings {
 	 Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
 	
 	 */
-	function get_used_groups($active_meta_fields = null){
+	function get_used_groups($active_meta_fields = null , $staff_statuss=null){
 	
 		if (! $active_meta_fields) {return false; }
 		$group_activations = get_option( 'lab_directory_group_activations' ) ;
-		
 		$group_names = Lab_Directory::get_lab_directory_default_group_names();
 		$used_groups = array();
-		// TODO add group activation detection 
+		// Always use CV
+		$used_groups['CV']=$group_names['CV'];
+		//TODO BIO ???
+
 		foreach ($active_meta_fields as $active_meta_field)
 		{
 			$group = $active_meta_field['group'];
-			if ($group AND !array_key_exists ( $group , $used_groups) ) {
+			if ($group AND $staff_statuss[$group] AND !array_key_exists ( $group , $used_groups) ) {
 				$used_groups[$group] = $group_names[$group];
 			}
 		}
