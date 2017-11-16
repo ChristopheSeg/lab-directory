@@ -2,8 +2,9 @@
 
 class Lab_Directory {
 
-	// messages for forms
-	private static $messages = array(); 
+	// static variables used almost by all admin windows
+	static $current_user_permissions = null; 
+	static $capabilities = null;
 	
 	#
 	# Init custom post types
@@ -12,6 +13,10 @@ class Lab_Directory {
 	static function register_post_types() {
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
+		
+		// TODO where should this action (initiate_current_user_permissions) fired?
+		add_action( 'init', array( 'Lab_Directory', 'initiate_current_user_permissions' ) );
+		add_action( 'init', array( 'Lab_Directory', 'initiate_capabilities' ) );
 		
 		add_filter( "manage_edit-lab_directory_staff_columns", array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ) );
 		add_filter( "manage_lab_directory_staff_posts_custom_column", array(
@@ -278,7 +283,8 @@ class Lab_Directory {
 		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
 		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
-		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss);
+		$group_activations = get_option( 'lab_directory_group_activations' ) ;
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss, $group_activations['BIO']);
 		
 		?> 
 		<script type="text/javascript">
@@ -352,12 +358,13 @@ class Lab_Directory {
         </ul>
         <?php
         // TODO disable input depending on capability , LDAP...
+        $ldap_synced = (get_post_meta( $post->ID, 'ldap', true )!='0');
         foreach ($used_groups as $key => $group_name) {
         	echo '<div id="Tab-'. $key .'">';
              foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
             	if ($field['group'] == $key) {
             		Lab_Directory::lab_directory_staff_meta_box_render_input($post, $field, $lab_directory_meta_field_names[$field['slug']], 
-            				$studying_levels, $jury_functions); 
+            				$studying_levels, $jury_functions, $ldap_synced); 
           		}
             }
         	echo '</div>';
@@ -374,7 +381,7 @@ class Lab_Directory {
 		<?php
 	}
 
-	function lab_directory_staff_meta_box_render_input($post, $field, $field_name, $studying_levels, $jury_functions ){
+	function lab_directory_staff_meta_box_render_input($post, $field, $field_name, $studying_levels, $jury_functions, $ldap_synced ){
 		
 	
 		$field_type = $field['type'] ;
@@ -382,7 +389,7 @@ class Lab_Directory {
 		// TODO disable input depending on capability , LDAP...
 		
 		// Disable input when field is synsced with LDAP 
-		if (isset($field['ldap_attribute'])) {
+		if ( $ldap_synced AND isset($field['ldap_attribute'])) {
 			if ($field['ldap_attribute']){ 
 				$field_type = 'disabled';
 			}
@@ -620,7 +627,8 @@ class Lab_Directory {
 		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
-		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss);
+		$group_activations = get_option( 'lab_directory_group_activations' ) ;
+		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss, $group_activations['BIO']);
 		
 		
 		// Process form 
@@ -688,7 +696,6 @@ class Lab_Directory {
 				$names = $_POST[$slug . '_names'];
 				$functions = $_POST[$slug . '_functions'];
 				$titles = $_POST[$slug . '_titles'];
-				var_dump($names);
 				$index = 0;
 				
 				$value = array();
@@ -738,10 +745,11 @@ class Lab_Directory {
 		 * slug : the slug define the field, it cannot be changed
 		 * ldap_field : optionnal ldap field used to import or sync
 		 * multivalue : as defined in $default_multivalue
-		 * hide_frontend : '1' if this field should not be displayed in frontend
+		 * show_frontend : '1' if this field should not be displayed in frontend
 		 * predefined : '1' if this field is predefined by the plugin (always here) 
 		 */
 		 
+		//TODO move slug to main key? 
 		$default_meta_fields = array(
 			array(
 				'order' => 1, 
@@ -750,7 +758,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),
 			array(
@@ -760,7 +768,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),	
 			array(
@@ -770,7 +778,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'MV',
-				'hide_frontend' =>'0',				
+				'show_frontend' =>'1',				
 				'activated' => '1',
 			),
 			array(
@@ -780,7 +788,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'1',
+				'show_frontend' =>'0',
 				'activated' => '1',
 			),
 			array(
@@ -790,7 +798,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'MV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),						
 			array(
@@ -800,7 +808,7 @@ class Lab_Directory {
 				'group' => 'BIO',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),	
 			array(
@@ -810,7 +818,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),						
 				array(
@@ -820,7 +828,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 				),
 			array(
@@ -830,7 +838,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'SV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),
 			array(
@@ -840,7 +848,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'MV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),
 			array(
@@ -850,7 +858,7 @@ class Lab_Directory {
 				'group' => 'CV',
 				'ldap_field' => '',
 				'multivalue' => 'MV',
-				'hide_frontend' =>'0',
+				'show_frontend' =>'1',
 				'activated' => '1',
 			),
 			array(
@@ -860,7 +868,7 @@ class Lab_Directory {
 					'group' => 'CV',
 				'ldap_field' => '',
 					'multivalue' => 'MV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -870,7 +878,7 @@ class Lab_Directory {
 					'group' => 'CV',
 				'ldap_field' => '',
 					'multivalue' => 'MV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -880,7 +888,7 @@ class Lab_Directory {
 					'group' => 'CV',
 				'ldap_field' => '',
 					'multivalue' => 'MV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -890,7 +898,7 @@ class Lab_Directory {
 					'group' => 'CV',
 				'ldap_field' => '',
 					'multivalue' => 'MV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -900,7 +908,7 @@ class Lab_Directory {
 					'group' => 'CV',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'1',
+					'show_frontend' =>'0',
 		 			'activated' => '1',
 			),
 			array(
@@ -910,7 +918,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -920,7 +928,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -930,7 +938,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -940,7 +948,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -950,7 +958,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -960,7 +968,7 @@ class Lab_Directory {
 					'group' => 'HDR',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -970,7 +978,7 @@ class Lab_Directory {
 					'group' => 'doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -980,7 +988,7 @@ class Lab_Directory {
 					'group' => 'doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -990,7 +998,7 @@ class Lab_Directory {
 					'group' => 'doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1000,7 +1008,7 @@ class Lab_Directory {
 					'group' => 'doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1010,7 +1018,7 @@ class Lab_Directory {
 					'group' => 'doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),						
 			array(
@@ -1020,7 +1028,7 @@ class Lab_Directory {
 					'group' => 'post-doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),			
 			array(
@@ -1030,7 +1038,7 @@ class Lab_Directory {
 					'group' => 'post-doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1040,7 +1048,7 @@ class Lab_Directory {
 					'group' => 'post-doctorate',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1050,7 +1058,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1060,7 +1068,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1070,7 +1078,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1080,7 +1088,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1090,7 +1098,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1100,7 +1108,7 @@ class Lab_Directory {
 					'group' => 'internship',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1110,7 +1118,7 @@ class Lab_Directory {
 					'group' => 'invited',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1120,7 +1128,7 @@ class Lab_Directory {
 					'group' => 'invited',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1130,7 +1138,7 @@ class Lab_Directory {
 					'group' => 'invited',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1140,7 +1148,7 @@ class Lab_Directory {
 					'group' => 'invited',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1150,7 +1158,7 @@ class Lab_Directory {
 					'group' => 'invited',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1160,7 +1168,7 @@ class Lab_Directory {
 					'group' => 'CDD',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1170,7 +1178,7 @@ class Lab_Directory {
 					'group' => 'CDD',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1180,7 +1188,7 @@ class Lab_Directory {
 					'group' => 'CDD',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),
 			array(
@@ -1190,7 +1198,7 @@ class Lab_Directory {
 					'group' => 'CDD',
 				'ldap_field' => '',
 					'multivalue' => 'SV',
-					'hide_frontend' =>'0',
+					'show_frontend' =>'1',
 		 			'activated' => '1',
 			),						
 				
@@ -1203,7 +1211,7 @@ class Lab_Directory {
 						'group' => 'others',
 					'ldap_field' => '',
 						'multivalue' => 'SV',
-						'hide_frontend' =>'0',
+						'show_frontend' =>'1',
 						'activated' => '0',
 				);
 			}
@@ -1559,6 +1567,288 @@ EOT;
     } 
 	}
 	
+	public function get_lab_directory_default_permissions() {
+
+		// Define default permissions;
+		$permissions = array (
+			  "wp_editor_settings_general" => "0", 
+			  "wp_author_settings_general" => "0", 
+			  "wp_contributor_settings_general" => "0", 
+			  "wp_subscriber_settings_general" => "0",
+			  "ld_permanent_settings_general" => "0",
+			  "ld_administrator_settings_general" => "0",
+			  "ld_HDR_settings_general" => "0",
+			  "ld_doctorate_settings_general" => "0",
+			  "ld_post-doctorate_settings_general" => "0",
+			  "ld_internship_settings_general" => "0",
+			  "ld_invited_settings_general" => "0",
+			  "ld_CDD_settings_general" => "0",
+			  "ld_others_settings_general" => "0", 
+			  "wp_editor_settings_permissions" => "0", 
+			  "wp_author_settings_permissions" => "0", 
+			  "wp_contributor_settings_permissions" => "0", 
+			  "wp_subscriber_settings_permissions" => "0",
+			  "ld_permanent_settings_permissions" => "0",
+			  "ld_administrator_settings_permissions" => "0",
+			  "ld_HDR_settings_permissions" => "0",
+			  "ld_doctorate_settings_permissions" => "0",
+			  "ld_post-doctorate_settings_permissions" => "0",
+			  "ld_internship_settings_permissions" => "0",
+			  "ld_invited_settings_permissions" => "0",
+			  "ld_CDD_settings_permissions" => "0",
+			  "ld_others_settings_permissions" => "0", 
+			  "wp_editor_ldap_settings" => "1", 
+			  "wp_author_ldap_settings" => "0", 
+			  "wp_contributor_ldap_settings" => "0", 
+			  "wp_subscriber_ldap_settings" => "0",
+			  "ld_permanent_ldap_settings" => "0",
+			  "ld_administrator_ldap_settings" => "0",
+			  "ld_HDR_ldap_settings" => "0",
+			  "ld_doctorate_ldap_settings" => "0",
+			  "ld_post-doctorate_ldap_settings" => "0",
+			  "ld_internship_ldap_settings" => "0",
+			  "ld_invited_ldap_settings" => "0",
+			  "ld_CDD_ldap_settings" => "0",
+			  "ld_others_ldap_settings" => "0", 
+			  "wp_editor_ldap_syncing" => "0", 
+			  "wp_author_ldap_syncing" => "0", 
+			  "wp_contributor_ldap_syncing" => "0", 
+			  "wp_subscriber_ldap_syncing" => "0",
+			  "ld_permanent_ldap_syncing" => "0",
+			  "ld_administrator_ldap_syncing" => "0",
+			  "ld_HDR_ldap_syncing" => "0",
+			  "ld_doctorate_ldap_syncing" => "0",
+			  "ld_post-doctorate_ldap_syncing" => "0",
+			  "ld_internship_ldap_syncing" => "0",
+			  "ld_invited_ldap_syncing" => "0",
+			  "ld_CDD_ldap_syncing" => "0",
+			  "ld_others_ldap_syncing" => "0", 
+			  "wp_editor_group_of_fields_settings" => "0", 
+			  "wp_author_group_of_fields_settings" => "0", 
+			  "wp_contributor_group_of_fields_settings" => "0", 
+			  "wp_subscriber_group_of_fields_settings" => "0",
+			  "ld_permanent_group_of_fields_settings" => "0",
+			  "ld_administrator_group_of_fields_settings" => "0",
+			  "ld_HDR_group_of_fields_settings" => "0",
+			  "ld_doctorate_group_of_fields_settings" => "0",
+			  "ld_post-doctorate_group_of_fields_settings" => "0",
+			  "ld_internship_group_of_fields_settings" => "0",
+			  "ld_invited_group_of_fields_settings" => "0",
+			  "ld_CDD_group_of_fields_settings" => "0",
+			  "ld_others_group_of_fields_settings" => "0", 
+			  "wp_editor_meta_fields_settings" => "0", 
+			  "wp_author_meta_fields_settings" => "0", 
+			  "wp_contributor_meta_fields_settings" => "0", 
+			  "wp_subscriber_meta_fields_settings" => "0",
+			  "ld_permanent_meta_fields_settings" => "0",
+			  "ld_administrator_meta_fields_settings" => "0",
+			  "ld_HDR_meta_fields_settings" => "0",
+			  "ld_doctorate_meta_fields_settings" => "0",
+			  "ld_post-doctorate_meta_fields_settings" => "0",
+			  "ld_internship_meta_fields_settings" => "0",
+			  "ld_invited_meta_fields_settings" => "0",
+			  "ld_CDD_meta_fields_settings" => "0",
+			  "ld_others_meta_fields_settings" => "0", 
+			  "wp_editor_acronyms_settings" => "0", 
+			  "wp_author_acronyms_settings" => "0", 
+			  "wp_contributor_acronyms_settings" => "0", 
+			  "wp_subscriber_acronyms_settings" => "0",
+			  "ld_permanent_acronyms_settings" => "0",
+			  "ld_administrator_acronyms_settings" => "0",
+			  "ld_HDR_acronyms_settings" => "0",
+			  "ld_doctorate_acronyms_settings" => "0",
+			  "ld_post-doctorate_acronyms_settings" => "0",
+			  "ld_internship_acronyms_settings" => "0",
+			  "ld_invited_acronyms_settings" => "0",
+			  "ld_CDD_acronyms_settings" => "0",
+			  "ld_others_acronyms_settings" => "0", 
+			  "wp_editor_taxonomies_settings" => "0", 
+			  "wp_author_taxonomies_settings" => "0", 
+			  "wp_contributor_taxonomies_settings" => "0", 
+			  "wp_subscriber_taxonomies_settings" => "0",
+			  "ld_permanent_taxonomies_settings" => "0",
+			  "ld_administrator_taxonomies_settings" => "0",
+			  "ld_HDR_taxonomies_settings" => "0",
+			  "ld_doctorate_taxonomies_settings" => "0",
+			  "ld_post-doctorate_taxonomies_settings" => "0",
+			  "ld_internship_taxonomies_settings" => "0",
+			  "ld_invited_taxonomies_settings" => "0",
+			  "ld_CDD_taxonomies_settings" => "0",
+			  "ld_others_taxonomies_settings" => "0", 
+			  "wp_editor_validate_new_staff_entry" => "0", 
+			  "wp_author_validate_new_staff_entry" => "0", 
+			  "wp_contributor_validate_new_staff_entry" => "0", 
+			  "wp_subscriber_validate_new_staff_entry" => "0",
+			  "ld_permanent_validate_new_staff_entry" => "0",
+			  "ld_administrator_validate_new_staff_entry" => "0",
+			  "ld_HDR_validate_new_staff_entry" => "0",
+			  "ld_doctorate_validate_new_staff_entry" => "0",
+			  "ld_post-doctorate_validate_new_staff_entry" => "0",
+			  "ld_internship_validate_new_staff_entry" => "0",
+			  "ld_invited_validate_new_staff_entry" => "0",
+			  "ld_CDD_validate_new_staff_entry" => "0",
+			  "ld_others_validate_new_staff_entry" => "0", 
+			  "wp_editor_give_permanent_status" => "0", 
+			  "wp_author_give_permanent_status" => "0", 
+			  "wp_contributor_give_permanent_status" => "0", 
+			  "wp_subscriber_give_permanent_status" => "0",
+			  "ld_permanent_give_permanent_status" => "0",
+			  "ld_administrator_give_permanent_status" => "0",
+			  "ld_HDR_give_permanent_status" => "0",
+			  "ld_doctorate_give_permanent_status" => "0",
+			  "ld_post-doctorate_give_permanent_status" => "0",
+			  "ld_internship_give_permanent_status" => "0",
+			  "ld_invited_give_permanent_status" => "0",
+			  "ld_CDD_give_permanent_status" => "0",
+			  "ld_others_give_permanent_status" => "0", 
+			  "wp_editor_give_administrative_status" => "0", 
+			  "wp_author_give_administrative_status" => "0", 
+			  "wp_contributor_give_administrative_status" => "0", 
+			  "wp_subscriber_give_administrative_status" => "0",
+			  "ld_permanent_give_administrative_status" => "0",
+			  "ld_administrator_give_administrative_status" => "0",
+			  "ld_HDR_give_administrative_status" => "0",
+			  "ld_doctorate_give_administrative_status" => "0",
+			  "ld_post-doctorate_give_administrative_status" => "0",
+			  "ld_internship_give_administrative_status" => "0",
+			  "ld_invited_give_administrative_status" => "0",
+			  "ld_CDD_give_administrative_status" => "0",
+			  "ld_others_give_administrative_status" => "0", 
+			  "wp_editor_give_hdr_status" => "0", 
+			  "wp_author_give_hdr_status" => "0", 
+			  "wp_contributor_give_hdr_status" => "0", 
+			  "wp_subscriber_give_hdr_status" => "0",
+			  "ld_permanent_give_hdr_status" => "0",
+			  "ld_administrator_give_hdr_status" => "0",
+			  "ld_HDR_give_hdr_status" => "0",
+			  "ld_doctorate_give_hdr_status" => "0",
+			  "ld_post-doctorate_give_hdr_status" => "0",
+			  "ld_internship_give_hdr_status" => "0",
+			  "ld_invited_give_hdr_status" => "0",
+			  "ld_CDD_give_hdr_status" => "0",
+			  "ld_others_give_hdr_status" => "0", 
+			  "wp_editor_give_phd_status" => "0", 
+			  "wp_author_give_phd_status" => "0", 
+			  "wp_contributor_give_phd_status" => "0", 
+			  "wp_subscriber_give_phd_status" => "0",
+			  "ld_permanent_give_phd_status" => "0",
+			  "ld_administrator_give_phd_status" => "0",
+			  "ld_HDR_give_phd_status" => "0",
+			  "ld_doctorate_give_phd_status" => "0",
+			  "ld_post-doctorate_give_phd_status" => "0",
+			  "ld_internship_give_phd_status" => "0",
+			  "ld_invited_give_phd_status" => "0",
+			  "ld_CDD_give_phd_status" => "0",
+			  "ld_others_give_phd_status" => "0", 
+			  "wp_editor_give_post_doc_status" => "0", 
+			  "wp_author_give_post_doc_status" => "0", 
+			  "wp_contributor_give_post_doc_status" => "0", 
+			  "wp_subscriber_give_post_doc_status" => "0",
+			  "ld_permanent_give_post_doc_status" => "0",
+			  "ld_administrator_give_post_doc_status" => "0",
+			  "ld_HDR_give_post_doc_status" => "0",
+			  "ld_doctorate_give_post_doc_status" => "0",
+			  "ld_post-doctorate_give_post_doc_status" => "0",
+			  "ld_internship_give_post_doc_status" => "0",
+			  "ld_invited_give_post_doc_status" => "0",
+			  "ld_CDD_give_post_doc_status" => "0",
+			  "ld_others_give_post_doc_status" => "0", 
+			  "wp_editor_give_internship_status" => "0", 
+			  "wp_author_give_internship_status" => "0", 
+			  "wp_contributor_give_internship_status" => "0", 
+			  "wp_subscriber_give_internship_status" => "0",
+			  "ld_permanent_give_internship_status" => "0",
+			  "ld_administrator_give_internship_status" => "0",
+			  "ld_HDR_give_internship_status" => "0",
+			  "ld_doctorate_give_internship_status" => "0",
+			  "ld_post-doctorate_give_internship_status" => "0",
+			  "ld_internship_give_internship_status" => "0",
+			  "ld_invited_give_internship_status" => "0",
+			  "ld_CDD_give_internship_status" => "0",
+			  "ld_others_give_internship_status" => "0", 
+			  "wp_editor_give_invited_status" => "0", 
+			  "wp_author_give_invited_status" => "0", 
+			  "wp_contributor_give_invited_status" => "0", 
+			  "wp_subscriber_give_invited_status" => "0",
+			  "ld_permanent_give_invited_status" => "0",
+			  "ld_administrator_give_invited_status" => "0",
+			  "ld_HDR_give_invited_status" => "0",
+			  "ld_doctorate_give_invited_status" => "0",
+			  "ld_post-doctorate_give_invited_status" => "0",
+			  "ld_internship_give_invited_status" => "0",
+			  "ld_invited_give_invited_status" => "0",
+			  "ld_CDD_give_invited_status" => "0",
+			  "ld_others_give_invited_status" => "0", 
+			  "wp_editor_give_cdd_status" => "0", 
+			  "wp_author_give_cdd_status" => "0", 
+			  "wp_contributor_give_cdd_status" => "0", 
+			  "wp_subscriber_give_cdd_status" => "0",
+			  "ld_permanent_give_cdd_status" => "0",
+			  "ld_administrator_give_cdd_status" => "0",
+			  "ld_HDR_give_cdd_status" => "0",
+			  "ld_doctorate_give_cdd_status" => "0",
+			  "ld_post-doctorate_give_cdd_status" => "0",
+			  "ld_internship_give_cdd_status" => "0",
+			  "ld_invited_give_cdd_status" => "0",
+			  "ld_CDD_give_cdd_status" => "0",
+			  "ld_others_give_cdd_status" => "0", 
+			  "wp_editor_give_other_status" => "0", 
+			  "wp_author_give_other_status" => "0", 
+			  "wp_contributor_give_other_status" => "0", 
+			  "wp_subscriber_give_other_status" => "0",
+			  "ld_permanent_give_other_status" => "0",
+			  "ld_administrator_give_other_status" => "0",
+			  "ld_HDR_give_other_status" => "0",
+			  "ld_doctorate_give_other_status" => "0",
+			  "ld_post-doctorate_give_other_status" => "0",
+			  "ld_internship_give_other_status" => "0",
+			  "ld_invited_give_other_status" => "0",
+			  "ld_CDD_give_other_status" => "0",
+			  "ld_others_give_other_status" => "0", 
+			  "wp_editor_edit_staff_profile" => "0", 
+			  "wp_author_edit_staff_profile" => "0", 
+			  "wp_contributor_edit_staff_profile" => "0", 
+			  "wp_subscriber_edit_staff_profile" => "0",
+			  "ld_permanent_edit_staff_profile" => "0",
+			  "ld_administrator_edit_staff_profile" => "0",
+			  "ld_HDR_edit_staff_profile" => "0",
+			  "ld_doctorate_edit_staff_profile" => "0",
+			  "ld_post-doctorate_edit_staff_profile" => "0",
+			  "ld_internship_edit_staff_profile" => "0",
+			  "ld_invited_edit_staff_profile" => "0",
+			  "ld_CDD_edit_staff_profile" => "0",
+			  "ld_others_edit_staff_profile" => "0", 
+			  "wp_editor_edit_own_staff_profile" => "0", 
+			  "wp_author_edit_own_staff_profile" => "0", 
+			  "wp_contributor_edit_own_staff_profile" => "0", 
+			  "wp_subscriber_edit_own_staff_profile" => "0",
+			  "ld_permanent_edit_own_staff_profile" => "0",
+			  "ld_administrator_edit_own_staff_profile" => "0",
+			  "ld_HDR_edit_own_staff_profile" => "0",
+			  "ld_doctorate_edit_own_staff_profile" => "0",
+			  "ld_post-doctorate_edit_own_staff_profile" => "0",
+			  "ld_internship_edit_own_staff_profile" => "0",
+			  "ld_invited_edit_own_staff_profile" => "0",
+			  "ld_CDD_edit_own_staff_profile" => "0",
+			  "ld_others_edit_own_staff_profile" => "0", 
+			  "wp_editor_view_staff_lists_profiles" => "0", 
+			  "wp_author_view_staff_lists_profiles" => "0", 
+			  "wp_contributor_view_staff_lists_profiles" => "0", 
+			  "wp_subscriber_view_staff_lists_profiles" => "0",
+			  "ld_permanent_view_staff_lists_profiles" => "0",
+			  "ld_administrator_view_staff_lists_profiles" => "0",
+			  "ld_HDR_view_staff_lists_profiles" => "0",
+			  "ld_doctorate_view_staff_lists_profiles" => "0",
+			  "ld_post-doctorate_view_staff_lists_profiles" => "0",
+			  "ld_internship_view_staff_lists_profiles" => "0",
+			  "ld_invited_view_staff_lists_profiles" => "0",
+			  "ld_CDD_view_staff_lists_profiles" => "0",
+			  "ld_others_view_staff_lists_profiles" => "0"
+			); 
+		
+		return $permissions;
+	}
+	
 	public function get_lab_directory_meta_field_input_types() {
 
 		// Define the default type and the input type to use for input
@@ -1602,26 +1892,14 @@ EOT;
 				/* translators: CV Curriculum Vitae (no need to translate this) */ 
 				'CV' => __( 'CV', 'lab-directory'),
 				'BIO' => __('Biography', 'lab-directory'),
-				/* translators: HDR french acronym for Habilitation à Diriger les Recherches */
-				'HDR' =>__( 'HDR', 'lab-directory'),
-				'doctorate' =>__( 'Doctorate', 'lab-directory'),
-				'post-doctorate' =>__( 'Post-doctorate', 'lab-directory'),
-				'internship' =>__( 'Internship', 'lab-directory'),
-				'invited' =>__( 'Invited', 'lab-directory'),
-				/* translators: CDD is a french acronym for Fixed term contract*/ 
-				'CDD' =>__( 'CDD', 'lab-directory'),
-				'others' =>__( 'Others', 'lab-directory'),		
 		);
+		$groups = array_merge($groups,self::get_lab_directory_default_group_names2());
 		return $groups;
 	}
-
-	function get_lab_directory_default_statuss() {
+	function get_lab_directory_default_group_names2() {
 	
 		// Define the default groups used for meta field grouping
-		$statuss = array(
-				/* translators: CV Curriculum Vitae (no need to translate this) */
-				'permanent' => __( 'Permanent staff', 'lab-directory'),
-				'administrator' => __('Administrative staff', 'lab-directory'),
+		$groups = array(
 				/* translators: HDR french acronym for Habilitation à Diriger les Recherches */
 				'HDR' =>__( 'HDR', 'lab-directory'),
 				'doctorate' =>__( 'Doctorate', 'lab-directory'),
@@ -1630,8 +1908,20 @@ EOT;
 				'invited' =>__( 'Invited', 'lab-directory'),
 				/* translators: CDD is a french acronym for Fixed term contract*/
 				'CDD' =>__( 'CDD', 'lab-directory'),
-				'Others' =>__( 'Others', 'lab-directory'), 
+				'others' =>__( 'Others (custom)', 'lab-directory'),
 		);
+		return $groups;
+	}
+	
+	function get_lab_directory_default_statuss() {
+	
+		// Define the default groups used for meta field grouping
+		$statuss = array(
+				/* translators: CV Curriculum Vitae (no need to translate this) */
+				'permanent' => __( 'Permanent staff', 'lab-directory'),
+				'administrator' => __('Administrative staff', 'lab-directory'),
+		);
+		$statuss = array_merge($statuss,self::get_lab_directory_default_group_names2());
 		return $statuss;
 	}
 	
@@ -1680,11 +1970,11 @@ EOT;
 	'directress' => 'Directrice',
 	'directors' => 'Directeurs',
 	'examiner' => 'Examinateur',
-	/* translator examiner (female)*/
+	/* translator examiner / female */
 	'examiner_f' => 'Examinatrice',
 	'examiners' => 'Examinateurs',
 	'referee' => 'Rapporteur',
-	/* translator referee (female)*/
+	/* translator referee / female*/
 	'referee_f' => 'Rapportrice',
 	'referees' => 'Rapporteurs',
 	'invited' => 'Invité',
@@ -1708,7 +1998,7 @@ EOT;
 
 	static function get_lab_directory_default_meta_field_names() {
 		
-		// Transation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
+		// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
 		$default_meta_field_names = array(
 				'firstname' => __( 'Firstname', 'lab-directory'),
 				'name' => __( 'Name', 'lab-directory'),
@@ -1783,6 +2073,87 @@ EOT;
 		);
 		return $default_meta_field_names;
 	}
+
+	/* 
+	 *  This function is runned once at init to calculate almost every permissions one time
+	 *   (excepted for own permissions) in order to speed up ld_user_can function
+	 */
+	static function initiate_current_user_permissions() {
+		self::$current_user_permissions = $temp;
+		
+	}
+	
+	static function initiate_capabilities() {
+		$temp = array("0" => "test permissions modifié");
+		self::$capabilities = array(
+				'settings_general' => array(
+						'name' =>'General settings',
+						'scope' =>'all'),
+				'settings_permissions' => array(
+						'name' =>'Permissions settings',
+						'scope' =>'all'),
+				'ldap_settings' => array(
+						'name' =>'LDAP settings',
+						'scope' =>'all'),
+				'ldap_syncing' => array(
+						'name' =>'LDAP syncing',
+						'scope' =>'all'),
+				'group_of_fields_settings' => array(
+						'name' =>'Groups of field settings',
+						'scope' =>'all'),
+				'meta_fields_settings' => array(
+						'name' =>'Meta field settings',
+						'scope' =>'all'),
+				'acronyms_settings' => array(
+						'name' =>'Acronyms settings',
+						'scope' =>'all'),
+				'taxonomies_settings' => array(
+						'name' =>'Taxonomies settings',
+						'scope' =>'all'),
+				'validate_new_staff_entry' => array(
+						'name' =>'Validate new staff entry',
+						'scope' =>'all'),
+				'give_permanent_status' => array(
+						'name' =>'Give permanent status',
+						'scope' =>'all'),
+				'give_administrative_status' => array(
+						'name' =>'Give administrative status',
+						'scope' =>'all'),
+				'give_hdr_status' => array(
+						'name' =>'Give HDR status',
+						'scope' =>'all'),
+				'give_phd_status' => array(
+						'name' =>'Give PHD status',
+						'scope' =>'all'),
+				'give_post_doc_status' => array(
+						'name' =>'Give post-doc status',
+						'scope' =>'all'),
+				'give_internship_status' => array(
+						'name' =>'Give internship status',
+						'scope' =>'all'),
+				'give_invited_status' => array(
+						'name' =>'Give HDR status',
+						'scope' =>'all'),
+				'give_cdd_status' => array(
+						'name' =>'Give PHD status',
+						'scope' =>'all'),
+				'give_other_status' => array(
+						'name' =>'Give "other" (custom) status', // Is this usefull? 
+						'scope' =>'all'),
+				'edit_staff_profile' => array(
+						'name' =>'Edit staff profile',
+						'scope' =>'all'),
+				'edit_own_staff_profile' => array(
+						'name' =>'Edit its own profile',	
+						'scope' =>'own'),
+				'view_staff_lists_profiles' => array(
+						'name' =>'View staff lists and profiles',
+						'scope' =>'all'),
+
+		);
+		
+	}
+
 }
 
 function lab_directory_strtotime($time, $format="Y-m-d") {
@@ -1798,5 +2169,46 @@ function compare_jury_order($a, $b)
 	return (int)$a['order']-(int)$b['order'];
 }
 
+/*
+ * public function to ger user permission
+ *  $capability: capability key 
+ */
+function ld_user_can($capability) {
+	if (!$capability) {return false;} 
+	
+	$current_user = wp_get_current_user();
+	if (!$current_user->id) { return false;}
+	
+	$scope = Lab_Directory::$capabilities[$capability]['scope'];
+	// unvalid scope (capability) 
+	if (! $scope) {return false;}
+	
+	// scope = all, capability based on WP groups
+	if ($scope == 'all') {
+		foreach ($current_user->roles as $role_key => $role ) {
+			$capability_key = 'wp_' . $role_key . '_' . $capability;
+			var_dump($capability_key);die();
+			if (Lab_Directory::$current_user_permissions[$capability_key]==true) {return true;}	
+		}
+	}
 
+	// the rest need link between WP and LD??
+	$current_user_ld_id = false; 
+	
+	// TODO temporary return; 
+	return false; 
+	// query select staff_id from staf / wp_user_id= $current_user->id;
+	
+	
+	if (! $current_user_ld_id) {return false;}
+	
+	// scope = owner capability based on WP groups
+	
+	return false; 
+	
+	// scope = all capability based on LD groups 
+
+	// scope = owner capability based on LD groups
+	return false; 
+}
 	

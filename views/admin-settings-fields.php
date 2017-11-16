@@ -18,6 +18,13 @@ function show_hide_unactivated() {
 jQuery(document).ready(function($){
 	
   });
+  
+</script>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+	jQuery('.select-toggleizer').toggleize();
+        })
+
 </script>
 
 <style type="text/css">
@@ -26,7 +33,12 @@ jQuery(document).ready(function($){
     display: none;
   }
  .input-in-td{ width:100%; border:0; padding-left:0; padding-right:0; }
+
+ .widefat td, .widefat th {padding: 2px 10px 2px 10px;}
+
 </style>
+
+<?php wp_enqueue_style('jquery-toggleizer.css',plugins_url( '/css/jquery-toggleizer.css', dirname(__FILE__) ))?>
 
 <?php if($did_update_options): ?>
   <div id="message" class="updated notice notice-success is-dismissible below-h2 ">
@@ -38,7 +50,6 @@ jQuery(document).ready(function($){
     <p>All meta fields have been reset to their default values. Please press <b>Save</b> to validate this reset.</p>
   </div>
 <?php endif; ?>
-
 <form method="post">
     <h2>Custom Details Fields</h2>
 
@@ -54,7 +65,7 @@ jQuery(document).ready(function($){
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
     	<?php endif; ?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <input type="submit" name="admin-resettings-fields" class="button button-primary button-large" 
-    	 value="Reset all meta fields" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;">
+    	 value="Reset" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;">
     	
   	</p>
 
@@ -71,7 +82,7 @@ jQuery(document).ready(function($){
           <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields</th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Hide frontend</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
           </tr>
       </thead>
 
@@ -87,7 +98,7 @@ jQuery(document).ready(function($){
           <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields</th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Hide frontend</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
         </tr>
       </tfoot>
 
@@ -106,54 +117,54 @@ jQuery(document).ready(function($){
         	foreach(get_option('lab_directory_staff_meta_fields') as $field): 
         		$index++;
         		$custom = (strpos($field['slug'], 'custom') !== false);
-        	
+        		
         ?>
           <tr class="column-<?php echo $field['slug']; ?> <?php echo (($field['activated']=='0')? 'unactivated' : ''); ?>" 
           style="<?php echo (($field['activated']=='0')? 'display:none;' : 'display:table-row;'); ?> ">
             <td>
-              <input name="lab_directory_staff_meta_fields_orders[]" value="<?php echo $index; ?>" style="width: 40px;" />
+              <input name="lab_directory_staff_meta_fields_orders[<?php echo $index; ?>]" value="<?php echo $index; ?>" style="width: 40px;" />
             </td>
             <td>
               <?php echo $lab_directory_meta_field_names[$field['slug']]; ?>
             </td>
             <td>
               [<?php echo $field['slug']; ?>]
-              <input name="lab_directory_staff_meta_fields_slugs[]" type="hidden" 
+              <input name="lab_directory_staff_meta_fields_slugs[<?php echo $index; ?>]" type="hidden" 
               value="<?php echo $field['slug']; ?>" />
             </td>
             <td>
-               	<?php echo create_select('lab_directory_staff_meta_fields_groups[]', 
+               	<?php echo create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
               		$lab_directory_group_names, $field['group'], 'input-in-td', false, !$custom); 
 					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
 					
                	?>
 			</td>
             <td>
-              	<?php echo create_select('lab_directory_staff_meta_fields_types[]', 
+              	<?php echo create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
               		$lab_directory_meta_field_types, $field['type'], 'input-in-td'); ?>
             </td>
             <td>
- 				<?php echo create_select('lab_directory_staff_meta_fields_multivalues[]', 
+ 				<?php echo create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
               		$lab_directory_multivalues, $field['multivalue'], 'input-in-td'); ?>
             </td>
             <?php if ($use_ldap) : ?> 
 	        <td>
- 				<?php echo create_select('lab_directory_staff_meta_fields_ldap_attributes[]', 
+ 				<?php echo create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
               		$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', true); ?>
 	        </td>
 	        <?php endif; ?>
             
             <td>
-			    <select name="lab_directory_staff_meta_fields_activateds[]" data-role="flipswitch" data-mini="true">
-			        <option value="1" <?php selected( true,  ($field['activated']==true), true); ?> ><?php _e('Yes');?></option>
-			        <option value="0" <?php selected( false, ($field['activated']==true), true); ?> ><?php _e('No');?></option>
-			    </select>
+			    <input name="lab_directory_staff_meta_fields_activateds[<?php echo $index; ?>]" 
+			    	id="lab_directory_staff_meta_fields_activateds_<?php echo $index; ?>" 
+			    	type="checkbox" value="1" <?php checked( true, $field['activated'] ); ?> />
+			    <label for="lab_directory_staff_meta_fields_activateds_<?php echo $index; ?>"></label>
             </td>
             <td>
- 			    <select name="lab_directory_staff_meta_fields_hide_frontends[]" data-role="flipswitch" data-mini="true">
-			        <option value="1" <?php selected( true,  ($field['hide_frontend']==true), true); ?> ><?php _e('Yes');?></option>
-			        <option value="0" <?php selected( false, ($field['hide_frontend']==true), true); ?> ><?php _e('No');?></option>
-			    </select>
+			<input name="lab_directory_staff_meta_fields_show_frontends[<?php echo $index; ?>]" 
+				id="lab_directory_staff_meta_fields_show_frontends_<?php echo $index; ?>" 
+				type="checkbox" value="1" <?php checked( true, $field['show_frontend'] ); ?> />
+ 				<label for="lab_directory_staff_meta_fields_show_frontends_<?php echo $index; ?>"></label>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -169,5 +180,5 @@ jQuery(document).ready(function($){
   <?php wp_nonce_field('admin-settings-fields', '_wpnonce'); ?>
 </form>
 <h4 id="footnote">Notes</h4>
-<p>1. If order is set to n, the corresponding fiels will be place just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
-<p>2. This group of field is disabled. Corresponding field will not be used in the directory (even if it is activated). </p>
+<p>(1). If order is set to n, the corresponding fiels will be placed just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
+<p>(2). This group of field is disabled. Corresponding field(s) will not be used in the directory (even if fields(s) is (are)activated). </p>

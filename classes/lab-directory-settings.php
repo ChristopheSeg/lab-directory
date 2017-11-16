@@ -74,25 +74,27 @@ class Lab_Directory_Settings {
 		$activateds = $_POST['lab_directory_staff_meta_fields_activateds'];
 		$orders = $_POST['lab_directory_staff_meta_fields_orders'];
 		$multivalues = $_POST['lab_directory_staff_meta_fields_multivalues'];
-		$hide_frontends = $_POST['lab_directory_staff_meta_fields_hide_frontends'];
+		$show_frontends = $_POST['lab_directory_staff_meta_fields_show_frontends'];
 		$ldap_attributes = $_POST['lab_directory_staff_meta_fields_ldap_attributes'];
 		
 		$index = 0;
 
 		$meta_fields_array = array();
+
 		foreach ( $slugs as $slug ) {
+			$index ++;
 			$meta_fields_array[] = array(
 					'slug' => $slug,
 					'order' => $orders[ $index ],
 					'type'=> $types[ $index ],
 					'group' => $groups[ $index ],
-					'activated' => $activateds[ $index ],
+					'activated' => isset($activateds[ $index ])? '1': '0',
 					'order' => $orders[ $index ],
 					'multivalue' => $multivalues[ $index ],
 					'ldap_attribute' => ($ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ]),
-					'hide_frontend' => $hide_frontends[ $index ],
+					'show_frontend' => isset($show_frontends[ $index ])? '1': '0',
 				);
-			$index ++;
+			
 		}
 		
 		// sort by activated, then by order
@@ -652,7 +654,7 @@ class Lab_Directory_Settings {
 	 Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
 	
 	 */
-	function get_used_groups($active_meta_fields = null , $staff_statuss=null){
+	function get_used_groups($active_meta_fields = null , $staff_statuss=null, $bio=false ){
 	
 		if (! $active_meta_fields) {return false; }
 		$group_activations = get_option( 'lab_directory_group_activations' ) ;
@@ -660,12 +662,12 @@ class Lab_Directory_Settings {
 		$used_groups = array();
 		// Always use CV
 		$used_groups['CV']=$group_names['CV'];
-		//TODO BIO ???
+		if ($bio) {$used_groups['BIO']=$group_names['BIO'];}
 
 		foreach ($active_meta_fields as $active_meta_field)
 		{
 			$group = $active_meta_field['group'];
-			if ($group AND $staff_statuss[$group] AND !array_key_exists ( $group , $used_groups) ) {
+			if ($group AND ($group !='BIO') AND $staff_statuss[$group] AND !array_key_exists ( $group , $used_groups) ) {
 				$used_groups[$group] = $group_names[$group];
 			}
 		}
