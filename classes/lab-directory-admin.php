@@ -65,33 +65,41 @@ class Lab_Directory_Admin {
 			// Temporary TODO list 
 			?>
 			<p>
-		      TODO affichages des messages: function() 
-		      TODO traduction custom / others
-		      TODO permission: ajouter unchek all par colonne ? 
-		      TODO link WP-ld : calculer un wp_user_id dans profile de LD
-		      TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
-		      TODO gérer photo
-		      TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
-		      TODO séparer admin et frontend
-		      TODO ajouter onglet traduction acronymes <br/>
-		      TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
-		      TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
+		      <br>TODO ajouter blocage de MV et type. (exemple jury, date)
+		      <br>TODO ajouter mandatory (name firstname = titre) ???
+		      <br>TODO lock (note) supprimer si pas LDAP
+		      <br>TODO social_network 
+		      <br>TODO voir add new/ ldap=0; 
+		      <br>TODO ajouter slug calculés firstname_name....
+		      <br>TODO MV revoir import_annuaire_ldap 
+		      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
+		      <br>TODO traduction custom / others
+		      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD
+		      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
+		      <br>TODO gérer bio: est ce que cela marche 
+		      <br>TODO gérer photo: est ce que cela va vec lien LDAP? supprimer modification si LDAP....
+		      <br>TODO Taxonomies  
+		      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
+		      <br>TODO séparer admin et frontend
+		      <br>TODO ajouter onglet traduction acronymes 
+		      <br>TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
+		      <br>TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
 		    </p>
 <p> 
 <ul>
 
 <li>champ à redéfinir autrement</li>
 <li>
-			'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
-			'photo'              => 'varchar(255) DEFAULT NULL',
-			'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
-			'resp_equipe'        => 'bigint(21) DEFAULT NULL',
-			'resp_projets'       => 'TEXT NULL DEFAULT NULL',
-			'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
-			'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
-			'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
-			'id_personnel'       => 'bigint(21) NOT NULL',
-</li>
+<li>'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
+<li>'photo'              => 'varchar(255) DEFAULT NULL',
+<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
+<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
+<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
+<li>'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
+<li>'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
+<li>'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
+<li>'id_personnel'       => 'bigint(21) NOT NULL',
+
 
 </ul>
 
@@ -104,7 +112,7 @@ class Lab_Directory_Admin {
 	static function settings_general() {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
+		$form_messages = array('form_saved' => false); 
 		
 		// Check $_POST and _wpnonce
 		if(isset($_POST['admin-settings-general'])) {
@@ -118,25 +126,26 @@ class Lab_Directory_Admin {
 				}
 				if ( isset( $_POST['lab_directory_staff_single_template'] ) ) {
 		            update_option( 'lab_directory_staff_single_template', $_POST['lab_directory_staff_single_template'] );
-					$did_update_options = true;
+					$form_messages['form_saved'] = true;
 				} else {
 		            if ( get_option( 'lab_directory_staff_single_template' ) == '' ) {
 		    			update_option( 'lab_directory_staff_single_template', 'default' );
-		                $did_update_options = true;
+		                $form_messages['form_saved'] = true;
 		    		}
 		        }
 		
 				if ( isset( $_POST['lab_directory_staff_templates']['slug'] ) ) {
 					$lab_directory_staff_settings->update_default_lab_directory_staff_template_slug( $_POST['lab_directory_staff_templates']['slug'] );
-					$did_update_options = true;
+					$form_messages['form_saved'] = true;
 				}
 		
 				if ( isset( $_POST['custom_lab_directory_staff_templates'] ) ) {
 					$lab_directory_staff_settings->update_custom_lab_directory_staff_templates( $_POST['custom_lab_directory_staff_templates'] );
-					$did_update_options = true;
+					$form_messages['form_saved'] = true;
 				}
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
@@ -149,8 +158,7 @@ class Lab_Directory_Admin {
 	static function settings_fields() {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
-		$did_reset_options = false;
+		$form_messages = array('form_saved' => false); 
 
 		// Check $_POST and _wpnonce	
 		if ($_POST['admin-settings-fields']) {
@@ -160,19 +168,21 @@ class Lab_Directory_Admin {
 				if ( isset( $_POST['lab_directory_staff_meta_fields_slugs'] ) ) {
 	
 					$lab_directory_staff_settings->update_custom_lab_directory_staff_meta_fields();
-					$did_update_options = true;
+					$form_messages['form_saved']= true;
 				}
 					
-			}elseif ( ($_POST['admin-resettings-fields']=='Reset') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
+			}elseif ( ($_POST['admin-settings-fields']=='Reset') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
 				// reset meta fields
 				$lab_directory_staff_settings->reset_custom_lab_directory_staff_meta_fields();
-				$did_reset_options = true;
+				$form_messages['warning'][]= 'All meta fields have been reset to their default values.';
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		} else {
-			// Form initialisation 
+			// Form initialisation : if the plugin has been upgraded and new fields added
+			$lab_directory_staff_settings->upgrade_custom_lab_directory_staff_meta_fields();
 	
 		}
 		
@@ -184,7 +194,7 @@ class Lab_Directory_Admin {
 	static function settings_ldap() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
+		$form_messages = array('form_saved' => false); 
 
 		// Empty LDAP tab if not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
@@ -206,11 +216,12 @@ class Lab_Directory_Admin {
 				$ldap_server['ldap_timestamp_attribute'] = sanitize_text_field($_POST['ldap_timestamp_attribute']);
 				// $ldap_server['ldap_test_filter'] = sanitize_text_field($_POST['ldap_test_filter']);
 				update_option( 'lab_directory_ldap_server', $ldap_server);
-				$did_update_options = true;
+				$form_messages['form_saved'] = true;
 				
 				
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		} else {
@@ -248,6 +259,7 @@ class Lab_Directory_Admin {
 					}	
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		// Always activate CV
@@ -265,23 +277,31 @@ class Lab_Directory_Admin {
 	}
 	
 	static function settings_permissions() {
+		global $current_user;
 		
-		$capabilities = Lab_Directory::$capabilities;
-    
+		$form_messages = array('form_saved' => false);
 	    $wp_roles = new WP_Roles();
 	    $all_wp_roles = $wp_roles->roles;
 	    // Remove administrator (can do everything) and translator (unused) roles
-	    unset( $all_wp_roles['translator'] );
+
 	    unset( $all_wp_roles['administrator'] );
+	    unset( $all_wp_roles['translator'] );
 	    
 	    $all_ld_roles = Lab_Directory::get_lab_directory_default_statuss(); 
 		$ld_permissions = array();
 		
 		// Check $_POST and _wpnonce
+		$test_user_id = 0; 
 		if(isset($_POST['admin-settings-permissions'])) {
+			// User permission testing
+			if (in_array('administrator',  $current_user->roles) and isset($_POST['test_user_id']))  {
+				$test_user_id = intval($_POST['test_user_id']);
+				$test_user_id = $test_user_id>0? $test_user_id: 0;
+			};
+				
 			if ( ($_POST['admin-settings-permissions']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-permissions' )){
 				// Process form
-				foreach ($capabilities as $capability_key => $capability){
+				foreach (Lab_Directory::$capabilities as $capability_key => $capability){
 					foreach ($all_wp_roles as $role_key => $role) {
 						$name = 'wp_' . $role_key. '_'. $capability_key;
 						$ld_permissions[$name] =  isset($_POST[$name])? '1':'0';  
@@ -290,15 +310,20 @@ class Lab_Directory_Admin {
 						$name = 'ld_' . $role_key. '_'. $capability_key;
 						$ld_permissions[$name] =  isset($_POST[$name])? '1':'0'; 
 					}
-				}						
+				}
+				$form_messages['form_saved'] = true;
 			} elseif  ( ($_POST['admin-settings-permissions']=='Reset') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-permissions' )){
-				// admin-settings-resetting-permissions
+				// Resetting-permissions
 				$ld_permissions =  Lab_Directory::get_lab_directory_default_permissions();
+				$form_messages['warning'][] = 'Fields have been reset to default settings ';
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 				update_option( 'lab_directory_permissions', $ld_permissions);
+				// Update static $ld_permissions used in this form 
+				Lab_Directory::$ld_permissions = $ld_permissions;
 		} else {
 			// Form initialisation 
 			$ld_permissions = get_option( 'lab_directory_permissions');
@@ -313,8 +338,8 @@ class Lab_Directory_Admin {
 	static function settings_acronyms() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
-	
+		$form_messages = array('form_saved' => false);
+		
 		// Remove LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
 			echo 'no LDAP ';
@@ -328,6 +353,7 @@ class Lab_Directory_Admin {
 	
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
@@ -339,8 +365,7 @@ class Lab_Directory_Admin {
 	static function settings_test_sync() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
-		$sync_test_result="";
+		$form_messages = array('form_saved' => false);
 	
 			// Empty LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
@@ -379,9 +404,10 @@ class Lab_Directory_Admin {
 				$lab_directory_ldap_test_email = sanitize_text_field($_POST['ldap_test_email']);
 				update_option( 'lab_directory_ldap_test_email', $lab_directory_ldap_test_email);
 				
-				$did_update_options = true;
+				$form_messages['form_saved'] = true;
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
@@ -393,18 +419,18 @@ class Lab_Directory_Admin {
 			// do synchronisation tests
 			if ($test_sync == 'test_filter') {
 				// Test Sync with test filter 
-				$sync_test_result = Lab_Directory_Settings::import_annuaire_ldap($lab_directory_ldap_test_filter, '', true, $lab_directory_ldap_test_avec_import);
+				Lab_Directory_Settings::import_annuaire_ldap($lab_directory_ldap_test_filter, '', true, $lab_directory_ldap_test_avec_import, $form_messages);
 			}
 		elseif ($test_sync == 'email') {
 				// Test Sync with email filter 
-				$sync_test_result = $lab_directory_staff_settings->import_annuaire_ldap('', $lab_directory_ldap_test_email, true, $lab_directory_ldap_test_avec_import);
+				$lab_directory_staff_settings->import_annuaire_ldap('', $lab_directory_ldap_test_email, true, $lab_directory_ldap_test_avec_import, $form_messages);
 			}	
 		else {
 				// Test Sync with synchronisation filter 
-				$sync_test_result = $lab_directory_staff_settings->import_annuaire_ldap('', '', true, $lab_directory_ldap_test_avec_import);
+				$lab_directory_staff_settings->import_annuaire_ldap('', '', true, $lab_directory_ldap_test_avec_import, $form_messages);
 			}		
 		}
-
+		
 		$lab_directory_ldap_last10syncs = get_option( 'lab_directory_ldap_last10syncs', array('No sync operation performed up to now') );
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-test-sync.php' );
 	}
@@ -412,7 +438,7 @@ class Lab_Directory_Admin {
 	static function settings_taxonomy() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$did_update_options = false;
+		$form_messages = array('form_saved' => false); 
 	
 		// Remove LDAP tab if LDAP not used
 		if (get_option( 'lab_directory_use_ldap' ) == '0') {
@@ -427,6 +453,7 @@ class Lab_Directory_Admin {
 	
 			}else{
 				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}

@@ -1,3 +1,5 @@
+<?php echo_form_messages($form_messages); ?>
+
 <?php if($did_update_options): ?>
   <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
     <p>Settings updated.</p>
@@ -12,7 +14,7 @@
   <div class="clear"></div>
 
   <p>
-    <input type="submit" name="admin-settings-acronym" class="button button-primary button-large" value="Save">
+    <button type="submit" name="admin-settings-acronym" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
   </p>
   	<?php wp_nonce_field('admin-settings-acronym'); ?>
 </form>

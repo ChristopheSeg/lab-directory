@@ -35,21 +35,14 @@ jQuery(document).ready(function() {
  .input-in-td{ width:100%; border:0; padding-left:0; padding-right:0; }
 
  .widefat td, .widefat th {padding: 2px 10px 2px 10px;}
+ .toggleizered { display: none!important; }
 
 </style>
 
 <?php wp_enqueue_style('jquery-toggleizer.css',plugins_url( '/css/jquery-toggleizer.css', dirname(__FILE__) ))?>
 
-<?php if($did_update_options): ?>
-  <div id="message" class="updated notice notice-success is-dismissible below-h2 ">
-    <p>Settings updated.</p>
-  </div>
-<?php endif; ?>
-<?php if($did_reset_options): ?>
-  <div id="message" class="updated notice notice-success is-dismissible below-h2 ">
-    <p>All meta fields have been reset to their default values. Please press <b>Save</b> to validate this reset.</p>
-  </div>
-<?php endif; ?>
+<?php echo_form_messages($form_messages); ?>
+
 <form method="post">
     <h2>Custom Details Fields</h2>
 
@@ -60,12 +53,12 @@ jQuery(document).ready(function() {
     In order to use one meta field: this one must be enabled, and the corresponding group must also be activated. 
     </p>
 	<p>
-    	<input type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save">
+    	<button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
     	<?php if( current_user_can('administrator')): ?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
     	<?php endif; ?>
-    	&nbsp;&nbsp;&nbsp;&nbsp; <input type="submit" name="admin-resettings-fields" class="button button-primary button-large" 
-    	 value="Reset" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;">
+    	&nbsp;&nbsp;&nbsp;&nbsp; <button type="submit" name="admin-settings-fields" class="button button-primary button-large" 
+    	 value="Reset" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;"><?php _e('Reset')?></button>
     	
   	</p>
 
@@ -109,12 +102,12 @@ jQuery(document).ready(function() {
         	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
         	$lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
-        	$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+        	// $active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
         	$group_activations = get_option( 'lab_directory_group_activations' ) ;
        	
         	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
 
-        	foreach(get_option('lab_directory_staff_meta_fields') as $field): 
+        	foreach(Lab_Directory::$staff_meta_fields  as $field): 
         		$index++;
         		$custom = (strpos($field['slug'], 'custom') !== false);
         		
@@ -155,13 +148,13 @@ jQuery(document).ready(function() {
 	        <?php endif; ?>
             
             <td>
-			    <input name="lab_directory_staff_meta_fields_activateds[<?php echo $index; ?>]" 
+			    <input class="toggleizered" name="lab_directory_staff_meta_fields_activateds[<?php echo $index; ?>]" 
 			    	id="lab_directory_staff_meta_fields_activateds_<?php echo $index; ?>" 
 			    	type="checkbox" value="1" <?php checked( true, $field['activated'] ); ?> />
 			    <label for="lab_directory_staff_meta_fields_activateds_<?php echo $index; ?>"></label>
             </td>
             <td>
-			<input name="lab_directory_staff_meta_fields_show_frontends[<?php echo $index; ?>]" 
+			<input class="toggleizered" name="lab_directory_staff_meta_fields_show_frontends[<?php echo $index; ?>]" 
 				id="lab_directory_staff_meta_fields_show_frontends_<?php echo $index; ?>" 
 				type="checkbox" value="1" <?php checked( true, $field['show_frontend'] ); ?> />
  				<label for="lab_directory_staff_meta_fields_show_frontends_<?php echo $index; ?>"></label>
@@ -175,7 +168,7 @@ jQuery(document).ready(function() {
   <div class="clear"></div>
 
   <p>
-    <input type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save">
+    <button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
   </p>
   <?php wp_nonce_field('admin-settings-fields', '_wpnonce'); ?>
 </form>

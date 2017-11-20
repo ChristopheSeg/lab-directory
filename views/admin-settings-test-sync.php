@@ -1,20 +1,4 @@
-<?php if($did_update_options): ?>
-  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
-    <p>Settings updated.</p>
-  </div>
-<?php endif; ?>
-<?php if($sync_test_result): ?>
-  <?php if($sync_test_result['message_ok']): ?>
-	  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
-	    <p><?php echo $sync_test_result['message_ok']; ?></p>
-	  </div>
-  <?php endif; ?>
-  <?php if($sync_test_result['message_erreur']): ?>
-	  <div id="error" class="updated error is-dismissible below-h2 lab_directory_staff-success-message">
-	    <p><?php echo $sync_test_result['message_erreur']; ?></p>
-	  </div>
-  <?php endif; ?>
-<?php endif; ?>
+<?php var_dump($messages) ; echo_form_messages($form_messages);?>
 
 <form method="post">
   <h2>Test LDAP Synchronization</h2>
@@ -46,10 +30,10 @@
 		<tr>
 			<th scope="row"><label for="ldap_test_avec_import">Test sync with: </label></label></th>
 			<td>
-			    <input type="submit" name="admin-settings-test-sync-with-filter" class="button button-primary button-large" value="Test filter">&nbsp;&nbsp;&nbsp;
-			    <input type="submit" name="admin-settings-test-sync-with-email" class="button button-primary button-large" value="Email(s) filter">&nbsp;&nbsp;&nbsp;
-			    <input type="submit" name="admin-settings-test-sync-with-sync_filter" class="button button-primary button-large" value="Synchronisation filter">&nbsp;&nbsp;&nbsp;
-			    <input type="submit" name="admin-settings-test-sync" class="button button-primary button-large" value="Save">
+			    <button type="submit" name="admin-settings-test-sync-with-filter" class="button button-primary button-large" value="Test filter"><?php _e('Test filter')?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync-with-email" class="button button-primary button-large" value="Email(s) filter"><?php _e('Email(s) filter')?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync-with-sync_filter" class="button button-primary button-large" value="Synchronisation filter"><?php _e('Synchronisation filter')?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
 			</td>
 		</tr>
 		<tr>

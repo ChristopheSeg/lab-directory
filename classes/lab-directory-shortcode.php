@@ -31,10 +31,8 @@ class Lab_Directory_Shortcode {
         }
 
         //Retrieve custom fields
-        $lab_directory_staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
-
-        if ( !empty($lab_directory_staff_meta_fields) ) {
-            foreach ( $lab_directory_staff_meta_fields as $field ) {
+         if ( !empty( Lab_Directory::$staff_meta_fields) ) {
+            foreach ( Lab_Directory::$staff_meta_fields as $field ) {
                 $meta_key = $field['slug'];
                 add_shortcode( $meta_key, array( 'Lab_Directory_Shortcode', 'meta_shortcode' ) );
             }

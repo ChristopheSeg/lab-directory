@@ -3,8 +3,9 @@
 class Lab_Directory {
 
 	// static variables used almost by all admin windows
-	static $current_user_permissions = null; 
+	static $ld_permissions = null; 
 	static $capabilities = null;
+	static $staff_meta_fields = null;
 	
 	#
 	# Init custom post types
@@ -14,9 +15,10 @@ class Lab_Directory {
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
 		
-		// TODO where should this action (initiate_current_user_permissions) fired?
-		add_action( 'init', array( 'Lab_Directory', 'initiate_current_user_permissions' ) );
+		// TODO where should this action (initiate_ld_permissions) fired?
+		add_action( 'init', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'init', array( 'Lab_Directory', 'initiate_capabilities' ) );
+		add_action( 'init', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
 		
 		add_filter( "manage_edit-lab_directory_staff_columns", array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ) );
 		add_filter( "manage_lab_directory_staff_posts_custom_column", array(
@@ -324,30 +326,10 @@ class Lab_Directory {
 	
 
 		<?php 
-		$messages = get_post_meta( $post->ID, 'messages', true);
+		echo_form_messages(get_post_meta( $post->ID, 'messages', true)); 
 		delete_post_meta( $post->ID, 'messages');
-		if($did_update_options): ?>
-		  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
-		    <p>Settings updated.</p>
-		  </div>
-		<?php endif; ?>
-		<?php if($messages): ?>
-		  <?php if($messages['message_ok']): ?>
-			  <div id="message" class="updated notice notice-success is-dismissible below-h2 lab_directory_staff-success-message">
-			    <p><?php echo $messages['message_ok']; ?></p>
-			  </div>
-		  <?php endif; ?>
-		  <?php if($messages['message_erreur']): ?>
-			  <div id="error" class="updated error is-dismissible below-h2 lab_directory_staff-success-message">
-			    <p><?php echo $messages['message_erreur']; ?></p>
-			  </div>
-		  <?php endif; ?>
-		<?php endif;?>
-		
-		<?php 
-		
 		?>
-   
+
      <div id="demoTabsId" class="labDirectoryTabsClass">
         <ul>
             <?php
@@ -633,20 +615,17 @@ class Lab_Directory {
 		
 		// Process form 
 		// TODO this is not displayed !!
-		$did_update_options = false;
-		$messages = array();
-		$messages['message_erreur'] = 'test erreur';
-		$messages['message_ok']= 'test';
+		$form_messages = array('form_saved' => false);
 		// Notice: this error detection fails if 2 users save the same staff detail at the same time
-		update_post_meta( $post_id, 'messages', $messages);
+		// TODO add $form_messages !! 
+		update_post_meta( $post_id, 'messages', $form_messages);
 		
 		
 		// Do this for each group first (to simply add capacity 
 		foreach ($used_groups as $key => $group_name) {
 			// Then do it for each field in a group 
 			foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
-				if ($field['group'] == $key) {
-								
+				if ($field['group'] == $key) {			
 					Lab_Directory::lab_directory_save_meta_boxes_save_meta($post_id, $field, $lab_directory_meta_field_names[$field['slug']]);
 				}
 			}
@@ -851,6 +830,16 @@ class Lab_Directory {
 				'show_frontend' =>'1',
 				'activated' => '1',
 			),
+			array(
+					'order' => 10.5,
+					'type'=> 'social_network',
+					'slug' => 'social_network',
+					'group' => 'CV',
+					'ldap_field' => '',
+					'multivalue' => 'SV',
+					'show_frontend' =>'1',
+					'activated' => '1',
+				),
 			array(
 				'order' => 11, 
 				'type'=> 'text',
@@ -2010,6 +1999,7 @@ EOT;
 				'idhal' => __( 'ID HAL', 'lab-directory'),
 				'photo_url' => __( 'Photo URL', 'lab-directory'),
 				'webpage' => __( 'Professionnal webpage', 'lab-directory'),
+				'social_network' => __('Social Network', 'lab-directory'),
 				'function' => __( 'Function', 'lab-directory'),
 				'title' => __( 'Title', 'lab-directory'),
 				'phone' => __( 'Phone number', 'lab-directory'),
@@ -2078,10 +2068,16 @@ EOT;
 	 *  This function is runned once at init to calculate almost every permissions one time
 	 *   (excepted for own permissions) in order to speed up ld_user_can function
 	 */
-	static function initiate_current_user_permissions() {
-		self::$current_user_permissions = $temp;
-		
+	static function initiate_ld_permissions() {
+		self::$ld_permissions =  get_option( 'lab_directory_permissions');	
 	}
+	
+	static function initiate_staff_meta_fields() {
+		self::$staff_meta_fields =  get_option( 'lab_directory_staff_meta_fields');
+	} 
+	
+	
+	
 	
 	static function initiate_capabilities() {
 		$temp = array("0" => "test permissions modifié");
@@ -2173,11 +2169,25 @@ function compare_jury_order($a, $b)
  * public function to ger user permission
  *  $capability: capability key 
  */
-function ld_user_can($capability) {
+function ld_user_can($capability, $user_id=null) {
+	global $current_user;
 	if (!$capability) {return false;} 
-	
-	$current_user = wp_get_current_user();
-	if (!$current_user->id) { return false;}
+	if ($user_id) {
+		$user = get_userdata($user_id );
+		if ($user ) {
+			return ld_user_can_by_user($capability, $user);
+		} else {
+			return false; 
+		}
+	} else {
+		return ld_user_can_by_user($capability, $current_user); 
+	}
+
+}
+function ld_user_can_by_user($capability, $user) {
+
+	// if (in_array('administrator',  $user->roles))  { return true;};
+	if (!$user->id) { return false;}
 	
 	$scope = Lab_Directory::$capabilities[$capability]['scope'];
 	// unvalid scope (capability) 
@@ -2185,22 +2195,23 @@ function ld_user_can($capability) {
 	
 	// scope = all, capability based on WP groups
 	if ($scope == 'all') {
-		foreach ($current_user->roles as $role_key => $role ) {
-			$capability_key = 'wp_' . $role_key . '_' . $capability;
-			var_dump($capability_key);die();
-			if (Lab_Directory::$current_user_permissions[$capability_key]==true) {return true;}	
+		foreach ($user->roles as $role_key => $role ) {
+			$capability_key = 'wp_' . $role . '_' . $capability;
+	// echo ($capability_key); echo '<pre>';var_dump(Lab_Directory::$ld_permissions);echo '</pre>';die();
+			
+	if (Lab_Directory::$ld_permissions[$capability_key]==true) {return true;}	
 		}
 	}
 
 	// the rest need link between WP and LD??
-	$current_user_ld_id = false; 
+	$user_ld_id = false; 
 	
 	// TODO temporary return; 
 	return false; 
 	// query select staff_id from staf / wp_user_id= $current_user->id;
 	
 	
-	if (! $current_user_ld_id) {return false;}
+	if (! $user_ld_id) {return false;}
 	
 	// scope = owner capability based on WP groups
 	

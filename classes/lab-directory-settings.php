@@ -58,13 +58,55 @@ class Lab_Directory_Settings {
 		update_option( 'lab_directory_custom_templates', $updated_templates_array );
 	}
 
+	/* 
+	 * reset all meta fields to theirs default values 
+	 */
+	
 	public function reset_custom_lab_directory_staff_meta_fields() {
-		// sort by activated, then by order
+		
 		$meta_fields_array = Lab_Directory::get_default_meta_fields(); 
+		// Sort by activated, then by order
 		usort($meta_fields_array, __NAMESPACE__ . '\compare_order');
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
+		return; 
 		
 	}
+
+	/*
+	 * List all default meta fields, and add unregistered meta fields to $meta_fields_array
+	 * This is usefull if the plugin has been upgraded and new fields added to the plugin
+	 */
+	
+	public function upgrade_custom_lab_directory_staff_meta_fields() {
+		
+				$default_meta_fields = Lab_Directory::get_default_meta_fields();
+		$meta_fields = get_option( 'lab_directory_staff_meta_fields');
+		$meta_fields_slugs = array(); 
+		foreach ($meta_fields as $meta_field) {
+			$meta_fields_slugs[] = $meta_field['slug'];
+		}
+		$upgraded = false; 
+	
+		foreach ($default_meta_fields as $default_meta_field) {
+			if( ! in_array($default_meta_field['slug'], $meta_fields_slugs)) {
+				$upgraded = true;
+				// Add  a new unactivated meta field with its default values to $meta_fields
+				$default_meta_field['activated'] = '0'; 
+				$meta_fields[] = $default_meta_field;
+			}
+		}
+		if ($upgraded ) {
+			// sort and save upgraded meta_fields
+			usort($meta_fields, __NAMESPACE__ . '\compare_order');
+			update_option( 'lab_directory_staff_meta_fields', $meta_fields );
+		}
+		return; 
+	
+	}
+	
+	/* 
+	 * Update meta fileds after Form submission 
+	 */
 	
 	public function update_custom_lab_directory_staff_meta_fields()  {
 		
@@ -100,6 +142,9 @@ class Lab_Directory_Settings {
 		// sort by activated, then by order
 		usort($meta_fields_array, __NAMESPACE__ . '\compare_order');
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
+		// Update static variable
+		Lab_Directory::$staff_meta_fields = $meta_fields_array; 
+		
 	}
 	
 
@@ -160,14 +205,14 @@ class Lab_Directory_Settings {
 	 * Fonction permettant d'importer OU de tester l'import LDAP
 	 * $search_filter: string: filtre LDAP de test éventuel
 	 * $search_mail: array: contient éventuellement des emails pour importer une seule fiche (préenregistrement) ou des fiches (test)
-	 * $test: si true (mode test) la variable $messages retournera les messages d'erreur
+	 * $test: si true (mode test) la variable $form_messages retournera les messages d'erreur
 	 * $import: l'import des fiches dans la base SPIP n'est fait que si $import==true
 	 *
 	 * 5 modes d'appel:
-	 * 1- import_annuaire_ldap($filtre, '', true, $import): TEST: test de l'import ET éventuel import de l'annuaire LDAP pour le filtre sélectionné (filtre au format texte)
-	 * 2- import_annuaire_ldap('', $mail, true, $import):TEST: recherche et import d'une fiche LDAP contenant l'email
-	 * -- import_annuaire_ldap($filtre, $mail, true, $import): TEST: idem à cas 2 ($filtre non pris en compte)
-	 * 3- import_annuaire_ldap('', '', true, $import): TEST: test ET éventuel import de tout l'annuaire LDAP (avec filfre de synchronisation)
+	 * 1- import_annuaire_ldap($filtre, '', true, $import, $form_messages): TEST: test de l'import ET éventuel import de l'annuaire LDAP pour le filtre sélectionné (filtre au format texte)
+	 * 2- import_annuaire_ldap('', $mail, true, $import, $form_messages):TEST: recherche et import d'une fiche LDAP contenant l'email
+	 * -- import_annuaire_ldap($filtre, $mail, true, $import, $form_messages): TEST: idem à cas 2 ($filtre non pris en compte)
+	 * 3- import_annuaire_ldap('', '', true, $import, $form_messages): TEST: test ET éventuel import de tout l'annuaire LDAP (avec filfre de synchronisation)
 	 *
 	 * 4- import_annuaire_ldap(): IMPORT: import de tout l'annuaire LDAP (synchronisation)
 	 * 5- import_annuaire_ldap('', $mail, ): IMPORT: import d'une fiche de l'annuaire LDAP (préenregistrement)
@@ -176,7 +221,7 @@ class Lab_Directory_Settings {
 	 * Retour:
 	 *   l'id_personnel si $search_mail est spécifié et si test==false et
 	 *   	si une fiche a été trouvée dans l'annuaire LDAP
-	 *   $messages si test est à true
+	 *   $form_messages si test est à true
 	 *   aucun pour la synchronisation, import_annuaire_ldap(false, false)
 	 * Log:
 	 * dans chaque cas le fichier log peut contenir des informations supplémentaires
@@ -185,7 +230,7 @@ class Lab_Directory_Settings {
 	 *    synchronisation de préenregistrement et de test avec ou sans import
 	 *
 	 */
-	static function import_annuaire_ldap($search_filter = '', $search_mail='', $test=false, $import = true) {
+	static function import_annuaire_ldap($search_filter = '', $search_mail='', $test=false, $import = true, &$form_messages) {
 	
 		$sync_info = date('Y-m-d H:i');
 		if ($search_filter == '' AND $search_mail=='' AND !$test AND $import ) {
@@ -210,10 +255,9 @@ class Lab_Directory_Settings {
 		if ($test) {
 			write_log('TEST LDAP', 'Annuaire', _LOG_INFO);
 			
-			$messages['message_erreur'] = '';
-			$messages['message_ok']= "Debut du TEST IMPORT LDAP<br>\n";
-			$messages['message_ok']= "Filtre de test: $filter<br>\n";
-			$messages['message_ok']= "Email de test: $search_mail<br>\n";
+			$form_messages['ok'][]= "Debut du TEST IMPORT LDAP<br>\n 
+					Filtre de test: $search_filter<br>\n
+					Email de test: $search_mail<br>\n";
 		}
 		else {
 			write_log('Lancement du cron MAJ annuaire', 'Annuaire', _LOG_INFO);
@@ -227,8 +271,8 @@ class Lab_Directory_Settings {
 			write_log('Serveur LDAP mal configuré');
 			write_log('Session LDAP annulée!');
 			if ($test) {
-				$messages['message_erreur'] .= "Veuillez configurer le serveur LDAP avant d'effectuer ce test<br />\n";
-				return $messages;
+				$form_messages['erreur'][] = "Veuillez configurer le serveur LDAP avant d'effectuer ce test<br />\n";
+				return ;
 			}
 			return;
 		}
@@ -247,8 +291,8 @@ class Lab_Directory_Settings {
 				write_log('Filtres LDAP non configuré', 'Annuaire', _LOG_ERREUR);
 				write_log('Session LDAP terminé!', 'Annuaire', _LOG_INFO);
 				if ($test) {
-					$messages['message_erreur'] .= "Veuillez configurer les filtres LDAP avant d'effectuer ce test<br />\n";
-					return $messages;
+					$form_messages['erreur'][] = "Veuillez configurer les filtres LDAP avant d'effectuer ce test<br />\n";
+					return;
 				}
 				return;
 			}
@@ -273,8 +317,8 @@ class Lab_Directory_Settings {
 					}
 					$filter = "(| ".implode($filtre_mails) . ")";
 				} else {
-					$messages['message_erreur'] .= "Veuillez configurer les attributs LDAP [mails] et/ou [other_mails] avant d'effectuer ce test<br />\n";
-					return $messages;
+					$form_messages['erreur'][] = "Veuillez configurer les attributs LDAP [mails] et/ou [other_mails] avant d'effectuer ce test<br />\n";
+					return;
 				}
 				
 				
@@ -318,14 +362,14 @@ class Lab_Directory_Settings {
 			write_log("Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds));
 			write_log('TEST LDAP terminé!');
 			if ($test) {
-				$messages['message_erreur'] .= "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds) . "<br />\n";
-				return $messages;
+				$form_messages['erreur'][] = "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds) . "<br />\n";
+				return ;
 			}
 			return;
 		}
 	
 		write_log('Connexion au serveur LDAP OK');
-		if ($test) { $messages['message_ok'] .= "Connexion au serveur LDAP OK <br/> \n";}
+		if ($test) { $form_messages['ok'][] = "Connexion au serveur LDAP OK.";}
 	
 		// search the LDAP users
 		$r=@ldap_bind($ds);     // connexion anonyme, typique
@@ -335,25 +379,25 @@ class Lab_Directory_Settings {
 			write_log('SESSION LDAP terminé!');
 			ldap_close($ds);
 			if ($test) {
-				$messages['message_erreur'] .= "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds) . "<br />\n";
-				return $messages;
+				$form_messages['erreur'][] = "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds);
+				return;
 			}
 			return;
 		}
-	
+		
 		write_log('Connecté et lié au serveur LDAP');
 		write_log('filtre de synchronisation : '.$filter);
 		if ($test) {
-			$messages['message_ok'] .= "Connecté et lié au serveur LDAP <br/> \n";
+			$form_messages['ok'][] = "Connecté et lié au serveur LDAP";
 	
 			if ($search_mail) {
-				$messages['message_ok'] .= "<b>Test avec filtrage des mails </b><br />\n";
+				$form_messages['ok'][] = "<b>Test avec filtrage des mails </b>";
 			} elseif ($search_filter) {
-				$messages['message_ok'] .= "<b>Test avec filtre de test </b><br />\n";
+				$form_messages['ok'][] = "<b>Test avec filtre de test </b>";
 			} else {
-				$messages['message_ok'] .= "<b>Test avec filtre de synchronisation</b><br />\n";
+				$form_messages['ok'][] = "<b>Test avec filtre de synchronisation</b>";
 			}
-			$messages['message_ok'] .= "Filtre: $filter <br />\n";
+			$form_messages['ok'][] = "Filtre: $filter ";
 		}
 	
 		$sr=ldap_search($ds,$dn, $filter,$LDAPattributes);
@@ -362,19 +406,19 @@ class Lab_Directory_Settings {
 			write_log('Impossible de se lier (bind) au serveur LDAP');
 			write_log('SESSION  LDAP terminé!');
 			if ($test) {
-				$messages['message_erreur'] .= "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds) ."<br />\n filtre=". $filter."<br />\n";
+				$form_messages['erreur'][] =  "Erreur LDAP n° " . ldap_errno($ds) . " : " . ldap_error($ds) ."<br />\n filtre=". $filter."<br />\n";
 				ldap_close($ds);
-				return $messages;
+				return; 
+		
 			}
 			ldap_close($ds);
 	
 			return;
 		}
-		
 		$entrees_ldap = (array) ldap_get_entries($ds, $sr);
 		$nb_fiches=$entrees_ldap["count"];
 		write_log('Il y a ' . $nb_fiches . ' entrées dans l\'annuaire LDAP');
-		if ($test){ $messages['message_ok'] .= '<br><b>Il y a '. $nb_fiches . " entrées dans l'annuaire LDAP </b><br/> \n";}
+		if ($test){ $form_messages['ok'][] = '<b>Il y a '. $nb_fiches . " entrées dans l'annuaire LDAP </b>";}
 		ldap_close($ds);
 
 		global $wpdb;	
@@ -389,7 +433,9 @@ class Lab_Directory_Settings {
 			$nom = $entree_ldap[$active_meta_fields['nom'][0]][0];
 			$prenom = $entree_ldap[$active_meta_fields['prenom'][0]][0];
 			$mail = $entree_ldap[$active_meta_fields['mails'][0]][0];
+			//TODOTODO don't save if $nom $prenom vides !!
 	
+			// TODO 1 or 2 ?? 
 			$champ_valeurs = array('ldap' => 1);
 	
 			foreach ($active_meta_fields as $active_meta_field )
@@ -407,10 +453,11 @@ class Lab_Directory_Settings {
 						$indexj++;
 						$valeurs[$indexj] = str_replace("'","&#39;",$entree_ldap[$LDAPattribute][$j]);
 						if (($nb_fiches<=10) AND ($test) ) {
-							$messages['message_ok'] .= $active_meta_field['slug'] .': ' . $LDAPattribute."[$j]=". $entree_ldap[$LDAPattribute][$j]."<br/> \n";
+							$form_messages['ok'][] = $active_meta_field['slug'] .': ' . $LDAPattribute."[$j]=". $entree_ldap[$LDAPattribute][$j]."<br/> \n";
 						}
 					}
 				}
+				// TODOTODO revoir 
 				// Serialisation des valeurs
 				if ($indexj>=0)
 				{
@@ -488,8 +535,8 @@ class Lab_Directory_Settings {
 					// Erreur il y a plusieurs enregistrements
 					$readytoimport=false;
 					if ($test) {
-						$messages['message_erreur'] .= "Erreur : importation impossible pour cette entrée de l'annuaire car il existe plusieurs 
-								enregistrements en base de données pour cet email. <br />\n";
+						$form_messages['erreur'][] = "Erreur : importation impossible pour cette entrée de l'annuaire car il existe plusieurs 
+								enregistrements en base de données pour cet email.";
 					}
 				}
 			}
@@ -516,13 +563,13 @@ class Lab_Directory_Settings {
 			if ($test) {
 				// Affichage messages avant import qui est optionnel
 				if ($staff_post_id) {
-					$messages['message_ok'] .= "<b>Enr. n°$i MAJ[id=$staff_post_id] :</b>  " . $champ_valeurs['firstname'] . ' ' . 
+					$form_messages['ok'][] = "<b>Enr. n°$i MAJ[id=$staff_post_id] :</b>  " . $champ_valeurs['firstname'] . ' ' . 
 							$champ_valeurs['name'] . ' ' . 
-							$champ_valeurs['mails'] . "<br/> \n";
+							$champ_valeurs['mails'] ;
 				} else {
-					$messages['message_ok'] .= "<b>Enr. n°$i CREATION[] :</b> " . $champ_valeurs['firstname'] . ' ' . 
+					$form_messages['ok'][] = "<b>Enr. n°$i CREATION[] :</b> " . $champ_valeurs['firstname'] . ' ' . 
 							$champ_valeurs['name'] . ' ' . 
-							$champ_valeurs['mails'] . "<br/> \n";
+							$champ_valeurs['mails'];
 				}
 			}					
 			
@@ -545,12 +592,12 @@ class Lab_Directory_Settings {
 				if (!$success ){
 					write_log('Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id, 'Annuaire', _LOG_ERREUR);
 					if ($test) {
-						$messages['message_erreur'] .= '<b>==> Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id. "</b><br />\n";
-						return $messages;
+						$form_messages['erreur'][] = '<b>==> Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id. "</b>";
+						return;
 					}
 					return;
 				} else{
-					$messages['message_ok'] .= "<b>==> MAJ ou CREATION[] terminée avec succès</b> <br/> \n";
+					$form_messages['ok'][] = "<b>==> MAJ ou CREATION[] terminée avec succès</b>";
 				}
 
 			}
@@ -559,8 +606,7 @@ class Lab_Directory_Settings {
 		write_log('SESSION LDAP terminée!', 'Annuaire', _LOG_INFO);
 	
 		if ($test) {
-			$messages['message_ok'] .='SESSION LDAP terminée';
-			return $messages;
+			$form_messages['ok'][] = 'SESSION LDAP terminée';
 		}else {
 			return $staff_post_id;
 		}
@@ -575,7 +621,7 @@ class Lab_Directory_Settings {
 		 'post_type'    => 'lab_directory_staff',
 		 'post_status'  => 'publish'
 		 );
-		 echo '<pre>';var_dump($new_lab_directory_staff_array); echo '</pre>';
+		 echo 'New staff: <pre>';var_dump($new_lab_directory_staff_array); echo '</pre>';
 		 $success=true; 
 		 $new_lab_directory_staff_post_id = wp_insert_post( $new_lab_directory_staff_array );
 		 if ($new_lab_directory_staff_post_id) {
@@ -651,8 +697,7 @@ class Lab_Directory_Settings {
 	}
 
 	/*
-	 Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
-	
+	 * Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
 	 */
 	function get_used_groups($active_meta_fields = null , $staff_statuss=null, $bio=false ){
 	
@@ -664,9 +709,13 @@ class Lab_Directory_Settings {
 		$used_groups['CV']=$group_names['CV'];
 		if ($bio) {$used_groups['BIO']=$group_names['BIO'];}
 
+		// That's all if $staff_statuss is empty
+		if (! is_array($staff_statuss) OR empty($staff_statuss)) { return $used_groups; }
+
 		foreach ($active_meta_fields as $active_meta_field)
 		{
 			$group = $active_meta_field['group'];
+			
 			if ($group AND ($group !='BIO') AND $staff_statuss[$group] AND !array_key_exists ( $group , $used_groups) ) {
 				$used_groups[$group] = $group_names[$group];
 			}
@@ -694,6 +743,41 @@ if (!function_exists('write_log')) {
 			}
 		}
 	}
+}
+
+function echo_form_messages($form_messages=null) {
+	
+	if (!$form_messages) {return;}
+	
+	if($form_messages['ok'] or $form_messages['form_saved']){
+		echo ('<div id="message" class="updated notice notice-success is-dismissible below-h2 -success-message">');
+		if ($form_messages['ok'] ) {
+			foreach ($form_messages['ok'] as $message) {
+				echo ('<p>' . $message . '</p>');
+		}
+			
+		} else {
+			echo ('<p>' . __('Form saved') . '</p>');
+		}
+		echo '</div>';
+	}
+	
+	if($form_messages['warning']){
+		echo ('<div id="warning" class="notice notice-warning  is-dismissible below-h2 -error-message"' );
+			foreach ($form_messages['warning'] as $message) {
+				echo ('<p>' . $message . '</p>');
+		}
+		echo '</div>';
+	}
+				  
+	if($form_messages['erreur']){
+		echo ('<div id="error" class="updated error is-dismissible below-h2 -error-message"' );
+		foreach ($form_messages['erreur'] as $message) {
+			echo ('<p>' . $message . '</p>'); 
+		}
+		echo '</div>';
+	}
+				  			
 }
 
 
