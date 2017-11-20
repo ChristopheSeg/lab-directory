@@ -42,7 +42,6 @@ jQuery(document).ready(function() {
 <?php wp_enqueue_style('jquery-toggleizer.css',plugins_url( '/css/jquery-toggleizer.css', dirname(__FILE__) ))?>
 
 <?php echo_form_messages($form_messages); ?>
-
 <form method="post">
     <h2>Custom Details Fields</h2>
 
@@ -54,12 +53,13 @@ jQuery(document).ready(function() {
     </p>
 	<p>
     	<button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
-    	<?php if( current_user_can('administrator')): ?>
+    	
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
-    	<?php endif; ?>
+    	
+    	<?php if( current_user_can('administrator')): ?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <button type="submit" name="admin-settings-fields" class="button button-primary button-large" 
     	 value="Reset" onclick="return confirm('<?php _e('Do you really want to reset all meta fields?  (all previously saved meta fields setting will be lost) .');?>') ;"><?php _e('Reset')?></button>
-    	
+    	<?php endif; ?>
   	</p>
 
     <table class="widefat fixed striped" cellspacing="0" id="lab_directory_staff-meta-fields">
@@ -70,9 +70,10 @@ jQuery(document).ready(function() {
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Type</th>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue
+			<a href="#footnote" title="Note"><sup>(3)(4)</sup></a></th>
           <?php if ($use_ldap) : ?> 
-          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
@@ -86,9 +87,10 @@ jQuery(document).ready(function() {
           <th id="columnname" class="manage-column column-columnname" scope="col">Template Shortcode</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Meta Field Group</th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Type</th>
-          <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue
+			<a href="#footnote" title="Note"><sup>(3)(4)</sup></a></th>
 <?php if ($use_ldap) : ?> 
-          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields</th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
@@ -102,7 +104,7 @@ jQuery(document).ready(function() {
         	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
         	$lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
-        	// $active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+         	// $active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
         	$group_activations = get_option( 'lab_directory_group_activations' ) ;
        	
         	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
@@ -110,6 +112,7 @@ jQuery(document).ready(function() {
         	foreach(Lab_Directory::$staff_meta_fields  as $field): 
         		$index++;
         		$custom = (strpos($field['slug'], 'custom') !== false);
+        		$special = $field['multivalue']=='special'? true: false; 
         		
         ?>
           <tr class="column-<?php echo $field['slug']; ?> <?php echo (($field['activated']=='0')? 'unactivated' : ''); ?>" 
@@ -126,24 +129,40 @@ jQuery(document).ready(function() {
               value="<?php echo $field['slug']; ?>" />
             </td>
             <td>
-               	<?php echo create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
+               	<?php echo lab_directory_create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
               		$lab_directory_group_names, $field['group'], 'input-in-td', false, !$custom); 
 					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
 					
                	?>
 			</td>
             <td>
-              	<?php echo create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
-              		$lab_directory_meta_field_types, $field['type'], 'input-in-td'); ?>
+              	<?php echo lab_directory_create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
+              		$lab_directory_meta_field_types, $field['type'], 'input-in-td', false, $special); ?>
             </td>
             <td>
- 				<?php echo create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
-              		$lab_directory_multivalues, $field['multivalue'], 'input-in-td'); ?>
-            </td>
+ 				<?php 
+ 				if ($special) {
+ 					/* translators: Single valued or special field (translatation used in an input select should be as short as possible (2 words) */ 
+ 					echo '<span class="dashicons dashicons-lock"></span> (' . __('Single/Special','lab_directory') . ')'; 
+ 				} else {
+ 					echo lab_directory_create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
+              		$lab_directory_multivalues, $field['multivalue'], 'input-in-td'); 
+ 				}
+ 				?>
+             </td>
             <?php if ($use_ldap) : ?> 
 	        <td>
- 				<?php echo create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
-              		$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', true); ?>
+ 				<?php 
+ 				// Warning : $lab_directory_default_meta_fields['ldap_attributes'] is not saved 
+ 				if ($field['ldap_attributes']) {
+ 					// Nothing to display this ldap field is disabled
+ 					echo '<span class="dashicons dashicons-lock"></span>';
+ 				} else { 
+ 					echo lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
+ 							$lab_directory_ldap_attributes, $field['ldap_attributes'], 'input-in-td', __('No syncing'));
+ 				}
+              		
+ 				?>
 	        </td>
 	        <?php endif; ?>
             
@@ -169,9 +188,19 @@ jQuery(document).ready(function() {
 
   <p>
     <button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
+     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
   </p>
   <?php wp_nonce_field('admin-settings-fields', '_wpnonce'); ?>
 </form>
 <h4 id="footnote">Notes</h4>
 <p>(1). If order is set to n, the corresponding fiels will be placed just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
 <p>(2). This group of field is disabled. Corresponding field(s) will not be used in the directory (even if fields(s) is (are)activated). </p>
+<p>(3). LDAP attributes column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding field(s) can not be synced with LDAP. </p>
+<p>(4). Multivalue column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding fields are always single value. </p>
+<p>(4). Notes about Multivalued LDAP fields<br>
+<?php 
+$notes = Lab_Directory::get_lab_directory_multivalues_names();
+foreach ($notes as $key =>$note) {
+echo '&nbsp;&nbsp;&nbsp;&nbsp;' . ($lab_directory_multivalues[$key]? $lab_directory_multivalues[$key]: $key) . ' : ' . $note . '<br>';
+}?>
+</p>

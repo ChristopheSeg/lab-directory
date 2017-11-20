@@ -1,15 +1,27 @@
 <?php
 
-#
-# select input
-#
+/* 
+ * Create a selec tinput from value list 
+ * 
+ * $allow_none: text for 'no selection' or false
+ */
 
-function create_select($name=false, $values, $current_value= null, $class=null, $allow_none=false, $disabled=false) {
+
+function lab_directory_create_select($name=false, $values, $current_value= null, $class=null, $allow_none=false, $disabled=false) {
 	
 	if (($name == false) OR ($values == false)) {
 		return '';
 	}
-	$noselection=true; 
+	if ($allow_none !== false) {
+		if ($allow_none === true) {
+			$no_selection= __('no selection', 'lab_directory');
+		} else {
+			$no_selection = $allow_none;
+		}
+	} else {
+			$no_selection = '';
+	}
+	
 	$select_options = '';
 	
    	foreach( $values as $key => $value) {
@@ -22,8 +34,8 @@ function create_select($name=false, $values, $current_value= null, $class=null, 
 	
 	
 	$select = '<select ' . ($disabled? 'hidden ':'') .' class="' . $class . '"name="' . $name . '">';
-	if ($allow_none) {
-		$select .='<option value="none" ' . ($noselection? 'selected ': '') . '>'. __('no selection', 'lab_directory') . '</option>';
+	if ($allow_none!== false) {
+		$select .='<option value="none" ' . ($current_value=='none'? 'selected':'') . '>'. $no_selection . '</option>';
 	}
 	$select .= $select_options . '</select>';
 	

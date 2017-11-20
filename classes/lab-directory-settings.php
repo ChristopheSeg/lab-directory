@@ -125,6 +125,14 @@ class Lab_Directory_Settings {
 
 		foreach ( $slugs as $slug ) {
 			$index ++;
+			
+			$special = isset($multivalues[ $index ])? true: false; 
+			
+			if (isset($ldap_attributes[ $index ])) {
+				$calculated_ldap_attributes = $ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ];
+			} else {
+				$calculated_ldap_attributes = 'disabled';
+			}
 			$meta_fields_array[] = array(
 					'slug' => $slug,
 					'order' => $orders[ $index ],
@@ -132,8 +140,8 @@ class Lab_Directory_Settings {
 					'group' => $groups[ $index ],
 					'activated' => isset($activateds[ $index ])? '1': '0',
 					'order' => $orders[ $index ],
-					'multivalue' => $multivalues[ $index ],
-					'ldap_attribute' => ($ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ]),
+					'multivalue' => $special? 'special': $multivalues[ $index ],
+					'ldap_attributes' => $calculated_ldap_attributes,
 					'show_frontend' => isset($show_frontends[ $index ])? '1': '0',
 				);
 			
@@ -301,11 +309,11 @@ class Lab_Directory_Settings {
 				$filtre_mails = array();
 				$attributs_mails= array(); 
 				
-				if ($active_meta_fields['mails']['ldap_attribute']) {
-					$attributs_mails[] = $active_meta_fields['mails']['ldap_attribute'];
+				if ($active_meta_fields['mails']['ldap_attributes']) {
+					$attributs_mails[] = $active_meta_fields['mails']['ldap_attributes'];
 				}
-				if ($active_meta_fields['other_mails']['ldap_attribute']) {
-					$attributs_mails[] = $active_meta_fields['other_mails']['ldap_attribute'];
+				if ($active_meta_fields['other_mails']['ldap_attributes']) {
+					$attributs_mails[] = $active_meta_fields['other_mails']['ldap_attributes'];
 				}
 				if ($attributs_mails) {
 					$search_mails= explode(',',$search_mail);
@@ -440,7 +448,7 @@ class Lab_Directory_Settings {
 	
 			foreach ($active_meta_fields as $active_meta_field )
 			{
-				$LDAPattribute = strtolower($active_meta_field['ldap_attribute']);
+				$LDAPattribute = strtolower($active_meta_field['ldap_attributes']);
 				$valeurs=array();
 				$indexj=-1;
 				// tester si l'entrée LDAP existe et si elle est multiple
@@ -649,16 +657,6 @@ class Lab_Directory_Settings {
 	 *  configuration relatifs aux attributs pour construire un tableau de correspondance
 	 *  entre ces champs et les attibuts à extraire  du type
 	 *
-	 *
-	 $meta_fields_array[] = array(
-	 'slug' => $slug,
-	 'order' => 2, 
-				'type'=> $types[ $index ],
-	 'activated' => $activateds[ $index ],
-	 'order' => $orders[ $index ],
-	 );
-	
-	 *
 	 */
 	function get_active_meta_fields() {
 		$active_meta_fields = array();
@@ -671,7 +669,7 @@ class Lab_Directory_Settings {
 	}
 	
 	/*
-	 Cette fonction retourne la liste des attributs LDAP utilisées pour constituer l'annuaire
+	 Cette fonction retourne la liste des attributs LDAP utilisés pour constituer l'annuaire
 	 sous la forme type:
 	 $LDAPattributes=array("modifyTimeStamp","uid","cn","sn","givenname");
 	
@@ -683,9 +681,10 @@ class Lab_Directory_Settings {
 		$LDAPattributes = array();
 		foreach ($active_meta_fields as $active_meta_field)
 		{
-			if ($active_meta_field['ldap_attribute']) {
+			if ($active_meta_field['ldap_attributes'] AND 
+					($active_meta_field['ldap_attributes']!='disabled')) {
 				// Add non empty attribute
-				$LDAPattributes[] = $active_meta_field['ldap_attribute'];
+				$LDAPattributes[] = $active_meta_field['ldap_attributes'];
 			}
 		}
 	

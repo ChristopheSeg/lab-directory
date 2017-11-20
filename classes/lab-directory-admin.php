@@ -65,9 +65,9 @@ class Lab_Directory_Admin {
 			// Temporary TODO list 
 			?>
 			<p>
-		      <br>TODO ajouter blocage de MV et type. (exemple jury, date)
-		      <br>TODO ajouter mandatory (name firstname = titre) ???
-		      <br>TODO lock (note) supprimer si pas LDAP
+		      <br> TODOTODO isset($field['ldap_attributes']) AND 
+				($field['ldap_attributes']!='disabled')
+			  <br>TODO ajouter mandatory (name firstname = titre) ???
 		      <br>TODO social_network 
 		      <br>TODO voir add new/ ldap=0; 
 		      <br>TODO ajouter slug calculés firstname_name....
