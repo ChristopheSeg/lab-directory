@@ -104,7 +104,6 @@ jQuery(document).ready(function() {
         	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
         	$lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
-         	// $active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
         	$group_activations = get_option( 'lab_directory_group_activations' ) ;
        	
         	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
@@ -153,8 +152,8 @@ jQuery(document).ready(function() {
             <?php if ($use_ldap) : ?> 
 	        <td>
  				<?php 
- 				// Warning : $lab_directory_default_meta_fields['ldap_attributes'] is not saved 
- 				if ($field['ldap_attributes']) {
+ 				// initial value of $field['ldap_attributes'] ="" or 'disabled' 
+ 				if ($field['ldap_attributes']=='disabled') {
  					// Nothing to display this ldap field is disabled
  					echo '<span class="dashicons dashicons-lock"></span>';
  				} else { 

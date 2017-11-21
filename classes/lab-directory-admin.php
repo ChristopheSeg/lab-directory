@@ -65,13 +65,15 @@ class Lab_Directory_Admin {
 			// Temporary TODO list 
 			?>
 			<p>
-		      <br> TODOTODO isset($field['ldap_attributes']) AND 
-				($field['ldap_attributes']!='disabled')
-			  <br>TODO ajouter mandatory (name firstname = titre) ???
+		      <br>TODO ldap_attributes à mettre au singulier !!
+		      <br>TODO alignement sur settings metafields §§§ 
+		      <br>TODO 
+		      <br>TODO 
+		      <br>TODO 
+		      <br>TODO ajouter mandatory (name firstname = titre) ???
 		      <br>TODO social_network 
 		      <br>TODO voir add new/ ldap=0; 
 		      <br>TODO ajouter slug calculés firstname_name....
-		      <br>TODO MV revoir import_annuaire_ldap 
 		      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
 		      <br>TODO traduction custom / others
 		      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD

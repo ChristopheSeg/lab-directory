@@ -2,9 +2,93 @@
 
 class Lab_Directory {
 
-	// static variables used almost by all admin windows
+	// Declaration of static variables used by almost all admin/frontend page
+	
+	/* 
+	 *  Lab_Directory::$ld_permissions
+	 *  list all permissions settings (value is "0" or "1")
+	 *  
+	 *  = array {
+	 *   "wp_editor_settings_general" => string(1) "0",
+	 *   "wp_author_settings_general" => string(1) "1",
+	 *   "wp_contributor_settings_general" => string(1) "0",
+	 *   -------
+	 *   "ld_post-doctorate_give_phd_status" => string(1) "0"
+	 *   "ld_internship_give_phd_status" => string(1) "0"
+	 *   };
+	 */
+	
 	static $ld_permissions = null; 
+	
+	/* 
+	 * Lab_Directory::$capabilities
+	 * List all capabilities, their name and scope ("all" or "own")
+	 * 
+	 * 	Lab_Directory::$capabilities = array(
+	 *  		'settings_general' => array(
+	 * 					'name' =>'General settings',
+	 * 					'scope' =>'all'),
+	 * 			'settings_permissions' => array(
+	 * 					'name' =>'Permissions settings',
+	 * 					'scope' =>'all'),
+	 * 		-------
+	 * 			'edit_own_staff_profile' => array(
+	 * 					'name' =>'Edit its own profile',
+	 * 					'scope' =>'own'),
+	 *  	);
+	 */
+
 	static $capabilities = null;
+	
+	/*
+	 * Lab_Directory::$staff_meta_fields
+	 * List all capabilities, their name and scope ("all" or "own")
+	 *
+	 * 	Lab_Directory::$staff_meta_fields = array(
+	 *  		'settings_general' => array(
+	 * 					'name' =>'General settings',
+	 * 					'scope' =>'all'),
+	 * 			'settings_permissions' => array(
+	 * 					'name' =>'Permissions settings',
+	 * 					'scope' =>'all'),
+	 * 		-------
+	 * 			'edit_own_staff_profile' => array(
+	 * 					'name' =>'Edit its own profile',
+	 * 					'scope' =>'own'),
+	 *  	);
+	 *
+	 */
+	
+	/* 
+	 *   Lab_Directory::$staff_meta_fields
+	 *   ordered list of all metafields in and their description 
+	 *   
+	 *   	Lab_Directory::$staff_meta_fields = array(
+	 *   [0]=>
+	 *     array(8) {
+	 *       ["slug"]=>    string(9) "firstname"
+	 *       ["order"]=>   string(1) "1"
+	 *       ["type"]=>    string(4) "text"
+	 *       ["group"]=>    string(2) "CV"
+	 *       ["activated"]=>    string(1) "1"
+	 *       ["multivalue"]=>    'special'
+	 *       ["ldap_attributes"]=>    string(2) "sn" ( 'disabled' if ldap syncing disabled)
+	 *       ["show_frontend"]=>     string(1) "1"
+	 *     }
+	 *     [1]=>
+	 *     array(8) {
+ 	 *      ["slug"]=>     string(4) "name"
+ 	 *      ["order"]=>    string(1) "2"
+	 *       ["type"]=>    string(4) "text"
+	 *       ["group"]=>    string(2) "CV"
+	 *       ["activated"]=>    string(1) "1"
+	 *       ["multivalue"]=>    special
+	 *       ["ldap_attributes"]=>    string(0) ""
+	 *       ["show_frontend"]=>    string(1) "1"
+	 *      }
+	 *   }
+	 */
+	
 	static $staff_meta_fields = null;
 	
 	#
@@ -277,6 +361,11 @@ class Lab_Directory {
 		<?php 
 	}
 	
+	/* 
+	 * Output the meta_box form content
+	 * 
+	 */
+	 
 	static function lab_directory_staff_meta_box_output( $post ) {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -372,13 +461,19 @@ class Lab_Directory {
 
 		// TODO disable input depending on capability , LDAP...
 		
-		// Disable input when field is synsced with LDAP 
+		// Disable input when field is synced with LDAP 
 		if ( $ldap_synced AND isset($field['ldap_attributes']) AND 
 				($field['ldap_attributes']!='disabled') ) {
 			if ($field['ldap_attributes']){ 
 				$field_type = 'disabled';
 			}
 		}
+		// Disable wp_user_id field
+		if ($field['slug']=='wp_user_id'){
+			$field_type = 'disabled';
+		}
+		
+		$value = get_post_meta( $post->ID,$field['slug'], true );
 		
 		if ($field_type != 'disabled') {
 			// handle Multivalue
@@ -430,7 +525,10 @@ class Lab_Directory {
 			$label .= '<span class="dashicons dashicons-lock"></span>';
 		}
 		$label .='</label>';
-		echo '<p>';		
+		echo '<p>';	
+		
+		
+		
 		switch ($field_type) {
 			case 'text' :
 			case 'mail' :
@@ -439,7 +537,7 @@ class Lab_Directory {
 				echo $label;
 				?>
 					<input type="text" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
-						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>  
+						value="<?php echo $value; ?>"/>  
 					<?php
 					echo $mv;
 					break;
@@ -447,8 +545,7 @@ class Lab_Directory {
 					echo $label; 
 					?>
 					<textarea rows=1
-						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo get_post_meta( $post->ID,
-					$field['slug'], true ); ?></textarea>
+						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo $value; ?></textarea>
 					<?php
 					echo $mv;
 					break;
@@ -456,8 +553,7 @@ class Lab_Directory {
 					echo $label; 
 					?>
 					<textarea rows=2
-						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo get_post_meta( $post->ID,
-					$field['slug'], true ); ?></textarea>
+						name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"><?php echo $value; ?></textarea>
 					<?php
 					echo $mv;
 					break;
@@ -468,19 +564,18 @@ class Lab_Directory {
 					echo $label; 
 					?>
 					<input type="text" class="datepicker" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
-						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>
+						value="<?php echo $value; ?>"/>
 					<?php
 					break;
 				case 'datetime' :
 					echo $label; 
 					?>
 					<input type="text" class="datetimepicker" name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
-						value="<?php echo get_post_meta( $post->ID, $field['slug'], true ); ?>"/>
+						value="<?php echo $value; ?>"/>
 					<?php
 					break;
 				case 'url' :
 				case 'phone_number' :
-		
 				case 'studying_level' :
 					echo $label; 
 					echo lab_directory_create_select('lab_directory_staff_meta_'.$field['slug'], 
@@ -488,7 +583,7 @@ class Lab_Directory {
 					break;
 				case 'jury' :
 					echo $label; 
-					$jury_members = get_post_meta( $post->ID,$field['slug'], true );
+					$jury_members = $value;
 					if (is_array($jury_members)) {
 						$nb_members = count($jury_members);
 					} else {
@@ -568,11 +663,14 @@ class Lab_Directory {
 			        </table>
 					<?php 	
 					break;
+				case 'social_network' : 
+					echo 'TODO implement social_network ';
+					break; 
 				case 'disabled' : 
 				default : // We should never arrive there !!
 					// Only display field value
 					echo $label;
-					echo get_post_meta( $post->ID,$field['slug'], true );
+					echo $value;
 					break; 
 				}
 		?>
@@ -640,38 +738,41 @@ class Lab_Directory {
 	static function lab_directory_save_meta_boxes_save_meta($post_id, $field, $field_name){
 	
 		$slug = 'lab_directory_staff_meta_' . $field['slug'];
-		$value = null;
+		
 	
+		// Unsanitized value (excepted for jury social network)
+		$value =  isset($_POST[$slug]) ? $_POST[$slug]: '';
+				
 		switch ($field['type']) {
 			case 'text' :
-				$value = sanitize_text_field($_POST[$slug]); 
+				$value = sanitize_text_field($value); 
 				break;
 			case 'longtext' : 
-				$value = sanitize_text_field($_POST[$slug]);
+				$value = sanitize_text_field($value);
 				break;
 			case 'textarea' :
-				$value = esc_textarea($_POST[$slug]);
+				$value = esc_textarea($value);
 				break;
 			case 'editor' :
-				$value = esc_textarea($_POST[$slug]);
+				$value = esc_textarea($value);
 				break;
 			case 'date' :
-				$value = lab_directory_strtotime($_POST[$slug], "Y-m-d");
+				$value = lab_directory_strtotime($value, "Y-m-d");
 				break;
 			case 'datetime' :
-				$value = lab_directory_strtotime($_POST[$slug], "Y-m-d h:m"); 
+				$value = lab_directory_strtotime($value, "Y-m-d h:m"); 
 				break;
 			case 'mail' :
-				$value = sanitize_email($_POST[$slug]);
+				$value = sanitize_email($value);
 				break;
 			case 'url' :
-				$value = esc_url($_POST[$slug]);
+				$value = esc_url($value);
 				break;
 			case 'phone_number' :
-				$value = sanitize_text_field($_POST[$slug]);
+				$value = sanitize_text_field($value);
 				break;
 			case 'studying_level' :
-				$value = sanitize_text_field($_POST[$slug]);
+				$value = sanitize_text_field($value);
 				break;
 			case 'jury' :
 				$orders = $_POST[$slug . '_orders'];
@@ -692,11 +793,11 @@ class Lab_Directory {
 					}
 					$index ++;
 				}
-				usort($value, __NAMESPACE__ . '\compare_jury_order');
+				usort($value, __NAMESPACE__ . '\ld_compare_jury_order');
 				break;
 			default : // We should never arrive there !!
 				// update_post_meta( $post_id, $meta_field_slug, esc_attr( $_POST['lab_directory_staff_meta'][ $meta_field_slug ] ) );
-				$value= esc_attr($_POST[$slug]); 
+				$value= esc_attr($value); 
 				
 				break; 
 		}
@@ -718,7 +819,7 @@ class Lab_Directory {
 
 	static function get_default_meta_fields() {
 					
-		/* $default_meta_fields  list all predefined filed ussable in lab directory 
+		/* $default_meta_fields  list all predefined fields usable in lab directory 
 		 * 
 		 * structure of this variable: 
 		 * 
@@ -776,6 +877,16 @@ class Lab_Directory {
 				'activated' => '1',
 			),
 			array(
+				'order' => 4.5,
+				'type'=> 'text',
+				'slug' => 'wp_user_id',
+				'group' => 'CV',
+				'ldap_attributes' => 'disabled',
+				'multivalue' => 'special',
+				'show_frontend' =>'0',
+				'activated' => '1',
+			),
+				array(
 				'order' => 5, 
 				'type'=> 'text',
 				'slug' => 'mails',
@@ -2015,6 +2126,7 @@ EOT;
 				'name' => __( 'Name', 'lab-directory'),
 				'position' => __( 'Position', 'lab-directory'),
 				'login' => __( 'Login', 'lab-directory'),
+				'wp_user_id' => __( 'Wordpress user ID', 'lab-directory'),
 				'mails' => __( 'Mail', 'lab-directory'),
 				'bio' => __('Biography', 'lab-directory'),
 				'other_mails' => __( 'Other mails', 'lab-directory'),
@@ -2098,9 +2210,6 @@ EOT;
 		self::$staff_meta_fields =  get_option( 'lab_directory_staff_meta_fields');
 	} 
 	
-	
-	
-	
 	static function initiate_capabilities() {
 		$temp = array("0" => "test permissions modifié");
 		self::$capabilities = array(
@@ -2182,7 +2291,7 @@ function lab_directory_strtotime($time, $format="Y-m-d") {
 	return $out; 
 }
 
-function compare_jury_order($a, $b)
+function ld_compare_jury_order($a, $b)
 {
 	return (int)$a['order']-(int)$b['order'];
 }
@@ -2244,4 +2353,61 @@ function ld_user_can_by_user($capability, $user) {
 	// scope = owner capability based on LD groups
 	return false; 
 }
+
+/*
+ * This function convert a value depending on its multivalue type
+ */
+function ld_value_to_something($value=false, $multivalue=false, $to='string') {
+	switch ($to) {
+		case 'string':
+			 //TODO usefull? 
+			 if (! $value) {return '';}
+			 switch ($multivalue) {
+			 	case 'special': 
+			  	case 'SV':
+				 	break;
+				 case 'MV':
+				 	break;
+				 case ',':
+				 	break;
+				 case ';':
+				 	break;
+				 case '|':
+				 	break;
+				 case 'CR':
+				 	break;
+			}
+			break; 
+		case 'array': 
+			if (! $value) {
+				$res = array(); 
+				return $res;
+			}
+			switch ($multivalue) {
+				case 'special':
+			  	case 'SV': 
+					$value = array($value);
+					break;
+				case 'MV':
+				case ';':
+					$value = explode(';',$value);
+					break;
+				case ',':
+					$value = explode(',',$value);
+					break;
+				case '|':
+					$value = explode('|',$value);
+					break;
+				case 'CR':
+					$value = explode("\n",$value);
+					break;
+			}
+			return $value;
+			break; 
+	}
+	return $res; 
+			
+	}
+
+
 	

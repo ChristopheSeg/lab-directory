@@ -79,17 +79,18 @@ class Lab_Directory_Settings {
 	
 	public function upgrade_custom_lab_directory_staff_meta_fields() {
 		
-				$default_meta_fields = Lab_Directory::get_default_meta_fields();
+		$default_meta_fields = Lab_Directory::get_default_meta_fields();
 		$meta_fields = get_option( 'lab_directory_staff_meta_fields');
 		$meta_fields_slugs = array(); 
 		foreach ($meta_fields as $meta_field) {
-			$meta_fields_slugs[] = $meta_field['slug'];
+			$meta_fields_slugs[$meta_field['slug']] = $meta_field['slug'];
 		}
 		$upgraded = false; 
-	
+
 		foreach ($default_meta_fields as $default_meta_field) {
 			if( ! in_array($default_meta_field['slug'], $meta_fields_slugs)) {
 				$upgraded = true;
+				
 				// Add  a new unactivated meta field with its default values to $meta_fields
 				$default_meta_field['activated'] = '0'; 
 				$meta_fields[] = $default_meta_field;
@@ -105,7 +106,7 @@ class Lab_Directory_Settings {
 	}
 	
 	/* 
-	 * Update meta fileds after Form submission 
+	 * Update meta fields after Form submission 
 	 */
 	
 	public function update_custom_lab_directory_staff_meta_fields()  {
@@ -126,7 +127,7 @@ class Lab_Directory_Settings {
 		foreach ( $slugs as $slug ) {
 			$index ++;
 			
-			$special = isset($multivalues[ $index ])? true: false; 
+			$special = isset($multivalues[ $index ])? false: true; 
 			
 			if (isset($ldap_attributes[ $index ])) {
 				$calculated_ldap_attributes = $ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ];
@@ -432,184 +433,256 @@ class Lab_Directory_Settings {
 		global $wpdb;	
 		
 		//TODO revoir pour les MV CR
-		// et pour les mails si MV 
+		// et pour les mails si MV
+		$ldap_attribute_name = $LDAPattribute = strtolower($active_meta_fields['name']['ldap_attributes']);
+		$ldap_attribute_firstname = $LDAPattribute = strtolower($active_meta_fields['firstname']['ldap_attributes']);
+		
 		for ($i=0; $i<$entrees_ldap["count"]; $i++) {
 	
 			$mails='';
 			$entree_ldap=$entrees_ldap[$i];
-			
-			$nom = $entree_ldap[$active_meta_fields['nom'][0]][0];
-			$prenom = $entree_ldap[$active_meta_fields['prenom'][0]][0];
-			$mail = $entree_ldap[$active_meta_fields['mails'][0]][0];
-			//TODOTODO don't save if $nom $prenom vides !!
-	
-			// TODO 1 or 2 ?? 
-			$champ_valeurs = array('ldap' => 1);
-	
-			foreach ($active_meta_fields as $active_meta_field )
-			{
-				$LDAPattribute = strtolower($active_meta_field['ldap_attributes']);
-				$valeurs=array();
-				$indexj=-1;
-				// tester si l'entrée LDAP existe et si elle est multiple
-				
-				if (isset($entree_ldap[$LDAPattribute][0]) )
+			$name = $entree_ldap[$ldap_attribute_name][0][0];
+			$firstname = $entree_ldap[$ldap_attribute_firstname][0][0];
+
+			// Don't save if $name $firstname empty: miss configuration? 
+			if ($name AND $firstname) { 
+		
+				// TODO 1 or 2 ?? 
+				$champ_valeurs = array(
+						'ldap' => 1,
+						'wp_user_id' => '', 
+				);
+		
+				// TODOTODO only sync synced field (do not empty non synced !!!!
+				foreach ($active_meta_fields as $active_meta_field )
 				{
-					$nb_entrees=$entree_ldap[$LDAPattribute]['count'];
-			
-					for ($j = 0; $j <$nb_entrees; $j++) {
-						$indexj++;
-						$valeurs[$indexj] = str_replace("'","&#39;",$entree_ldap[$LDAPattribute][$j]);
-						if (($nb_fiches<=10) AND ($test) ) {
-							$form_messages['ok'][] = $active_meta_field['slug'] .': ' . $LDAPattribute."[$j]=". $entree_ldap[$LDAPattribute][$j]."<br/> \n";
+					$LDAPattribute = strtolower($active_meta_field['ldap_attributes']);
+					$valeurs=array();
+					$indexj=-1;
+					// tester si l'entrée LDAP existe et si elle est multiple
+					
+					if (isset($entree_ldap[$LDAPattribute][0]) )
+					{
+						$nb_entrees=$entree_ldap[$LDAPattribute]['count'];
+				
+						for ($j = 0; $j <$nb_entrees; $j++) {
+							$indexj++;
+							$valeurs[$indexj] = str_replace("'","&#39;",$entree_ldap[$LDAPattribute][$j]);
+							if (($nb_fiches<=10) AND ($test) ) {
+								$form_messages['ok'][] = $active_meta_field['slug'] .': ' . $LDAPattribute."[$j]=". $entree_ldap[$LDAPattribute][$j]."<br/> \n";
+							}
+						}
+					}
+					
+					// Serialisation des valeurs
+					if ($indexj>=0)
+					{
+						switch ($active_meta_field['multivalue']) { 
+							case 'special' : // special fields are always single valued
+							case 'SV' : // 'Single valued (only take first value if LDAP fields si multivalued)' ,
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs[0];
+						        break;
+						    case 'MV' : 
+						    	/* Multiple valued (take all values if LDAP fields has multiple values ,
+								/* saving MV fields on a single meta imposes imploding value array
+								 * (can be annoying if $valeurs contains CR! )
+								 */
+						    	$champ_valeurs[$active_meta_field['slug']] = implode("\n",$valeurs);
+						        break;
+						    case ',' : // 'Comma separated list' ,
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; //don't explode(',',$valeurs[0]);
+						        break;
+						    case ';'  : // 'Semicolumn separated list' ,
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; //don't explode(';',$valeurs[0]);
+						        break;
+						    case '|' : // '| separated values' ,
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; //don't explode('|',$valeurs[0]);
+						        break;
+						    case 'CR' : // 'Carriage return separated values' ,
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs; //don't explode("\n",$valeurs[0]);
+						        break;
+						    default: // 
+						    	$champ_valeurs[$active_meta_field['slug']] = $valeurs; //don't explode("\n",$valeurs[0]);
+						    	break;
+						}
+					}else {
+						// ! Empty field !
+						$champ_valeurs[$active_meta_field['slug']] = '';
+					}
+				}
+				
+				/*
+				 *  Recherche de l'existence d'un id pour cette entrée.
+				 *  Si possible on utilise les mails. et
+				 *  Si possible on n'utilise pas nom et prénom car il pourraient différer
+				 *    lors du préenregistrement et dans l'annuaire LDAP (accent...)
+				 */
+		
+				$staff_post_id=false;
+
+
+				// $ldap_attribute_login = strtolower($active_meta_fields['login']['ldap_attributes']);
+				// $ldap_attribute_mails = strtolower($active_meta_fields['mails']['ldap_attributes']);
+				// $ldap_attribute_other_mails = strtolower($active_meta_fields['other_mails']['ldap_attributes']);
+					
+				// Recherche de l'id_personnel ($staff_post_id) par login
+				$wp_user_id = false;
+				$staff_post_id = false; 
+				if ($champ_valeurs['login']) {
+					$wp_user_ids = $wpdb->get_results(
+							"
+							SELECT ID
+							FROM $wpdb->users
+							WHERE user_login =('" . $champ_valeurs['login']. "')"
+							);
+
+						if ($wp_user_ids) {
+						$wp_user_id = $wp_user_ids[0]->ID;
+					}
+				}
+				
+
+				// Search for an existing staff entry (post_id) And an existing user_id
+				
+				$post_where = array(); 
+				$user_where = array();
+				
+				$mails = ld_value_to_something($champ_valeurs['mails'], $active_meta_fields['mails']['multivalue'], 'array');
+				if (!empty($mails)) {
+				foreach ($mails as $mail) {
+						$post_where[] ="(meta_key = 'mails' AND meta_value = '".$mail."')";
+						$user_where[] ="'".$mail."'";
+					}
+				}
+				
+				$other_mails = ld_value_to_something($champ_valeurs['other_mails'], $active_meta_fields['other_mails']['multivalue'], 'array');
+				if (!empty($other_mails)) {
+					foreach ($other_mails as $mail) {
+						$post_where[] ="(meta_key = 'other_mails' AND meta_value = '".$mail."')";
+						$user_where[] ="'".$mail."'";
+					}
+				}
+					
+				
+				if (!empty($post_where)) {
+					$where = " (". implode(' OR ', $post_where) .') ';
+
+	
+				$post_ids = $wpdb->get_results(
+						"
+						SELECT post_id
+						FROM $wpdb->postmeta
+						WHERE $where "
+						);
+				echo "
+						SELECT post_id
+						FROM $wpdb->postmeta
+						WHERE $where ";
+				}
+								
+				$readytoimport=true;
+	
+				if ($post_ids) {
+					if (count($post_ids)==1) {
+						$staff_post_id = $post_ids[0]->post_id;
+					} elseif  (count($post_ids)>1) {
+						// Erreur il y a plusieurs enregistrements
+						$readytoimport=false;
+						if ($test) {
+							$form_messages['erreur'][] = "Erreur : importation impossible pour cette entrée de l'annuaire car il existe plusieurs 
+									enregistrements en base de données pour cet email.";
 						}
 					}
 				}
-				// TODOTODO revoir 
-				// Serialisation des valeurs
-				if ($indexj>=0)
-				{
-					switch ($active_meta_field['multivalue']) { 
-					    case 'SV' : // 'Single valued (only take first value if LDAP fields si multivalued)' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = $valeurs[0];
-					        break;
-					    case 'MV' : // 'Multiple valued (take all values if LDAP fields has multiple values)' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = $valeurs;
-					        break;
-					    case ',' : // 'Comma separated list' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = explode(',',$valeurs[0]);
-					        break;
-					    case ';'  : // 'Semicolumn separated list' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = explode(';',$valeurs[0]);
-					        break;
-					    case '|' : // '| separated values' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = explode('|',$valeurs[0]);
-					        break;
-					    case 'CR' : // 'Carriage return separated values' ,
-					    	$champ_valeurs[$active_meta_field['slug']] = explode("\n",$valeurs[0]);
-					        break;
+						
+				// Recherche de l'id_personnel (post_id) par email
+				if (!$wp_user_id and !empty($user_where)) {
+					$where = implode(' , ', $user_where);
+					$wp_user_ids = $wpdb->get_results(
+							"
+							SELECT ID
+							FROM $wpdb->users
+							WHERE user_email IN (" . $where. ")"
+							);
+					if ($wp_user_ids) {
+						$wp_user_id = $wp_user_ids[0]->ID;
+						// register wp_user_id in staff profile 
+						$champ_valeurs['wp_user_id'] = $wp_user_id;
+						
 					}
-				}else {
-					// ! Empty field !
-					$champ_valeurs[$active_meta_field['slug']] = '';
 				}
-			}
-			
-			/*
-			 *  Recherche de l'existence d'un id pour cette entrée.
-			 *  Si possible on utilise les mails. et
-			 *  Si possible on n'utilise pas nom et prénom car il pourraient différer
-			 *    lors du préenregistrement et dans l'annuaire LDAP (accent...)
-			 */
-	
-			$staff_post_id=false;
-			
-			// Recherche de l'id_personnel (post_id) par email
-			$where = array(); 
-			if ($champ_valeurs['mails']) {
-				if (is_array($champ_valeurs['mails'])) {
-					foreach ($champ_valeurs['mails'] as $mail) {
-						$where[] ="(meta_key = 'mails' AND meta_value = '".$mail."')";
-					}
-				} else {
-					$where[] ="(meta_key = 'mails' AND meta_value = '".$champ_valeurs['mails']."')";
-				}
-			}
-			if ($champ_valeurs['other_mails']) {
-				if (is_array($champ_valeurs['other_mails'])) {
-					foreach ($champ_valeurs['other_mails'] as $mail) {
-						$where[] ="(meta_key = 'other_mails' AND meta_value = '".$mail."')";
-					}
-				} else {
-					$where[] ="(meta_key = 'other_mails' AND meta_value = '".$champ_valeurs['other_mails']."')";
-				}
-			}
 				
-			$where = " (". implode(' OR ', $where) .') ';
-
-			$post_ids = $wpdb->get_results(
-					"
-					SELECT post_id
-					FROM $wpdb->postmeta
-					WHERE $where "
-					);
-			
-			$readytoimport=true;
-
-			if ($post_ids) {
-				if (count($post_ids)==1) {
-					$staff_post_id = $post_ids[0]->post_id;
-				} elseif  (count($post_ids)>1) {
-					// Erreur il y a plusieurs enregistrements
-					$readytoimport=false;
-					if ($test) {
-						$form_messages['erreur'][] = "Erreur : importation impossible pour cette entrée de l'annuaire car il existe plusieurs 
-								enregistrements en base de données pour cet email.";
-					}
-				}
-			}
-					
-			/* S'il n'y a pas d'email correspondant aux emails de l'entrée ldap on recherche par nom+prénom
-			 * Normalement ce cas est quasiment inexistant. Mais cela peut se produire si une si une fiche 
-			 * locale (non synchronisée) existait sans email mais n'était pas encore dans le LDAP et vient 
-			 * d'être ajoutée au LDAP  
-			 */
-			
-			/* TODO temporary unactivated 
-			if (!$staff_post_id AND $readytoimport) {
+				/* S'il n'y a pas d'email correspondant aux emails de l'entrée ldap on recherche par nom+prénom
+				 * Normalement ce cas est quasiment inexistant. Mais cela peut se produire si une si une fiche 
+				 * locale (non synchronisée) existait sans email mais n'était pas encore dans le LDAP et vient 
+				 * d'être ajoutée au LDAP  
+				 */
 				
-				 $where = array("nom='$nom'", "prenom='$prenom'");
-				if ($result = sql_select(array('id_personnel'), "spip_personnels", $where))
-				{
-					if ($row = sql_fetch($result)) {
-						$staff_post_id=$row['id_personnel'];
+				/* TODO temporary unactivated 
+				 * 
+				
+				if (!$staff_post_id AND $readytoimport) {
+					
+					 $where = array("nom='$name'", "prenom='$firstname'");
+					if ($result = sql_select(array('id_personnel'), "spip_personnels", $where))
+					{
+						if ($row = sql_fetch($result)) {
+							$staff_post_id=$row['id_personnel'];
+							$champ_valeurs[] = ....;
+						}
 					}
-				}
-
-			}
-			*/
-			if ($test) {
-				// Affichage messages avant import qui est optionnel
-				if ($staff_post_id) {
-					$form_messages['ok'][] = "<b>Enr. n°$i MAJ[id=$staff_post_id] :</b>  " . $champ_valeurs['firstname'] . ' ' . 
-							$champ_valeurs['name'] . ' ' . 
-							$champ_valeurs['mails'] ;
-				} else {
-					$form_messages['ok'][] = "<b>Enr. n°$i CREATION[] :</b> " . $champ_valeurs['firstname'] . ' ' . 
-							$champ_valeurs['name'] . ' ' . 
-							$champ_valeurs['mails'];
-				}
-			}					
-			
-			if ($import) {
 	
-				if ($staff_post_id) {
-					write_log("Enr. n°$i MAJ[id=$staff_post_id] : $nom $prenom ", 'Annuaire', _LOG_INFO);
-					
-					// $success Lab_Directory_Settings::update_lab_directory_staff();
-					
-					
-				} else {
-					write_log("Enr. n°$i CREATION[] : " . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
-					// la fiche est invalidée par défaut!
-					$champ_valeurs['fiche_validee'] = '0';
-					$staff_post_id = Lab_Directory_Settings::register_new_staff($champ_valeurs); 
-					$success = $staff_post_id>1;
 				}
-	
-				if (!$success ){
-					write_log('Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id, 'Annuaire', _LOG_ERREUR);
-					if ($test) {
-						$form_messages['erreur'][] = '<b>==> Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id. "</b>";
+				*/
+				
+				$temp = $wp_user_id? " WP user_id=$wp_user_id " : ' (No link to a WP user)'; 
+				if ($test) {
+					// Affichage messages avant import qui est optionnel
+					if ($staff_post_id) {
+						$form_messages['ok'][] = "<b>Enr. n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' . 
+								$champ_valeurs['name'] . ' ' . 
+								$champ_valeurs['mails'] ;
+					} else {
+						$form_messages['ok'][] = "<b>Enr. n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
+								$champ_valeurs['name'] . ' ' . 
+								$champ_valeurs['mails'];
+					}
+				}					
+				
+				if ($import) {
+		
+					if ($staff_post_id) {
+						write_log("Enr. n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 'Annuaire', _LOG_INFO);
+						
+						// $success Lab_Directory_Settings::update_lab_directory_staff();
+						
+						
+					} else {
+						write_log("Enr. n°$i CREATION[] : " .$temp . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
+						// la fiche est invalidée par défaut!
+						$champ_valeurs['fiche_validee'] = '0';
+						$staff_post_id = Lab_Directory_Settings::register_new_staff($champ_valeurs); 
+						$success = $staff_post_id>1;
+					}
+		
+					if (!$success ){
+						write_log('Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id, 'Annuaire', _LOG_ERREUR);
+						if ($test) {
+							$form_messages['erreur'][] = '<b>==> Erreur  lors de la MAJ ou de la CREATION id_personnel='.$staff_post_id. "</b>";
+							return;
+						}
 						return;
+					} else{
+						$form_messages['ok'][] = "<b>==> MAJ ou CREATION[] terminée avec succès</b>";
 					}
-					return;
-				} else{
-					$form_messages['ok'][] = "<b>==> MAJ ou CREATION[] terminée avec succès</b>";
+	
 				}
+			} else {
+				// name and firstname empty !!
+				$form_messages['erreur'][] = '<b>==> Error  Ldap entry with empty name or firstname is forbidden. The cause of this error is probably an improper meta fields setting.</b>';
 
 			}
-		}
+		} 
 	
 		write_log('SESSION LDAP terminée!', 'Annuaire', _LOG_INFO);
 	
@@ -653,9 +726,34 @@ class Lab_Directory_Settings {
 
 	
 	/*
-	 *  Cette fonction utilise la liste des méta champs SPIP et les paramètres de
+	 *  Cette fonction utilise la liste des méta champs et les paramètres de
 	 *  configuration relatifs aux attributs pour construire un tableau de correspondance
 	 *  entre ces champs et les attibuts à extraire  du type
+	 *  N.B. la clé est le slug du meta champ
+	 *   array(
+	 *   --------
+	 *     ["name"]=>  array(8) {
+     *       ["slug"]=>  string(4) "name"
+	 *       ["order"]=>  string(1) "2"
+	 *       ["type"]=>  string(4) "text"
+	 *       ["group"]=>  string(2) "CV"
+	 *       ["activated"]=>   string(1) "1"
+	 *       ["multivalue"]=>    string(7) "special"
+	 *       ["ldap_attributes"]=>    string(2) "sn"
+	 *       ["show_frontend"]=>    string(1) "1"
+	 *  }
+	 *    ["position"]=> array(8) {
+	 *       ["slug"]=>    string(8) "position"
+	 *       ["order"]=>    string(1) "3"
+	 *       ["type"]=>    string(4) "text"
+	 *       ["group"]=>    string(2) "CV"
+	 *       ["activated"]=>    string(1) "1"
+ 	 *       ["multivalue"]=>    string(2) "MV"
+	 *       ["ldap_attributes"]=>    string(10) "labeleduri"
+	 *       ["show_frontend"]=>    string(1) "1"
+	 *  }
+	 *  -----
+	 *  }
 	 *
 	 */
 	function get_active_meta_fields() {
