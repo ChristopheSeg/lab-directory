@@ -1,4 +1,4 @@
-<?php var_dump($messages) ; echo_form_messages($form_messages);?>
+<?php echo_form_messages($form_messages);?>
 
 <form method="post">
   <h2>Test LDAP Synchronization</h2>

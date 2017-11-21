@@ -72,7 +72,7 @@ class Lab_Directory {
 	 *       ["group"]=>    string(2) "CV"
 	 *       ["activated"]=>    string(1) "1"
 	 *       ["multivalue"]=>    'special'
-	 *       ["ldap_attributes"]=>    string(2) "sn" ( 'disabled' if ldap syncing disabled)
+	 *       ["ldap_attribute"]=>    string(2) "sn" ( 'disabled' if ldap syncing disabled)
 	 *       ["show_frontend"]=>     string(1) "1"
 	 *     }
 	 *     [1]=>
@@ -83,7 +83,7 @@ class Lab_Directory {
 	 *       ["group"]=>    string(2) "CV"
 	 *       ["activated"]=>    string(1) "1"
 	 *       ["multivalue"]=>    special
-	 *       ["ldap_attributes"]=>    string(0) ""
+	 *       ["ldap_attribute"]=>    string(0) ""
 	 *       ["show_frontend"]=>    string(1) "1"
 	 *      }
 	 *   }
@@ -99,7 +99,6 @@ class Lab_Directory {
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
 		
-		// TODO where should this action (initiate_ld_permissions) fired?
 		add_action( 'init', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'init', array( 'Lab_Directory', 'initiate_capabilities' ) );
 		add_action( 'init', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
@@ -462,9 +461,9 @@ class Lab_Directory {
 		// TODO disable input depending on capability , LDAP...
 		
 		// Disable input when field is synced with LDAP 
-		if ( $ldap_synced AND isset($field['ldap_attributes']) AND 
-				($field['ldap_attributes']!='disabled') ) {
-			if ($field['ldap_attributes']){ 
+		if ( $ldap_synced AND isset($field['ldap_attribute']) AND 
+				($field['ldap_attribute']!='disabled') ) {
+			if ($field['ldap_attribute']){ 
 				$field_type = 'disabled';
 			}
 		}
@@ -670,7 +669,8 @@ class Lab_Directory {
 				default : // We should never arrive there !!
 					// Only display field value
 					echo $label;
-					echo $value;
+					echo $value; echo $field['slug'];
+					var_dump($value);
 					break; 
 				}
 		?>
@@ -826,7 +826,7 @@ class Lab_Directory {
 		 * name : the name of the field in english default language (translatable)
 		 * type : type of this field (see $default_type)
 		 * slug : the slug define the field, it cannot be changed
-		 * ldap_attributes : empty string or 'disabled' if this field is not LDAP syncable
+		 * ldap_attribute : empty string or 'disabled' if this field is not LDAP syncable
 		 * multivalue : as defined in $default_multivalue 
 		 * 		or 'special' for field always having single value and fixed type
 		 * 		(example jury, dates, studying level...)
@@ -841,7 +841,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'firstname',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -851,7 +851,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'name',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -861,7 +861,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'position',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'MV',
 				'show_frontend' =>'1',				
 				'activated' => '1',
@@ -871,7 +871,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'login',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'0',
 				'activated' => '1',
@@ -881,7 +881,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'wp_user_id',
 				'group' => 'CV',
-				'ldap_attributes' => 'disabled',
+				'ldap_attribute' => 'disabled',
 				'multivalue' => 'special',
 				'show_frontend' =>'0',
 				'activated' => '1',
@@ -891,7 +891,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'mails',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'MV',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -901,7 +901,7 @@ class Lab_Directory {
 				'type'=> 'editor',
 				'slug' => 'bio',
 				'group' => 'BIO',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -911,7 +911,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'idhal',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -921,7 +921,7 @@ class Lab_Directory {
 				'type'=> 'url',
 				'slug' => 'photo_url',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -931,7 +931,7 @@ class Lab_Directory {
 				'type'=> 'url',
 				'slug' => 'webpage',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'special',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -941,7 +941,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'function',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'MV',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -951,7 +951,7 @@ class Lab_Directory {
 					'type'=> 'social_network',
 					'slug' => 'social_network',
 					'group' => 'CV',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 					'activated' => '1',
@@ -961,7 +961,7 @@ class Lab_Directory {
 				'type'=> 'text',
 				'slug' => 'title',
 				'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 				'multivalue' => 'MV',
 				'show_frontend' =>'1',
 				'activated' => '1',
@@ -971,7 +971,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'phone',
 					'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'MV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -981,7 +981,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'fax',
 					'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'MV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -991,7 +991,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'office',
 					'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'MV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1001,7 +1001,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'team',
 					'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'MV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1011,7 +1011,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'exit_date',
 					'group' => 'CV',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'0',
 		 			'activated' => '1',
@@ -1021,7 +1021,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'hdr_subject',
 					'group' => 'HDR',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1031,7 +1031,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'hdr_date',
 					'group' => 'HDR',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1041,7 +1041,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'hdr_location',
 					'group' => 'HDR',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1051,7 +1051,7 @@ class Lab_Directory {
 				'type'=> 'jury',
 					'slug' => 'hdr_jury',
 					'group' => 'HDR',
-				'ldap_attributes' => 'disabled',
+				'ldap_attribute' => 'disabled',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1061,7 +1061,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'hdr_resume',
 					'group' => 'HDR',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1071,7 +1071,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'phd_start_date',
 					'group' => 'HDR',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1081,7 +1081,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'phd_subject',
 					'group' => 'doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1091,7 +1091,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'phd_date',
 					'group' => 'doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1101,7 +1101,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'phd_location',
 					'group' => 'doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1111,7 +1111,7 @@ class Lab_Directory {
 				'type'=> 'jury',
 					'slug' => 'phd_jury',
 					'group' => 'doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1121,7 +1121,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'phd_resume',
 					'group' => 'doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1131,7 +1131,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'post_doc_start_date',
 					'group' => 'post-doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1141,7 +1141,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'post_doc_end_date',
 					'group' => 'post-doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1151,7 +1151,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'post_doc_subject',
 					'group' => 'post-doctorate',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1161,7 +1161,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'internship_start_date',
 					'group' => 'internship',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1171,7 +1171,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'internship_end_date',
 					'group' => 'internship',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1181,7 +1181,7 @@ class Lab_Directory {
 				'type'=> 'text',
 					'slug' => 'internship_subject',
 					'group' => 'internship',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1191,7 +1191,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'internship_resume',
 					'group' => 'internship',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1201,7 +1201,7 @@ class Lab_Directory {
 				'type'=> 'longtext',
 					'slug' => 'studying_school',
 					'group' => 'internship',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1211,7 +1211,7 @@ class Lab_Directory {
 				'type'=> 'studying_level',
 					'slug' => 'studying_level',
 					'group' => 'internship',
-				'ldap_attributes' => 'disabled',
+				'ldap_attribute' => 'disabled',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1221,7 +1221,7 @@ class Lab_Directory {
 				'type'=> 'date',
 					'slug' => 'invitation_start_date',
 					'group' => 'invited',
-				'ldap_attributes' => '',
+				'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1231,7 +1231,7 @@ class Lab_Directory {
 					'type'=> 'date',
 					'slug' => 'invitation_end_date',
 					'group' => 'invited',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1241,7 +1241,7 @@ class Lab_Directory {
 					'type'=> 'text',
 					'slug' => 'invitation_goal',
 					'group' => 'invited',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1251,7 +1251,7 @@ class Lab_Directory {
 					'type'=> 'longtext',
 					'slug' => 'invited_position',
 					'group' => 'invited',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1261,7 +1261,7 @@ class Lab_Directory {
 					'type'=> 'longtext',
 					'slug' => 'invited_origin',
 					'group' => 'invited',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1271,7 +1271,7 @@ class Lab_Directory {
 					'type'=> 'date',
 					'slug' => 'cdd_start_date',
 					'group' => 'CDD',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1281,7 +1281,7 @@ class Lab_Directory {
 					'type'=> 'date',
 					'slug' => 'cdd_end_date',
 					'group' => 'CDD',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'special',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1291,7 +1291,7 @@ class Lab_Directory {
 					'type'=> 'text',
 					'slug' => 'cdd_goal',
 					'group' => 'CDD',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1301,7 +1301,7 @@ class Lab_Directory {
 					'type'=> 'longtext',
 					'slug' => 'cdd_position',
 					'group' => 'CDD',
-					'ldap_attributes' => '',
+					'ldap_attribute' => '',
 					'multivalue' => 'SV',
 					'show_frontend' =>'1',
 		 			'activated' => '1',
@@ -1314,7 +1314,7 @@ class Lab_Directory {
 						'type'=> 'text',
 						'slug' => "custom_$i",
 						'group' => 'others',
-						'ldap_attributes' => '',
+						'ldap_attribute' => '',
 						'multivalue' => 'SV',
 						'show_frontend' =>'1',
 						'activated' => '0',
@@ -2337,7 +2337,7 @@ function ld_user_can_by_user($capability, $user) {
 	// the rest need link between WP and LD??
 	$user_ld_id = false; 
 	
-	// TODO temporary return; 
+	// TODO temporary return capability calculation not completed; 
 	return false; 
 	// query select staff_id from staf / wp_user_id= $current_user->id;
 	

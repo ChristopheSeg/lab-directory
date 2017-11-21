@@ -65,11 +65,11 @@ class Lab_Directory_Admin {
 			// Temporary TODO list 
 			?>
 			<p>
-		      <br>TODO ldap_attributes à mettre au singulier !!
+		      <br>TODO SELECT post_id FROM wpircica_postmeta WHERE post_status='publish' AND ((meta_key = 'mails' AND meta_value = 'Christophe.Seguinot@univ-lille1.fr')) 
+		      <br>TODO erreur post_status est dans posts
+		      <br>TODO 
 		      <br>TODO alignement sur settings metafields §§§ 
-		      <br>TODO 
-		      <br>TODO 
-		      <br>TODO 
+		      <br>TODO ajouter published dans select pour trouver post_id
 		      <br>TODO ajouter mandatory (name firstname = titre) ???
 		      <br>TODO social_network 
 		      <br>TODO voir add new/ ldap=0; 
@@ -80,7 +80,11 @@ class Lab_Directory_Admin {
 		      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 		      <br>TODO gérer bio: est ce que cela marche 
 		      <br>TODO gérer photo: est ce que cela va vec lien LDAP? supprimer modification si LDAP....
-		      <br>TODO Taxonomies  
+		      <br>TODO Taxonomies
+		      <br>TODO permissions : 
+		      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
+		      <br>TODO supprimer les droits bin (sauf admin? ) 
+		      <br>TODO   
 		      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
 		      <br>TODO séparer admin et frontend
 		      <br>TODO ajouter onglet traduction acronymes 

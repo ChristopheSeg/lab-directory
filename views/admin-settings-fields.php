@@ -73,7 +73,7 @@ jQuery(document).ready(function() {
           <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue
 			<a href="#footnote" title="Note"><sup>(3)(4)</sup></a></th>
           <?php if ($use_ldap) : ?> 
-          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Attribute<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
@@ -90,7 +90,7 @@ jQuery(document).ready(function() {
           <th id="columnname" class="manage-column column-columnname" scope="col">Multivalue
 			<a href="#footnote" title="Note"><sup>(3)(4)</sup></a></th>
 <?php if ($use_ldap) : ?> 
-          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Fields<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
+          <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Attribute<a href="#footnote" title="Note"><sup>(3)</sup></a></th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Activated', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Show frontend</th>
@@ -152,13 +152,13 @@ jQuery(document).ready(function() {
             <?php if ($use_ldap) : ?> 
 	        <td>
  				<?php 
- 				// initial value of $field['ldap_attributes'] ="" or 'disabled' 
- 				if ($field['ldap_attributes']=='disabled') {
+ 				// initial value of $field['ldap_attribute'] ="" or 'disabled' 
+ 				if ($field['ldap_attribute']=='disabled') {
  					// Nothing to display this ldap field is disabled
  					echo '<span class="dashicons dashicons-lock"></span>';
  				} else { 
  					echo lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
- 							$lab_directory_ldap_attributes, $field['ldap_attributes'], 'input-in-td', __('No syncing'));
+ 							$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', __('No syncing'));
  				}
               		
  				?>
@@ -194,7 +194,7 @@ jQuery(document).ready(function() {
 <h4 id="footnote">Notes</h4>
 <p>(1). If order is set to n, the corresponding fiels will be placed just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
 <p>(2). This group of field is disabled. Corresponding field(s) will not be used in the directory (even if fields(s) is (are)activated). </p>
-<p>(3). LDAP attributes column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding field(s) can not be synced with LDAP. </p>
+<p>(3). LDAP attribute column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding field(s) can not be synced with LDAP. </p>
 <p>(4). Multivalue column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding fields are always single value. </p>
 <p>(4). Notes about Multivalued LDAP fields<br>
 <?php 

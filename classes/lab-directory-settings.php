@@ -130,9 +130,9 @@ class Lab_Directory_Settings {
 			$special = isset($multivalues[ $index ])? false: true; 
 			
 			if (isset($ldap_attributes[ $index ])) {
-				$calculated_ldap_attributes = $ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ];
+				$calculated_ldap_attribute = $ldap_attributes[ $index ]=='none'?  '': $ldap_attributes[ $index ];
 			} else {
-				$calculated_ldap_attributes = 'disabled';
+				$calculated_ldap_attribute = 'disabled';
 			}
 			$meta_fields_array[] = array(
 					'slug' => $slug,
@@ -142,7 +142,7 @@ class Lab_Directory_Settings {
 					'activated' => isset($activateds[ $index ])? '1': '0',
 					'order' => $orders[ $index ],
 					'multivalue' => $special? 'special': $multivalues[ $index ],
-					'ldap_attributes' => $calculated_ldap_attributes,
+					'ldap_attribute' => $calculated_ldap_attribute,
 					'show_frontend' => isset($show_frontends[ $index ])? '1': '0',
 				);
 			
@@ -310,11 +310,11 @@ class Lab_Directory_Settings {
 				$filtre_mails = array();
 				$attributs_mails= array(); 
 				
-				if ($active_meta_fields['mails']['ldap_attributes']) {
-					$attributs_mails[] = $active_meta_fields['mails']['ldap_attributes'];
+				if ($active_meta_fields['mails']['ldap_attribute']) {
+					$attributs_mails[] = $active_meta_fields['mails']['ldap_attribute'];
 				}
-				if ($active_meta_fields['other_mails']['ldap_attributes']) {
-					$attributs_mails[] = $active_meta_fields['other_mails']['ldap_attributes'];
+				if ($active_meta_fields['other_mails']['ldap_attribute']) {
+					$attributs_mails[] = $active_meta_fields['other_mails']['ldap_attribute'];
 				}
 				if ($attributs_mails) {
 					$search_mails= explode(',',$search_mail);
@@ -432,10 +432,8 @@ class Lab_Directory_Settings {
 
 		global $wpdb;	
 		
-		//TODO revoir pour les MV CR
-		// et pour les mails si MV
-		$ldap_attribute_name = $LDAPattribute = strtolower($active_meta_fields['name']['ldap_attributes']);
-		$ldap_attribute_firstname = $LDAPattribute = strtolower($active_meta_fields['firstname']['ldap_attributes']);
+		$ldap_attribute_name = $LDAPattribute = strtolower($active_meta_fields['name']['ldap_attribute']);
+		$ldap_attribute_firstname = $LDAPattribute = strtolower($active_meta_fields['firstname']['ldap_attribute']);
 		
 		for ($i=0; $i<$entrees_ldap["count"]; $i++) {
 	
@@ -444,7 +442,7 @@ class Lab_Directory_Settings {
 			$name = $entree_ldap[$ldap_attribute_name][0][0];
 			$firstname = $entree_ldap[$ldap_attribute_firstname][0][0];
 
-			// Don't save if $name $firstname empty: miss configuration? 
+			// Don't save if $name $firstname empty: resulting from miss configuration? 
 			if ($name AND $firstname) { 
 		
 				// TODO 1 or 2 ?? 
@@ -456,7 +454,7 @@ class Lab_Directory_Settings {
 				// TODOTODO only sync synced field (do not empty non synced !!!!
 				foreach ($active_meta_fields as $active_meta_field )
 				{
-					$LDAPattribute = strtolower($active_meta_field['ldap_attributes']);
+					$LDAPattribute = strtolower($active_meta_field['ldap_attribute']);
 					$valeurs=array();
 					$indexj=-1;
 					// tester si l'entrée LDAP existe et si elle est multiple
@@ -521,9 +519,9 @@ class Lab_Directory_Settings {
 				$staff_post_id=false;
 
 
-				// $ldap_attribute_login = strtolower($active_meta_fields['login']['ldap_attributes']);
-				// $ldap_attribute_mails = strtolower($active_meta_fields['mails']['ldap_attributes']);
-				// $ldap_attribute_other_mails = strtolower($active_meta_fields['other_mails']['ldap_attributes']);
+				// $ldap_attribute_login = strtolower($active_meta_fields['login']['ldap_attribute']);
+				// $ldap_attribute_mails = strtolower($active_meta_fields['mails']['ldap_attribute']);
+				// $ldap_attribute_other_mails = strtolower($active_meta_fields['other_mails']['ldap_attribute']);
 					
 				// Recherche de l'id_personnel ($staff_post_id) par login
 				$wp_user_id = false;
@@ -572,12 +570,12 @@ class Lab_Directory_Settings {
 						"
 						SELECT post_id
 						FROM $wpdb->postmeta
-						WHERE $where "
+						WHERE post_status='publish' AND $where "
 						);
 				echo "
 						SELECT post_id
 						FROM $wpdb->postmeta
-						WHERE $where ";
+						WHERE post_status='publish' AND $where ";
 				}
 								
 				$readytoimport=true;
@@ -639,11 +637,11 @@ class Lab_Directory_Settings {
 				if ($test) {
 					// Affichage messages avant import qui est optionnel
 					if ($staff_post_id) {
-						$form_messages['ok'][] = "<b>Enr. n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' . 
+						$form_messages['ok'][] = "<b>Do : Enr. n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' . 
 								$champ_valeurs['name'] . ' ' . 
 								$champ_valeurs['mails'] ;
 					} else {
-						$form_messages['ok'][] = "<b>Enr. n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
+						$form_messages['ok'][] = "<b>Do : Enr. n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
 								$champ_valeurs['name'] . ' ' . 
 								$champ_valeurs['mails'];
 					}
@@ -652,17 +650,17 @@ class Lab_Directory_Settings {
 				if ($import) {
 		
 					if ($staff_post_id) {
-						write_log("Enr. n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 'Annuaire', _LOG_INFO);
-						
-						// $success Lab_Directory_Settings::update_lab_directory_staff();
+						write_log("Do : Enr. n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 'Annuaire', _LOG_INFO);
+						$success = Lab_Directory_Settings::update_lab_directory_staff($champ_valeurs, $staff_post_id);
 						
 						
 					} else {
-						write_log("Enr. n°$i CREATION[] : " .$temp . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
+						write_log("Do : Enr. n°$i CREATION[] : " .$temp . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
 						// la fiche est invalidée par défaut!
 						$champ_valeurs['fiche_validee'] = '0';
+						//TODO  modify register 
 						$staff_post_id = Lab_Directory_Settings::register_new_staff($champ_valeurs); 
-						$success = $staff_post_id>1;
+						$success = $staff_post_id!==false;
 					}
 		
 					if (!$success ){
@@ -702,7 +700,6 @@ class Lab_Directory_Settings {
 		 'post_type'    => 'lab_directory_staff',
 		 'post_status'  => 'publish'
 		 );
-		 echo 'New staff: <pre>';var_dump($new_lab_directory_staff_array); echo '</pre>';
 		 $success=true; 
 		 $new_lab_directory_staff_post_id = wp_insert_post( $new_lab_directory_staff_array );
 		 if ($new_lab_directory_staff_post_id) {
@@ -712,6 +709,21 @@ class Lab_Directory_Settings {
 			 if ($success) return $new_lab_directory_staff_post_id;
 		 }
 		 return false; 	
+	}
+	
+	function update_lab_directory_staff($champ_valeurs, $post_id) {
+
+		 $success=true; 
+		
+		 if ($post_id) {
+		 	foreach ($champ_valeurs as $key => $value) {
+			 	$success = $success AND update_post_meta( $post_id, $key, $value );
+			 }
+
+		 } else {
+		 	return false; 
+		 }
+		 return $success; 	
 	}
 	
 	function update_sync_info ($sync_info, $success = false) {
@@ -739,7 +751,7 @@ class Lab_Directory_Settings {
 	 *       ["group"]=>  string(2) "CV"
 	 *       ["activated"]=>   string(1) "1"
 	 *       ["multivalue"]=>    string(7) "special"
-	 *       ["ldap_attributes"]=>    string(2) "sn"
+	 *       ["ldap_attribute"]=>    string(2) "sn"
 	 *       ["show_frontend"]=>    string(1) "1"
 	 *  }
 	 *    ["position"]=> array(8) {
@@ -749,7 +761,7 @@ class Lab_Directory_Settings {
 	 *       ["group"]=>    string(2) "CV"
 	 *       ["activated"]=>    string(1) "1"
  	 *       ["multivalue"]=>    string(2) "MV"
-	 *       ["ldap_attributes"]=>    string(10) "labeleduri"
+	 *       ["ldap_attribute"]=>    string(10) "labeleduri"
 	 *       ["show_frontend"]=>    string(1) "1"
 	 *  }
 	 *  -----
@@ -779,10 +791,10 @@ class Lab_Directory_Settings {
 		$LDAPattributes = array();
 		foreach ($active_meta_fields as $active_meta_field)
 		{
-			if ($active_meta_field['ldap_attributes'] AND 
-					($active_meta_field['ldap_attributes']!='disabled')) {
+			if ($active_meta_field['ldap_attribute'] AND 
+					($active_meta_field['ldap_attribute']!='disabled')) {
 				// Add non empty attribute
-				$LDAPattributes[] = $active_meta_field['ldap_attributes'];
+				$LDAPattributes[] = $active_meta_field['ldap_attribute'];
 			}
 		}
 	
