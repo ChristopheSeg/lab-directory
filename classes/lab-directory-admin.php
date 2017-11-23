@@ -10,13 +10,51 @@ class Lab_Directory_Admin {
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
 			'lab-directory-help', array( 'Lab_Directory_Admin', 'help' ) );
+		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Translations', 'Translations', 'publish_posts',
+			'lab-directory-translations', array( 'Lab_Directory_Admin', 'translations' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
 	}
 
+	static function translations() {
+		
+		
+		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		$language_list = wp_get_available_translations();
+	
+		$locale = get_locale(); //string(5) "fr_FR" 
+		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'acronyms';
+		
+		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }  
+		unset($available_languages[$locale]);
+		
+		if (($key = array_search($locale, $available_languages)) !== false) {
+		    unset($available_languages[$key]);
+		}
+		array_unshift($available_languages, $locale);		
+		array_unshift($available_languages, 'acronyms');
+		
+		$html = '<h2 class="nav-tab-wrapper">';
+		foreach( $available_languages as $available_language){
+			if ($available_language=='acronyms') {
+				$language_name = __('Acronyms', 'lab-directory'); 
+			} else {
+				$language_name = $language_list[$available_language]['native_name'] . ' ('. $available_language . ')';
+			}
+			$class = ( $available_language == $current_tab ) ? 'nav-tab-active' : '';
+			$html .= '<a class="nav-tab ' . $class . '" href="edit.php?post_type=lab_directory_staff&page=lab-directory-translations&tab=' . $available_language . '">' . $language_name . '</a>';
+		}
+		$html .= '</h2>';
+		echo $html;
+		
+		Lab_Directory_Admin::settings_translations($current_tab, $language_list[$current_tab]['native_name'], 
+				$locale, $language_list[$locale]['native_name']);
+	
+	}
+   
 	static function settings() {
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
-		
+	
 		$tabs = array(
 				'general'   => __( 'General', 'lab-directory' ),
 				'capabilities' => __('Permissions', 'lab-directory' ),
@@ -24,11 +62,10 @@ class Lab_Directory_Admin {
 				'groups'   => __( 'Groups of fields', 'lab-directory' ),
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
-				'acronyms'   => __( 'Acronyms', 'lab-directory' ),
 				'taxonomy'  => __( 'Taxonomies', 'lab-directory' ),
 				'third'  => 'TODO list',
 		);
-		$html = '<h2>Lab Directory Settings</h2>'; 
+		$html = '<h2>Lab Directory Settings</h2>';
 		$html .= '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current_tab ) ? 'nav-tab-active' : '';
@@ -36,7 +73,7 @@ class Lab_Directory_Admin {
 		}
 		$html .= '</h2>';
 		echo $html;
-		
+	
 		if ( $current_tab == 'general' ) {
 			Lab_Directory_Admin::settings_general();
 		}
@@ -55,66 +92,124 @@ class Lab_Directory_Admin {
 		elseif ( $current_tab == 'test_sync' ) {
 			Lab_Directory_Admin::settings_test_sync();
 		}
-		elseif ( $current_tab == 'acronyms' ) {
-			Lab_Directory_Admin::settings_acronyms();
-		}
 		elseif ( $current_tab == 'taxonomy' ) {
 			Lab_Directory_Admin::settings_taxonomy();
 		}
 		else {
-			// Temporary TODO list 
+			// Temporary TODO list
 			?>
-			<p>
-		      <br>TODO SELECT post_id FROM wpircica_postmeta WHERE post_status='publish' AND ((meta_key = 'mails' AND meta_value = 'Christophe.Seguinot@univ-lille1.fr')) 
-		      <br>TODO erreur post_status est dans posts
-		      <br>TODO 
-		      <br>TODO alignement sur settings metafields §§§ 
-		      <br>TODO ajouter published dans select pour trouver post_id
-		      <br>TODO ajouter mandatory (name firstname = titre) ???
-		      <br>TODO social_network 
-		      <br>TODO voir add new/ ldap=0; 
-		      <br>TODO ajouter slug calculés firstname_name....
-		      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
-		      <br>TODO traduction custom / others
-		      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD
-		      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
-		      <br>TODO gérer bio: est ce que cela marche 
-		      <br>TODO gérer photo: est ce que cela va vec lien LDAP? supprimer modification si LDAP....
-		      <br>TODO Taxonomies
-		      <br>TODO permissions : 
-		      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
-		      <br>TODO supprimer les droits bin (sauf admin? ) 
-		      <br>TODO   
-		      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
-		      <br>TODO séparer admin et frontend
-		      <br>TODO ajouter onglet traduction acronymes 
-		      <br>TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
-		      <br>TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
-		    </p>
-<p> 
-<ul>
+				<p>
+			      <br>TODO 
+			      <br>TODO 
+			      <br>TODO 
+			      <br>TODO ajouter mandatory (name firstname = titre) ???
+			      <br>TODO social_network 
+			      <br>TODO voir add new/ ldap=0; 
+			      <br>TODO ajouter slug calculés firstname_name....
+			      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
+			      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD
+			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
+			      <br>TODO gérer bio: est ce que cela marche 
+			      <br>TODO gérer photo: est ce que cela va avec lien LDAP? supprimer modification si LDAP....
+			      <br>TODO Taxonomies
+			      <br>TODO permissions : 
+			      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
+			      <br>TODO supprimer les droits bin (sauf admin? ) 
+			      <br>TODO   
+			      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
+			      <br>TODO séparer admin et frontend
+			      <br>TODO ajouter onglet traduction acronymes 
+			      <br>TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
+			      <br>TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
+			    </p>
+	<p> 
+	<ul>
+	
+	<li>champ à redéfinir autrement</li>
+	<li>
+	<li>'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
+	<li>'photo'              => 'varchar(255) DEFAULT NULL',
+	<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
+	<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
+	<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
+	<li>'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
+	<li>'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
+	<li>'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
+	<li>'id_personnel'       => 'bigint(21) NOT NULL',
+	
+	
+	</ul>
+	
+	</p>		    
+				<?php 
+				
+			}	
+		}
+		static function settings_translations($lang, $lang_name, $locale, $locale_name) {
+		
+			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+			$form_messages = array('form_saved' => false);
+		
+			// Check $_POST and _wpnonce
+			if ($_POST['admin-settings-translations']) {
+				if ( ($_POST['admin-settings-translations']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-translations' )){
+					$lang = $_POST['lab_directory_translations_for'];
+					$slugs = $_POST['lab_directory_translations_slugs'];
+					$post_translations = $_POST['lab_directory_translations_translations'];
+										
+					$translations = array();
 
-<li>champ à redéfinir autrement</li>
-<li>
-<li>'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
-<li>'photo'              => 'varchar(255) DEFAULT NULL',
-<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
-<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
-<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
-<li>'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
-<li>'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
-<li>'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
-<li>'id_personnel'       => 'bigint(21) NOT NULL',
+					if ($lang =='acronyms') {
+						// Save acronyms 
+						$metafields_slugs = $_POST['lab_directory_translations_metafields_slugs'];
+						$links = $_POST['lab_directory_translations_links'];
+						$index = -1; 
+						foreach ( $slugs as $slug ) {
+							$index++;
+							$metafields_slug = sanitize_text_field($metafields_slugs[$index]);
+							if ($metafields_slug AND ($post_translations[$index] OR $links[index])) {
+								$translations[$metafields_slug][$slug] = array();
+								if ($post_translations[$index]) {
+									$translations[$metafields_slug][$slug]['translation'] = 
+									sanitize_text_field($post_translations[$index]) ;
+								}
+								if ($links[$index]) {
+									$translations[$metafields_slug][$slug]['link'] = 
+									sanitize_text_field($links[$index]);
+								}
+							}
+						}
+						
+					} else {
+						// save translations
+						$index = -1;
+						foreach ( $slugs as $slug ) {
+							$index++;
+							if ($post_translations[$index]) {
+								$translations[$slug] = $post_translations[$index];
+							}
+						}
+					}
+				
+					// save used language  (ex: lab_directory_translations_fr_FR) or acronyms
+					update_option( 'lab_directory_translations_' . $lang, $translations);
+					$form_messages['form_saved']= true;	
+					
+				}else{
+					// Error
+					$form_messages['erreur'][]= __('Security check fail : form not saved.');
+					echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
+				}
+			} else {
+				// Form initialisation load only acronyms or used language translations (ex: lab_directory_translations_fr-FR)
+				$translations = get_option('lab_directory_translations_' . $lang);
+				
+			}
 
-
-</ul>
-
-</p>		    
-			<?php 
-			
-		}	
-	}
-        
+			require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-translations.php' );
+		
+		}
+		
 	static function settings_general() {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -161,6 +256,8 @@ class Lab_Directory_Admin {
 
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-general.php' );
 	}
+	
+	
 	static function settings_fields() {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -341,32 +438,6 @@ class Lab_Directory_Admin {
 		
 	}
 	
-	static function settings_acronyms() {
-	
-		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$form_messages = array('form_saved' => false);
-		
-		// Remove LDAP tab if LDAP not used
-		if (get_option( 'lab_directory_use_ldap' ) == '0') {
-			echo 'no LDAP ';
-		}
-			
-		// Check $_POST and _wpnonce
-		if(isset($_POST['admin-settings-acronyms'])) {
-			if ( !empty($_POST['admin-settings-acronyms']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-acronyms' )){
-	
-				// Process/save form fields
-	
-			}else{
-				// Error
-				$form_messages['erreur'][]= __('Security check fail : form not saved.');
-				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
-			}
-		}
-	
-		
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-acronyms.php' );
-	}
 	
 	static function settings_test_sync() {
 	
@@ -466,7 +537,8 @@ class Lab_Directory_Admin {
 	
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomy.php' );
 	}
-
+	
+	
 	static function help() {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-help.php' );
 	}

@@ -40,24 +40,6 @@ class Lab_Directory {
 
 	static $capabilities = null;
 	
-	/*
-	 * Lab_Directory::$staff_meta_fields
-	 * List all capabilities, their name and scope ("all" or "own")
-	 *
-	 * 	Lab_Directory::$staff_meta_fields = array(
-	 *  		'settings_general' => array(
-	 * 					'name' =>'General settings',
-	 * 					'scope' =>'all'),
-	 * 			'settings_permissions' => array(
-	 * 					'name' =>'Permissions settings',
-	 * 					'scope' =>'all'),
-	 * 		-------
-	 * 			'edit_own_staff_profile' => array(
-	 * 					'name' =>'Edit its own profile',
-	 * 					'scope' =>'own'),
-	 *  	);
-	 *
-	 */
 	
 	/* 
 	 *   Lab_Directory::$staff_meta_fields
@@ -91,6 +73,10 @@ class Lab_Directory {
 	
 	static $staff_meta_fields = null;
 	
+	static $translations = null;
+	
+	static $acronyms = null;
+	
 	#
 	# Init custom post types
 	#
@@ -102,6 +88,8 @@ class Lab_Directory {
 		add_action( 'init', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'init', array( 'Lab_Directory', 'initiate_capabilities' ) );
 		add_action( 'init', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		add_action( 'init', array( 'Lab_Directory', 'initiate_translations' ) );
+		add_action( 'init', array( 'Lab_Directory', 'initiate_acronyms' ) );
 		
 		add_filter( "manage_edit-lab_directory_staff_columns", array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ) );
 		add_filter( "manage_lab_directory_staff_posts_custom_column", array(
@@ -129,10 +117,13 @@ class Lab_Directory {
 	
 	    add_action( 'restrict_manage_posts', array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
 	    add_action( 'pre_get_posts', array( 'Lab_Directory', 'filter_admin_lab_directory_staff_by_category' ) );
+	    
+	    // Custom field translation filter
+	    add_filter( 'gettext', array( 'Lab_Directory', 'lab_directory_custom_translations'), 10, 3 );	     
 
 
 	}
-
+	
 	static function create_post_types() {
 		register_post_type( 'lab_directory_staff',
 			array(
@@ -355,7 +346,7 @@ class Lab_Directory {
     	<p>
 		Note: Staff details and staff status cannot be modified at the same time. Please, first modify staff status, then modify staff details.  
     	</p>
-    	<p><span class="dashicons dashicons-lock"></span> When this lock is displayed the corresponding group is disabled.</p>
+    	<p><span class="dashicons dashicons-lock"></span> This group is disabled in general settings. Corresponding status is not available.</p>
     
 		<?php 
 	}
@@ -396,11 +387,13 @@ class Lab_Directory {
 		
 		<style type="text/css">
 			#new-jury-member {display: none;}
-			label.lab_directory_staff-label {
-				float: left;
-				line-height: 27px;
-				width: 130px;
+			label.lab_directory_staff-label {	
+				width: 150px;
+				display: inline-block;
 			}
+			.dashicons {
+			    font-size: 16px;
+			    }
 
  			input.large-text{ width: 80%; }
 			.input-in-td{ width:100%; padding-left:0; padding-right:0; }
@@ -446,7 +439,7 @@ class Lab_Directory {
     <button name="save" class="button button-primary button-large" id="publish2" value="Update" type="submit"><?php _e('Update')?></button>
     </p>
     <?php if ($ldap_synced) {?>
-     <p><span class="dashicons dashicons-lock"></span> When this lock is displayed the correponding field is synced with LDAP and cannot be modified.</p>   
+     <p><span class="dashicons dashicons-lock"></span>This field is synced with LDAP and cannot be modified.</p>   
     <?php }?>
     <?php wp_nonce_field( 'lab_directory_staff_meta_box_nonce_action', 'lab_directory_staff_meta_box_nonce' ); ?>
     
@@ -516,14 +509,13 @@ class Lab_Directory {
 			}
 		}
 
-		$label = '<label for="lab_directory_staff_meta_' . $field['slug'] . '" class="lab_directory_staff-label">'.
-				$field_name ;
-		
-		// Label 
+			// Label 		$label = '';
+
+		$label = '<label for="lab_directory_staff_meta_' . $field['slug'] . '" class="lab_directory_staff-label">';
 		if ($field_type == 'disabled') {
 			$label .= '<span class="dashicons dashicons-lock"></span>';
-		}
-		$label .='</label>';
+		}		
+		$label .=$field_name . '</label>';
 		echo '<p>';	
 		
 		
@@ -717,7 +709,7 @@ class Lab_Directory {
 		// Process form 
 		// TODO this is not displayed !!
 		$form_messages = array('form_saved' => false);
-		// Notice: this error detection fails if 2 users save the same staff detail at the same time
+		// Notice: this error detection can fail if 2 users modify the same staff detail at the same time
 		// TODO add $form_messages !! 
 		update_post_meta( $post_id, 'messages', $form_messages);
 		
@@ -1312,8 +1304,8 @@ class Lab_Directory {
 				$default_meta_fields[] = array(
 						'order' => 50+$i, 
 						'type'=> 'text',
-						'slug' => "custom_$i",
-						'group' => 'others',
+						'slug' => "custom_field_$i",
+						'group' => 'custom_group',
 						'ldap_attribute' => '',
 						'multivalue' => 'SV',
 						'show_frontend' =>'1',
@@ -1621,7 +1613,7 @@ EOT;
 		
 	if( get_post_type() === 'lab_directory_staff' ) {
         // unset( $actions['edit'] );
-        unset( $actions['view'] );
+        // unset( $actions['view'] );
         unset( $actions['trash'] );
         unset( $actions['inline hide-if-no-js'] );
 		}
@@ -1672,6 +1664,21 @@ EOT;
     } 
 	}
 	
+	static function lab_directory_custom_translations( $translated, $original, $domain ) {
+	
+	
+		if ( 'lab-directory' == $domain ) {
+			if ( array_key_exists($original, self::$translations )) {
+				$translated = self::$translations[$original];
+			}
+		}
+	
+		return $translated;
+	}
+	
+	
+	
+	
 	public function get_lab_directory_default_permissions() {
 
 		// Define default permissions;
@@ -1688,7 +1695,7 @@ EOT;
 			  "ld_internship_settings_general" => "0",
 			  "ld_invited_settings_general" => "0",
 			  "ld_CDD_settings_general" => "0",
-			  "ld_others_settings_general" => "0", 
+			  "ld_custom_group_settings_general" => "0", 
 			  "wp_editor_settings_permissions" => "0", 
 			  "wp_author_settings_permissions" => "0", 
 			  "wp_contributor_settings_permissions" => "0", 
@@ -1701,7 +1708,7 @@ EOT;
 			  "ld_internship_settings_permissions" => "0",
 			  "ld_invited_settings_permissions" => "0",
 			  "ld_CDD_settings_permissions" => "0",
-			  "ld_others_settings_permissions" => "0", 
+			  "ld_custom_group_settings_permissions" => "0", 
 			  "wp_editor_ldap_settings" => "1", 
 			  "wp_author_ldap_settings" => "0", 
 			  "wp_contributor_ldap_settings" => "0", 
@@ -1714,7 +1721,7 @@ EOT;
 			  "ld_internship_ldap_settings" => "0",
 			  "ld_invited_ldap_settings" => "0",
 			  "ld_CDD_ldap_settings" => "0",
-			  "ld_others_ldap_settings" => "0", 
+			  "ld_custom_group_ldap_settings" => "0", 
 			  "wp_editor_ldap_syncing" => "0", 
 			  "wp_author_ldap_syncing" => "0", 
 			  "wp_contributor_ldap_syncing" => "0", 
@@ -1727,7 +1734,7 @@ EOT;
 			  "ld_internship_ldap_syncing" => "0",
 			  "ld_invited_ldap_syncing" => "0",
 			  "ld_CDD_ldap_syncing" => "0",
-			  "ld_others_ldap_syncing" => "0", 
+			  "ld_custom_group_ldap_syncing" => "0", 
 			  "wp_editor_group_of_fields_settings" => "0", 
 			  "wp_author_group_of_fields_settings" => "0", 
 			  "wp_contributor_group_of_fields_settings" => "0", 
@@ -1740,7 +1747,7 @@ EOT;
 			  "ld_internship_group_of_fields_settings" => "0",
 			  "ld_invited_group_of_fields_settings" => "0",
 			  "ld_CDD_group_of_fields_settings" => "0",
-			  "ld_others_group_of_fields_settings" => "0", 
+			  "ld_custom_group_group_of_fields_settings" => "0", 
 			  "wp_editor_meta_fields_settings" => "0", 
 			  "wp_author_meta_fields_settings" => "0", 
 			  "wp_contributor_meta_fields_settings" => "0", 
@@ -1753,7 +1760,7 @@ EOT;
 			  "ld_internship_meta_fields_settings" => "0",
 			  "ld_invited_meta_fields_settings" => "0",
 			  "ld_CDD_meta_fields_settings" => "0",
-			  "ld_others_meta_fields_settings" => "0", 
+			  "ld_custom_group_meta_fields_settings" => "0", 
 			  "wp_editor_acronyms_settings" => "0", 
 			  "wp_author_acronyms_settings" => "0", 
 			  "wp_contributor_acronyms_settings" => "0", 
@@ -1766,7 +1773,7 @@ EOT;
 			  "ld_internship_acronyms_settings" => "0",
 			  "ld_invited_acronyms_settings" => "0",
 			  "ld_CDD_acronyms_settings" => "0",
-			  "ld_others_acronyms_settings" => "0", 
+			  "ld_custom_group_acronyms_settings" => "0", 
 			  "wp_editor_taxonomies_settings" => "0", 
 			  "wp_author_taxonomies_settings" => "0", 
 			  "wp_contributor_taxonomies_settings" => "0", 
@@ -1779,7 +1786,7 @@ EOT;
 			  "ld_internship_taxonomies_settings" => "0",
 			  "ld_invited_taxonomies_settings" => "0",
 			  "ld_CDD_taxonomies_settings" => "0",
-			  "ld_others_taxonomies_settings" => "0", 
+			  "ld_custom_group_taxonomies_settings" => "0", 
 			  "wp_editor_validate_new_staff_entry" => "0", 
 			  "wp_author_validate_new_staff_entry" => "0", 
 			  "wp_contributor_validate_new_staff_entry" => "0", 
@@ -1792,7 +1799,7 @@ EOT;
 			  "ld_internship_validate_new_staff_entry" => "0",
 			  "ld_invited_validate_new_staff_entry" => "0",
 			  "ld_CDD_validate_new_staff_entry" => "0",
-			  "ld_others_validate_new_staff_entry" => "0", 
+			  "ld_custom_group_validate_new_staff_entry" => "0", 
 			  "wp_editor_give_permanent_status" => "0", 
 			  "wp_author_give_permanent_status" => "0", 
 			  "wp_contributor_give_permanent_status" => "0", 
@@ -1805,7 +1812,7 @@ EOT;
 			  "ld_internship_give_permanent_status" => "0",
 			  "ld_invited_give_permanent_status" => "0",
 			  "ld_CDD_give_permanent_status" => "0",
-			  "ld_others_give_permanent_status" => "0", 
+			  "ld_custom_group_give_permanent_status" => "0", 
 			  "wp_editor_give_administrative_status" => "0", 
 			  "wp_author_give_administrative_status" => "0", 
 			  "wp_contributor_give_administrative_status" => "0", 
@@ -1818,7 +1825,7 @@ EOT;
 			  "ld_internship_give_administrative_status" => "0",
 			  "ld_invited_give_administrative_status" => "0",
 			  "ld_CDD_give_administrative_status" => "0",
-			  "ld_others_give_administrative_status" => "0", 
+			  "ld_custom_group_give_administrative_status" => "0", 
 			  "wp_editor_give_hdr_status" => "0", 
 			  "wp_author_give_hdr_status" => "0", 
 			  "wp_contributor_give_hdr_status" => "0", 
@@ -1831,7 +1838,7 @@ EOT;
 			  "ld_internship_give_hdr_status" => "0",
 			  "ld_invited_give_hdr_status" => "0",
 			  "ld_CDD_give_hdr_status" => "0",
-			  "ld_others_give_hdr_status" => "0", 
+			  "ld_custom_group_give_hdr_status" => "0", 
 			  "wp_editor_give_phd_status" => "0", 
 			  "wp_author_give_phd_status" => "0", 
 			  "wp_contributor_give_phd_status" => "0", 
@@ -1844,7 +1851,7 @@ EOT;
 			  "ld_internship_give_phd_status" => "0",
 			  "ld_invited_give_phd_status" => "0",
 			  "ld_CDD_give_phd_status" => "0",
-			  "ld_others_give_phd_status" => "0", 
+			  "ld_custom_group_give_phd_status" => "0", 
 			  "wp_editor_give_post_doc_status" => "0", 
 			  "wp_author_give_post_doc_status" => "0", 
 			  "wp_contributor_give_post_doc_status" => "0", 
@@ -1857,7 +1864,7 @@ EOT;
 			  "ld_internship_give_post_doc_status" => "0",
 			  "ld_invited_give_post_doc_status" => "0",
 			  "ld_CDD_give_post_doc_status" => "0",
-			  "ld_others_give_post_doc_status" => "0", 
+			  "ld_custom_group_give_post_doc_status" => "0", 
 			  "wp_editor_give_internship_status" => "0", 
 			  "wp_author_give_internship_status" => "0", 
 			  "wp_contributor_give_internship_status" => "0", 
@@ -1870,7 +1877,7 @@ EOT;
 			  "ld_internship_give_internship_status" => "0",
 			  "ld_invited_give_internship_status" => "0",
 			  "ld_CDD_give_internship_status" => "0",
-			  "ld_others_give_internship_status" => "0", 
+			  "ld_custom_group_give_internship_status" => "0", 
 			  "wp_editor_give_invited_status" => "0", 
 			  "wp_author_give_invited_status" => "0", 
 			  "wp_contributor_give_invited_status" => "0", 
@@ -1883,7 +1890,7 @@ EOT;
 			  "ld_internship_give_invited_status" => "0",
 			  "ld_invited_give_invited_status" => "0",
 			  "ld_CDD_give_invited_status" => "0",
-			  "ld_others_give_invited_status" => "0", 
+			  "ld_custom_group_give_invited_status" => "0", 
 			  "wp_editor_give_cdd_status" => "0", 
 			  "wp_author_give_cdd_status" => "0", 
 			  "wp_contributor_give_cdd_status" => "0", 
@@ -1896,7 +1903,7 @@ EOT;
 			  "ld_internship_give_cdd_status" => "0",
 			  "ld_invited_give_cdd_status" => "0",
 			  "ld_CDD_give_cdd_status" => "0",
-			  "ld_others_give_cdd_status" => "0", 
+			  "ld_custom_group_give_cdd_status" => "0", 
 			  "wp_editor_give_other_status" => "0", 
 			  "wp_author_give_other_status" => "0", 
 			  "wp_contributor_give_other_status" => "0", 
@@ -1909,7 +1916,7 @@ EOT;
 			  "ld_internship_give_other_status" => "0",
 			  "ld_invited_give_other_status" => "0",
 			  "ld_CDD_give_other_status" => "0",
-			  "ld_others_give_other_status" => "0", 
+			  "ld_custom_group_give_other_status" => "0", 
 			  "wp_editor_edit_staff_profile" => "0", 
 			  "wp_author_edit_staff_profile" => "0", 
 			  "wp_contributor_edit_staff_profile" => "0", 
@@ -1922,7 +1929,7 @@ EOT;
 			  "ld_internship_edit_staff_profile" => "0",
 			  "ld_invited_edit_staff_profile" => "0",
 			  "ld_CDD_edit_staff_profile" => "0",
-			  "ld_others_edit_staff_profile" => "0", 
+			  "ld_custom_group_edit_staff_profile" => "0", 
 			  "wp_editor_edit_own_staff_profile" => "0", 
 			  "wp_author_edit_own_staff_profile" => "0", 
 			  "wp_contributor_edit_own_staff_profile" => "0", 
@@ -1935,7 +1942,7 @@ EOT;
 			  "ld_internship_edit_own_staff_profile" => "0",
 			  "ld_invited_edit_own_staff_profile" => "0",
 			  "ld_CDD_edit_own_staff_profile" => "0",
-			  "ld_others_edit_own_staff_profile" => "0", 
+			  "ld_custom_group_edit_own_staff_profile" => "0", 
 			  "wp_editor_view_staff_lists_profiles" => "0", 
 			  "wp_author_view_staff_lists_profiles" => "0", 
 			  "wp_contributor_view_staff_lists_profiles" => "0", 
@@ -1948,7 +1955,7 @@ EOT;
 			  "ld_internship_view_staff_lists_profiles" => "0",
 			  "ld_invited_view_staff_lists_profiles" => "0",
 			  "ld_CDD_view_staff_lists_profiles" => "0",
-			  "ld_others_view_staff_lists_profiles" => "0"
+			  "ld_custom_group_view_staff_lists_profiles" => "0"
 			); 
 		
 		return $permissions;
@@ -2013,7 +2020,7 @@ EOT;
 				'invited' =>__( 'Invited', 'lab-directory'),
 				/* translators: CDD is a french acronym for Fixed term contract*/
 				'CDD' =>__( 'CDD', 'lab-directory'),
-				'others' =>__( 'Others (custom)', 'lab-directory'),
+				'custom_group' =>__( 'custom_group', 'lab-directory'),
 		);
 		return $groups;
 	}
@@ -2084,6 +2091,7 @@ EOT;
 	
 		// Define the list of function use in HDR and PHD jury
 		$jury_functions = array(
+	//TODO translation !!!
 	
 	'guarantor' => 'Garant de la HDR',
 	'chairman' => 'President',
@@ -2175,25 +2183,25 @@ EOT;
 				/* translators Fixed term contract information */
 				'cdd_position' => __( 'Occupied position', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_1' => __( 'custom_fields_1', 'lab-directory'),
+				'custom_field_1' => __( 'custom_field_1', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_2' => __( 'custom_fields_2', 'lab-directory'),
+				'custom_field_2' => __( 'custom_field_2', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_3' => __( 'custom_fields_3', 'lab-directory'),
+				'custom_field_3' => __( 'custom_field_3', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_4' => __( 'custom_fields_4', 'lab-directory'),
+				'custom_field_4' => __( 'custom_field_4', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_5' => __( 'custom_fields_5', 'lab-directory'),
+				'custom_field_5' => __( 'custom_field_5', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_6' => __( 'custom_fields_6', 'lab-directory'),
+				'custom_field_6' => __( 'custom_field_6', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_7' => __( 'custom_fields_7', 'lab-directory'),
+				'custom_field_7' => __( 'custom_field_7', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_8' => __( 'custom_fields_8', 'lab-directory'),
+				'custom_field_8' => __( 'custom_field_8', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_9' => __( 'custom_fields_9', 'lab-directory'),
+				'custom_field_9' => __( 'custom_field_9', 'lab-directory'),
 				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
-				'custom_10' => __( 'custom_fields_10', 'lab-directory'),
+				'custom_field_10' => __( 'custom_field_10', 'lab-directory'),
 		);
 		return $default_meta_field_names;
 	}
@@ -2209,6 +2217,15 @@ EOT;
 	static function initiate_staff_meta_fields() {
 		self::$staff_meta_fields =  get_option( 'lab_directory_staff_meta_fields');
 	} 
+
+	static function initiate_translations() {
+		
+		self::$translations =  get_option( 'lab_directory_translations_' . get_locale());
+	}
+	
+	static function initiate_acronyms() {
+		self::$acronyms =  get_option( 'lab_directory_translations_acronyms');
+	}
 	
 	static function initiate_capabilities() {
 		$temp = array("0" => "test permissions modifié");

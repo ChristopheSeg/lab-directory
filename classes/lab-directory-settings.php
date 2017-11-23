@@ -570,12 +570,9 @@ class Lab_Directory_Settings {
 						"
 						SELECT post_id
 						FROM $wpdb->postmeta
+						LEFT JOIN $wpdb->posts ON ID = post_id 
 						WHERE post_status='publish' AND $where "
 						);
-				echo "
-						SELECT post_id
-						FROM $wpdb->postmeta
-						WHERE post_status='publish' AND $where ";
 				}
 								
 				$readytoimport=true;
@@ -637,11 +634,11 @@ class Lab_Directory_Settings {
 				if ($test) {
 					// Affichage messages avant import qui est optionnel
 					if ($staff_post_id) {
-						$form_messages['ok'][] = "<b>Do : Enr. n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' . 
+						$form_messages['ok'][] = "<b>Do : Enr. LDAP n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' . 
 								$champ_valeurs['name'] . ' ' . 
 								$champ_valeurs['mails'] ;
 					} else {
-						$form_messages['ok'][] = "<b>Do : Enr. n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
+						$form_messages['ok'][] = "<b>Do : Enr. LDAP n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
 								$champ_valeurs['name'] . ' ' . 
 								$champ_valeurs['mails'];
 					}
@@ -650,17 +647,26 @@ class Lab_Directory_Settings {
 				if ($import) {
 		
 					if ($staff_post_id) {
-						write_log("Do : Enr. n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 'Annuaire', _LOG_INFO);
+						write_log("Do : Enr. LDAP n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 'Annuaire', _LOG_INFO);
 						$success = Lab_Directory_Settings::update_lab_directory_staff($champ_valeurs, $staff_post_id);
-						
-						
+						if ($success ){ 
+							$form_messages['ok'][] = "<b>Done Enr. LDAP n°$i MAJ[id=$staff_post_id] :</b>  ". $temp . $champ_valeurs['firstname'] . ' ' .
+									$champ_valeurs['name'] . ' ' .
+									$champ_valeurs['mails'] ;
+						}
 					} else {
-						write_log("Do : Enr. n°$i CREATION[] : " .$temp . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
+						write_log("Do : Enr. LDAP n°$i CREATION[] : " .$temp . $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'] , 'Annuaire', _LOG_INFO);
 						// la fiche est invalidée par défaut!
 						$champ_valeurs['fiche_validee'] = '0';
 						//TODO  modify register 
 						$staff_post_id = Lab_Directory_Settings::register_new_staff($champ_valeurs); 
 						$success = $staff_post_id!==false;
+						if ($success ){
+							$form_messages['ok'][] = "<b>Done Enr. LDAP n°$i CREATION[] :</b> " . $temp . $champ_valeurs['firstname'] . ' ' . 
+								$champ_valeurs['name'] . ' ' . 
+								$champ_valeurs['mails'];
+						}
+						
 					}
 		
 					if (!$success ){
@@ -831,6 +837,16 @@ class Lab_Directory_Settings {
 		}
 	
 		return $used_groups;
+	}
+	
+	static function get_lab_directory_custom_fields() {
+		$custom_fields = array(); 
+		foreach (Lab_Directory::get_lab_directory_default_meta_field_names() as $key => $key_name) {
+			if (strpos($key, 'custom') !== false) {
+				$custom_fields[$key] = $key_name;
+			}
+		}
+		return $custom_fields;
 	}
 
 }
