@@ -85,7 +85,7 @@ class Lab_Directory_Settings {
 		foreach ($meta_fields as $meta_field) {
 			$meta_fields_slugs[$meta_field['slug']] = $meta_field['slug'];
 		}
-		$upgraded = false; 
+		$upgraded = false;  
 
 		foreach ($default_meta_fields as $default_meta_field) {
 			if( ! in_array($default_meta_field['slug'], $meta_fields_slugs)) {
@@ -96,10 +96,14 @@ class Lab_Directory_Settings {
 				$meta_fields[] = $default_meta_field;
 			}
 		}
+ 
 		if ($upgraded ) {
 			// sort and save upgraded meta_fields
 			usort($meta_fields, __NAMESPACE__ . '\compare_order');
 			update_option( 'lab_directory_staff_meta_fields', $meta_fields );
+			// Renew static variable 
+			LAb_Directory::initiate_staff_meta_fields();
+			
 		}
 		return; 
 	
@@ -540,6 +544,12 @@ class Lab_Directory_Settings {
 				}
 				
 
+				// TODO mettre cela en function $id=search_for_an_existing_staff_id(); 
+				// +
+				// TODO mettre cela en function $id=search_for_an_existing_wp_id();
+				// pour partager avec add_new (comment?) 
+				
+				
 				// Search for an existing staff entry (post_id) And an existing user_id
 				
 				$post_where = array(); 
@@ -568,7 +578,7 @@ class Lab_Directory_Settings {
 	
 				$post_ids = $wpdb->get_results(
 						"
-						SELECT post_id
+						SELECT DISTINCT post_id
 						FROM $wpdb->postmeta
 						LEFT JOIN $wpdb->posts ON ID = post_id 
 						WHERE post_status='publish' AND $where "
@@ -580,6 +590,7 @@ class Lab_Directory_Settings {
 				if ($post_ids) {
 					if (count($post_ids)==1) {
 						$staff_post_id = $post_ids[0]->post_id;
+						
 					} elseif  (count($post_ids)>1) {
 						// Erreur il y a plusieurs enregistrements
 						$readytoimport=false;
@@ -679,6 +690,7 @@ class Lab_Directory_Settings {
 					} else{
 						$form_messages['ok'][] = "<b>==> MAJ ou CREATION[] terminée avec succès</b>";
 					}
+					Lab_Directory_Settings::update_sync_info ($sync_info, $success);
 	
 				}
 			} else {
@@ -734,10 +746,10 @@ class Lab_Directory_Settings {
 	
 	function update_sync_info ($sync_info, $success = false) {
 		$lab_directory_ldap_last10syncs = get_option( 'lab_directory_ldap_last10syncs', array('No sync operation performed up to now') );
-		array_unshift($lab_directory_ldap_last10syncs, ($success? 'SUCCESS ':'FAILED  ') . $sync_info);
 		if (count($lab_directory_ldap_last10syncs) >10 ) {
 			array_pop($lab_directory_ldap_last10syncs);
 		}
+		array_unshift($lab_directory_ldap_last10syncs, ($success? 'SUCCESS ':'FAILED  ') . $sync_info);
 		update_option( 'lab_directory_ldap_last10syncs', $lab_directory_ldap_last10syncs);
 	}
 

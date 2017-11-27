@@ -46,10 +46,10 @@ jQuery(document).ready(function() {
     <h2>Custom Details Fields</h2>
 
     <p>
-    This page allows you to set details fields and to create custom details fields for each Staff member. In case a group of fields is disabled, note that corresponding fields can be set but will never be used in the directory. 
+    This page allows you to set details fields and to create custom details fields for each Staff member. In case a group of fields is disabled, settings of corresponding fields can be changed but this fielfd will never be displayed in the directory. 
     </p>
     <p>  
-    In order to use one meta field: this one must be enabled, and the corresponding group must also be activated. 
+    In order to display one meta field in the staff directory pages: the meta field must be enabled, and the corresponding group must also be activated. 
     </p>
 	<p>
     	<button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
@@ -193,10 +193,10 @@ jQuery(document).ready(function() {
 </form>
 <h4 id="footnote">Notes</h4>
 <p>(1). If order is set to n, the corresponding fiels will be placed just before or just after the current n-th fields depending of its initial position before or after the n-th field. </p>
-<p>(2). This group of field is disabled. Corresponding field(s) will not be used in the directory (even if fields(s) is (are)activated). </p>
+<p>(2). This group of fields is disabled. Corresponding fields will not be used in the staff directory (even if some fields(s) is (are) activated). </p>
 <p>(3). LDAP attribute column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding field(s) can not be synced with LDAP. </p>
 <p>(4). Multivalue column Lock <span class="dashicons dashicons-lock"></span> indicates that corresponding fields are always single value. </p>
-<p>(4). Notes about Multivalued LDAP fields<br>
+<p>(4). Information about Multivalued LDAP fields<br>
 <?php 
 $notes = Lab_Directory::get_lab_directory_multivalues_names();
 foreach ($notes as $key =>$note) {

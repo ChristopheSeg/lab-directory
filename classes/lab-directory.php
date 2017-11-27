@@ -85,12 +85,14 @@ class Lab_Directory {
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
 		
-		add_action( 'init', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
-		add_action( 'init', array( 'Lab_Directory', 'initiate_capabilities' ) );
-		add_action( 'init', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
-		add_action( 'init', array( 'Lab_Directory', 'initiate_translations' ) );
-		add_action( 'init', array( 'Lab_Directory', 'initiate_acronyms' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_capabilities' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_translations' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_acronyms' ) );
 		
+		add_filter( 'get_sample_permalink_html', array( 'Lab_Directory', 'hide_permalink' ));
+		add_filter( 'admin_post_thumbnail_html', array( 'Lab_Directory', 'lab_directory_staff_photo_meta_box'), 10, 3 );
 		add_filter( "manage_edit-lab_directory_staff_columns", array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ) );
 		add_filter( "manage_lab_directory_staff_posts_custom_column", array(
 			'Lab_Directory',
@@ -101,6 +103,7 @@ class Lab_Directory {
 
 		add_filter( 'enter_title_here', array( 'Lab_Directory', 'lab_directory_staff_title_text' ) );
 		add_filter( 'admin_head', array( 'Lab_Directory', 'remove_media_buttons' ) );
+		add_action( 'admin_menu', array( 'Lab_Directory', 'remove_publish_box' ));
 		add_action( 'add_meta_boxes_lab_directory_staff', array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
 		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
@@ -128,15 +131,34 @@ class Lab_Directory {
 		register_post_type( 'lab_directory_staff',
 			array(
 				'labels'     => array(
-					'name' => __( 'Lab_dir_Staff' ), 
-						'add_new' => 'add new staff', // This only change the title
+						'name' => __( 'Staffs (Lab Directory)', 'lab-directory'),
+						'singular_name' => __( 'Staffs', 'lab-directory'),
+						'add_new' => __('New staff', 'lab-directory'),
+						'add_new_item' => __('Add a new staff', 'lab-directory'),
+						'edit_item' => __('Edit staff details', 'lab-directory'),
+						'new_item' => __('New staff', 'lab-directory'),
+						'view_item' => __('View staff', 'lab-directory'),
+						'view_items' => __('View staffs', 'lab-directory'), 
+						'search_items' => __('Search staff', 'lab-directory'),
+						'not_found' => __('No staff found.', 'lab-directory'),
+						'not_found_in_trash' => __('No staff in Trash.', 'lab-directory'),
+						'all_items' => __( 'Staffs list', 'lab-directory'),
+						'featured_image' => __( 'Staff photo', 'lab-directory'),
+						'set_featured_image' => __( 'Set staff photo', 'lab-directory'),
+						'remove_featured_image' => __( 'Remove staff photo', 'lab-directory'),
+						'use_featured_image' => __( 'Use a staff photo', 'lab-directory'),
+						'filter_items_list' =>  __( 'Filter staffs list' , 'lab-directory'),
+						'items_list_navigation' =>  __( 'Staffs list navigation' , 'lab-directory'),
+						'items_list' => __( 'Staffs list' , 'lab-directory'),
+						
 				),
 				'supports'   => array(
-					// 'title',
+					'title',
 					// 'editor',
-					'thumbnail'
+					'thumbnail' // disabled for ldap=1
 				),
 				'public'     => true,
+				'has_archive' => false,
 				'menu_icon'  => 'dashicons-id',
 				'taxonomies' => array( 'lab_category', ),
 			)
@@ -425,7 +447,7 @@ class Lab_Directory {
         foreach ($used_groups as $key => $group_name) {
         	echo '<div id="Tab-'. $key .'">';
              foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
-            	if ($field['group'] == $key) {
+            	if (($field['group'] == $key) AND ($field['activated']=='1')) {
             		Lab_Directory::lab_directory_staff_meta_box_render_input($post, $field, $lab_directory_meta_field_names[$field['slug']], 
             				$studying_levels, $jury_functions, $ldap_synced); 
           		}
@@ -661,8 +683,7 @@ class Lab_Directory {
 				default : // We should never arrive there !!
 					// Only display field value
 					echo $label;
-					echo $value; echo $field['slug'];
-					var_dump($value);
+					echo $value; // echo $field['slug'];var_dump($value);
 					break; 
 				}
 		?>
@@ -884,10 +905,21 @@ class Lab_Directory {
 				'slug' => 'mails',
 				'group' => 'CV',
 				'ldap_attribute' => '',
+				'multivalue' => 'SV',
+				'show_frontend' =>'1',
+				'activated' => '1',
+			),
+				array(
+				'order' => 5, 
+				'type'=> 'text',
+				'slug' => 'other_mails',
+				'group' => 'CV',
+				'ldap_attribute' => '',
 				'multivalue' => 'MV',
 				'show_frontend' =>'1',
 				'activated' => '1',
-			),						
+			),
+				
 			array(
 				'order' => 6, 
 				'type'=> 'editor',
@@ -1611,9 +1643,10 @@ EOT;
 	 */
 	static function modify_quick_edit( $actions ) {
 		
-	if( get_post_type() === 'lab_directory_staff' ) {
+	if( get_post_type() == 'lab_directory_staff' ) {
         // unset( $actions['edit'] );
         // unset( $actions['view'] );
+        // TODO permissions ?? 
         unset( $actions['trash'] );
         unset( $actions['inline hide-if-no-js'] );
 		}
@@ -2090,26 +2123,24 @@ EOT;
 	public function get_lab_directory_jury_functions() {
 	
 		// Define the list of function use in HDR and PHD jury
-		$jury_functions = array(
-	//TODO translation !!!
-	
-	'guarantor' => 'Garant de la HDR',
-	'chairman' => 'President',
-	'chairwoman' => 'Presidente',
-	'director' => 'Directeur',
-	'directress' => 'Directrice',
-	'directors' => 'Directeurs',
-	'examiner' => 'Examinateur',
+		$jury_functions = array(	
+	'guarantor' => __('Garant de la HDR', 'lab-directory'),
+	'chairman' => __('President', 'lab-directory'),
+	'chairwoman' => __('Presidente', 'lab-directory'),
+	'director' => __('Directeur', 'lab-directory'),
+	'directress' => __('Directrice', 'lab-directory'),
+	'directors' => __('Directeurs', 'lab-directory'),
+	'examiner' => __('Examinateur', 'lab-directory'),
 	/* translator examiner / female */
-	'examiner_f' => 'Examinatrice',
-	'examiners' => 'Examinateurs',
-	'referee' => 'Rapporteur',
+	'examiner_f' => __('Examinatrice', 'lab-directory'),
+	'examiners' => __('Examinateurs', 'lab-directory'),
+	'referee' => __('Rapporteur', 'lab-directory'),
 	/* translator referee / female*/
-	'referee_f' => 'Rapportrice',
-	'referees' => 'Rapporteurs',
-	'invited' => 'Invité',
-	'invited_f' => 'Invitée',
-	'inviteds' => 'Invités',
+	'referee_f' => __('Rapportrice', 'lab-directory'),
+	'referees' => __('Rapporteurs', 'lab-directory'),
+	'invited' => __('Invité', 'lab-directory'),
+	'invited_f' => __('Invitée', 'lab-directory'),
+	'inviteds' => __('Invités', 'lab-directory'),
 			);
 	return $jury_functions;
 	}
@@ -2182,25 +2213,25 @@ EOT;
 				'cdd_goal' => __( 'Contract goal', 'lab-directory'),
 				/* translators Fixed term contract information */
 				'cdd_position' => __( 'Occupied position', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_1' => __( 'custom_field_1', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_2' => __( 'custom_field_2', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_3' => __( 'custom_field_3', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_4' => __( 'custom_field_4', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_5' => __( 'custom_field_5', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_6' => __( 'custom_field_6', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_7' => __( 'custom_field_7', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_8' => __( 'custom_field_8', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_9' => __( 'custom_field_9', 'lab-directory'),
-				/* translators: Do not translate.  This should be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
 				'custom_field_10' => __( 'custom_field_10', 'lab-directory'),
 		);
 		return $default_meta_field_names;
@@ -2297,6 +2328,26 @@ EOT;
 		);
 		
 	}
+	
+	static function lab_directory_staff_photo_meta_box( $content, $post_id, $thumbnail_id ){
+
+		if (get_post_meta( $post_id, 'ldap', true)>0 ) {
+			if ($thumbnail_id) {
+				$content = preg_match('#(<img.*?>)#', $content, $matches)? $matches[0]: '';
+			}
+			
+			$content .= '<p><i><span class="dashicons dashicons-lock"></span>' . __( 'Staff photo synchronised with LDAP can only be changed on LDAP directory', 'lab_directory' ) . '</i></p>';
+		}
+    return $content;
+	}
+	
+    static function remove_publish_box() {
+    	remove_meta_box( 'submitdiv', 'lab_directory_staff', 'side' );
+    }
+    static function hide_permalink($content) {
+       return $content;
+    	
+    }
 
 }
 

@@ -99,7 +99,8 @@ class Lab_Directory_Admin {
 			// Temporary TODO list
 			?>
 				<p>
-			      <br>TODO 
+			      <br>TODO gérer photo: ajouter création thumbnail// à partir URL....
+			      <br>TODO supprimer trask ??
 			      <br>TODO 
 			      <br>TODO 
 			      <br>TODO ajouter mandatory (name firstname = titre) ???
@@ -108,17 +109,15 @@ class Lab_Directory_Admin {
 			      <br>TODO ajouter slug calculés firstname_name....
 			      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
 			      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD
-			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
-			      <br>TODO gérer bio: est ce que cela marche 
-			      <br>TODO gérer photo: est ce que cela va avec lien LDAP? supprimer modification si LDAP....
-			      <br>TODO Taxonomies
 			      <br>TODO permissions : 
+			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 			      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
 			      <br>TODO supprimer les droits bin (sauf admin? ) 
+			      <br>TODO gérer bio: est ce que cela marche 
+			      <br>TODO Taxonomies
 			      <br>TODO   
 			      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
 			      <br>TODO séparer admin et frontend
-			      <br>TODO ajouter onglet traduction acronymes 
 			      <br>TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
 			      <br>TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
 			    </p>
