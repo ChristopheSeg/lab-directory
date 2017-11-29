@@ -288,7 +288,7 @@ class Lab_Directory {
 	}
 	
 	static function enqueue_fontawesome() {
-		wp_enqueue_style( 'font-awesome', '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
+		wp_enqueue_style( 'font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 			array(), '4.0.3' );
 	}
 
@@ -405,6 +405,23 @@ class Lab_Directory {
 					$(this).parent().parent().remove();
 				});
 		});
+
+		function show_hide_social_networks() {
+		
+		    var elems = document.getElementsByClassName("social_networks");
+		   
+		    for(var i = 0; i != elems.length; ++i)
+		    {
+		    	var test = elems[i].style.display;
+		    
+		    	   if (test == 'none') {
+		    		   elems[i].style.display= '';
+		    	    } else {
+		    	    	elems[i].style.display = 'none';
+		    	    }
+		    }
+		} 
+	
 		</script>
 		
 		<style type="text/css">
@@ -470,9 +487,9 @@ class Lab_Directory {
 
 	function lab_directory_staff_meta_box_render_input($post, $field, $field_name, $studying_levels, $jury_functions, $ldap_synced ){
 		
-	
+		
 		$field_type = $field['type'] ;
-
+	
 		// TODO disable input depending on capability , LDAP...
 		
 		// Disable input when field is synced with LDAP 
@@ -571,7 +588,8 @@ class Lab_Directory {
 					echo $mv;
 					break;
 				case 'editor' :
-					wp_editor( $post->post_content, 'attachment_content', $editor_args );
+					$name = 'lab_directory_staff_meta_'.$field['slug'];
+					wp_editor( $value, $name, $editor_args );
 					break;
 				case 'date' :
 					echo $label; 
@@ -596,6 +614,7 @@ class Lab_Directory {
 					break;
 				case 'jury' :
 					echo $label; 
+					    	
 					$jury_members = $value;
 					if (is_array($jury_members)) {
 						$nb_members = count($jury_members);
@@ -677,7 +696,32 @@ class Lab_Directory {
 					<?php 	
 					break;
 				case 'social_network' : 
-					echo 'TODO implement social_network ';
+					echo $label; ;
+					echo '<button onclick="show_hide_social_networks(); return false;">' . 
+							__('Show or Hide Social networks', 'lab_directory') . 
+							'<span class="social_networks" style="display:none;"><i class="fa fa-arrow-down" aria-hidden="true"></i></span>'. 
+							'<span class="social_networks"><i class="fa fa-arrow-up" aria-hidden="true"></i></span></button>';
+					wp_enqueue_style('social-icons-css',
+							plugins_url( '/css/social_icons.css', dirname(__FILE__) ));
+					
+					$possible_social_networks= get_possible_social_networks();
+					$lab_directory_used_social_networks = get_option ('lab_directory_used_social_networks', false );
+					
+					$used=''; 
+				
+		
+					foreach ($lab_directory_used_social_networks as $key =>$temp ) {
+						$icon = ld_network_icon($key); 
+						$url = isset ($value[$key])? $value[$key] : '';
+						$used .= '<p class="social_networks">';
+						$used .= '<label  class="lab_directory_staff-label" style="width:50px;"></label>';
+						$used .= '<label  class="lab_directory_staff-label" style="width:150px;">'. 
+	 						$icon. ' ' . $possible_social_networks[$key] . '</label>';
+						$used .= '<input name="lab_directory_staff_used_social_networks['.$key.']" value="'.$url.'" type="text" size="60"></p>';;
+					}
+					echo $used ;
+				
+
 					break; 
 				case 'disabled' : 
 				default : // We should never arrive there !!
@@ -699,10 +743,15 @@ class Lab_Directory {
 		}
 		
 		if ( ! isset( $_POST['lab_directory_staff_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['lab_directory_staff_meta_box_nonce'],
-				'lab_directory_staff_meta_box_nonce_action' )
-		) {
+				'lab_directory_staff_meta_box_nonce_action' ) ) {
 			return;
 		}
+		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
+			return;
+		}
+		
+		$ldap_synced = (get_post_meta( $post_id, 'ldap', true )!='0');
+		
 		if ($_POST['save']=='Update_Status'){
 			// Update staff status
 			$statuss = Lab_Directory::get_lab_directory_default_statuss();
@@ -715,35 +764,53 @@ class Lab_Directory {
 		}
 		
 		// Else update staff entry 
-		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
-			return;
-		}
-		
-		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
-		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
-		$group_activations = get_option( 'lab_directory_group_activations' ) ;
-		$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss, $group_activations['BIO']);
-		
-		
-		// Process form 
-		// TODO this is not displayed !!
-		$form_messages = array('form_saved' => false);
-		// Notice: this error detection can fail if 2 users modify the same staff detail at the same time
-		// TODO add $form_messages !! 
-		update_post_meta( $post_id, 'messages', $form_messages);
-		
-		
-		// Do this for each group first (to simply add capacity 
-		foreach ($used_groups as $key => $group_name) {
-			// Then do it for each field in a group 
-			foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
-				if ($field['group'] == $key) {			
-					Lab_Directory::lab_directory_save_meta_boxes_save_meta($post_id, $field, $lab_directory_meta_field_names[$field['slug']]);
+		if ($_POST['save']=='Update'){
+			
+			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+			$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
+			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
+			$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+			$group_activations = get_option( 'lab_directory_group_activations' ) ;
+			$used_groups = Lab_Directory_Settings::get_used_groups($active_meta_fields, $staff_statuss, $group_activations['BIO']);
+			
+			
+			// Process form 
+			// TODO this is not displayed !!
+			$form_messages = array('form_saved' => false);
+			// Notice: this error detection can fail if 2 users modify the same staff detail at the same time
+			// TODO add $form_messages !! 
+			update_post_meta( $post_id, 'messages', $form_messages);
+			
+			
+			// Loop for each group first (needed to simply add capacity hereafter) 
+			foreach ($used_groups as $key => $group_name) {
+				// Then do it for each field in a group 
+				foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
+					$field_type = $field['type'] ;
+					if ($field['group'] == $key) {
+			
+						// TODO disable input depending on capability , LDAP...
+						 	
+						// Disable input when field is synced with LDAP
+						if ( $ldap_synced AND isset($field['ldap_attribute']) AND
+						($field['ldap_attribute']!='disabled') ) {
+							if ($field['ldap_attribute']){
+								$field_type = 'disabled';
+							}
+						}
+						// Disable wp_user_id field
+						if ($field['slug']=='wp_user_id'){
+							$field_type = 'disabled';
+						}
+						if ($field_type != 'disabled') {
+							Lab_Directory::lab_directory_save_meta_boxes_save_meta($post_id, $field, $lab_directory_meta_field_names[$field['slug']]);
+						}
+					}
 				}
 			}
+		
 		}
+		
 		return; 
 		
 	}
@@ -753,9 +820,9 @@ class Lab_Directory {
 		$slug = 'lab_directory_staff_meta_' . $field['slug'];
 		
 	
-		// Unsanitized value (excepted for jury social network)
+		// Unsanitized value
 		$value =  isset($_POST[$slug]) ? $_POST[$slug]: '';
-				
+	
 		switch ($field['type']) {
 			case 'text' :
 				$value = sanitize_text_field($value); 
@@ -808,6 +875,15 @@ class Lab_Directory {
 				}
 				usort($value, __NAMESPACE__ . '\ld_compare_jury_order');
 				break;
+			case 'social_network' :  
+				$social_networks = $_POST[lab_directory_staff_used_social_networks]; 
+				$temp = array();
+				foreach($social_networks as $key => $url) {
+					if ($url) {$temp[$key]= esc_url($url); }
+				}
+				$value = $temp; 
+				break; 
+				
 			default : // We should never arrive there !!
 				// update_post_meta( $post_id, $meta_field_slug, esc_attr( $_POST['lab_directory_staff_meta'][ $meta_field_slug ] ) );
 				$value= esc_attr($value); 
@@ -2475,7 +2551,58 @@ function ld_value_to_something($value=false, $multivalue=false, $to='string') {
 	}
 	return $res; 
 			
+}
+
+function ld_network_icon($key) {
+	switch ($key) {
+		case 'orcid':
+			return '<img class="fa" src="'. plugin_dir_url( __FILE__ ) . '../images/academia.png" />';
+			break;
+		case 'academia':
+			return '<img class="fa" src="'. plugin_dir_url( __FILE__ ) . '../images/orcid_32x32.png" />';
+			break;
+		case 'research-gate':
+			return '<img class="fa" src="'. plugin_dir_url( __FILE__ ) . '../images/research_gate.png" />';
+			break;
+			default:
+			return '<i class="fa fa-'. $key . '"></i>';
 	}
+}
+function get_possible_social_networks() {
 
-
+	$networks = array(
+			'twitter' => 'Twitter',
+			'linkedin' => 'Linkedin',
+			'academia' => 'Academia',
+			'orcid' => 'Orcid',
+			'research-gate' => 'Research Gate',
+			'viadeo' => 'Viadeo',
+			'vimeo' => 'Vimeo',
+			'github' => 'Github',
+			'vine' => 'Vine',
+			'facebook' => 'Facebook',
+			'instagram' => 'Instagram',
+			'google-plus' => 'Google Plus',
+			'heart' => 'Blogovin',
+			'pinterest' => 'Pinterest',
+			'youtube' => 'YouTube',
+			'tumblr' => 'Tumblr',
+			'rss' => 'rss',
+			'envelope' => 'Email',
 	
+	);
+	return $networks;
+}
+
+function get_default_social_networks() {
+
+	$networks = array(
+			'twitter' => 'Twitter',
+			'linkedin' => 'Linkedin',
+			'academia' => 'Academia',
+			'orcid' => 'Orcid',
+			'research-gate' => 'Research Gate',
+			'viadeo' => 'Viadeo',
+	);
+	return $networks;
+}

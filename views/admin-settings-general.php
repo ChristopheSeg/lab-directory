@@ -118,6 +118,48 @@
       </div>
     </div>
 
+<h2>Social network used in metafields</h2>
+<p> TODO explain this</p>
+	<?php 
+	wp_enqueue_style('social-icons-css',
+			plugins_url( '/css/social_icons.css', dirname(__FILE__) ));
+	
+	$possible_social_networks= get_possible_social_networks();
+	$lab_directory_used_social_networks = get_option ('lab_directory_used_social_networks', false );
+	$use_default_social_networks = $lab_directory_used_social_networks? false :true; 
+	if ($use_default_social_networks) {
+		$lab_directory_used_social_networks = get_default_social_networks();
+		$checkhed =' ';
+	} else {
+		$checkhed = ' checked="checked" ';
+	}
+	
+	$used=''; 
+	$unused=''; 
+	
+	foreach ($possible_social_networks as $key =>$value ) {
+		$icon = ld_network_icon($key); 
+		if (array_key_exists($key, $lab_directory_used_social_networks)) {
+			// used social network 
+			$used .= '<div style="float:left; width: 140px;" >';
+			$used .= '<input name="lab_directory_used_social_networks[]" value="' . $key .'" '. $checkhed .' type="checkbox">';
+			$used .= $icon. ' ' . $value . '</div>';
+		} else {
+			// used social network
+			$unused .= '<div style="float:left; width: 140px;" >';
+			$unused .= '<input name="lab_directory_used_social_networks[]" value="' . $key. '" type="checkbox">';
+			$unused .= $icon. ' ' . $value . '</div>';
+		}
+	}
+	?> 
+	<div style="float:left; width: 20%; min-width: 150px;">
+	<strong><?php echo ($use_default_social_networks? 'Proposed social networks (default)':'Actually used'); ?></strong><br> <?php echo $used ;?> 
+	</div>
+	<div style="float:left; width: 40%; min-width: 150px;">
+	<strong>Other social networks available</strong><br> <?php echo $unused ;?> 
+	</div> 
+
+
   <div class="clear"></div>
 
   <p>

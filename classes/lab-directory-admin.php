@@ -104,7 +104,6 @@ class Lab_Directory_Admin {
 			      <br>TODO 
 			      <br>TODO 
 			      <br>TODO ajouter mandatory (name firstname = titre) ???
-			      <br>TODO social_network 
 			      <br>TODO voir add new/ ldap=0; 
 			      <br>TODO ajouter slug calculés firstname_name....
 			      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
@@ -113,7 +112,6 @@ class Lab_Directory_Admin {
 			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 			      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
 			      <br>TODO supprimer les droits bin (sauf admin? ) 
-			      <br>TODO gérer bio: est ce que cela marche 
 			      <br>TODO Taxonomies
 			      <br>TODO   
 			      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
@@ -139,7 +137,9 @@ class Lab_Directory_Admin {
 	
 	</ul>
 	
-	</p>		    
+	</p>	
+	
+	     
 				<?php 
 				
 			}	
@@ -213,7 +213,7 @@ class Lab_Directory_Admin {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
-		
+	
 		// Check $_POST and _wpnonce
 		if(isset($_POST['admin-settings-general'])) {
 			if ( !empty($_POST['admin-settings-general']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-general' )){
@@ -243,6 +243,15 @@ class Lab_Directory_Admin {
 					$lab_directory_staff_settings->update_custom_lab_directory_staff_templates( $_POST['custom_lab_directory_staff_templates'] );
 					$form_messages['form_saved'] = true;
 				}
+				
+				$socialnetworks = array();
+				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
+					foreach($_POST['lab_directory_used_social_networks'] as $key =>$value) {
+						$socialnetworks[$key] = $value; //$value is a key 'google-plus', not 'Google Plus' for example
+					}
+				}
+				update_option( 'lab_directory_used_social_networks', $socialnetworks );
+				
 			}else{
 				// Error
 				$form_messages['erreur'][]= __('Security check fail : form not saved.');
