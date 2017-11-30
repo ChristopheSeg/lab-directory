@@ -99,9 +99,15 @@ class Lab_Directory_Admin {
 			// Temporary TODO list
 			?>
 				<p>
-			      <br>TODO gérer photo: ajouter création thumbnail// à partir URL....
-			      <br>TODO supprimer trask ??
+			      
+					<br>TODO supprimer tout et resyncho pour phone_number (ex phone)
+					<br>TODO TESTER gérer photo: ajouter création thumbnail// à partir URL....
+					<br>TODO 
+			      <br>TODO  avant photo!! créer un champ photo_modified avec date modification: comment?
+			      <br>TODO OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
 			      <br>TODO 
+			      <br>TODO supprimer trask ??
+			      <br>TODO modifier shotrcode bio qui recherche content! 
 			      <br>TODO 
 			      <br>TODO ajouter mandatory (name firstname = titre) ???
 			      <br>TODO voir add new/ ldap=0; 
@@ -125,14 +131,12 @@ class Lab_Directory_Admin {
 	<li>champ à redéfinir autrement</li>
 	<li>
 	<li>'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
-	<li>'photo'              => 'varchar(255) DEFAULT NULL',
 	<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
 	<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
 	<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
 	<li>'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
 	<li>'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
 	<li>'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
-	<li>'id_personnel'       => 'bigint(21) NOT NULL',
 	
 	
 	</ul>

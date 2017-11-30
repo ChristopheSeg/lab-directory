@@ -117,7 +117,7 @@
         </p>
       </div>
     </div>
-
+<div class="clear"></div>
 <h2>Social network used in metafields</h2>
 <p> TODO explain this</p>
 	<?php 

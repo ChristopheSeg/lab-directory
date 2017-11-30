@@ -47,7 +47,7 @@ class Lab_Directory_Shortcode {
         if($meta_value) {
             return $meta_value;
         } else {
-            return ""; //print nothing and remove tag if no value
+            return ""; // Print nothing and remove tag if no value
         }
 
     }
@@ -94,13 +94,19 @@ class Lab_Directory_Shortcode {
         }
     }
 
-    static function bio_shortcode(){
+    static function bio_shortcode( $atts, $content = NULL, $tag){
+        // TODO bio_shortcode) 
         // This more or less copies the_content().
         // Taken straight from https://developer.wordpress.org/reference/functions/the_content/
-        $bio = get_the_content();
+       	$meta_key = $tag;
+        $bio = get_post_meta( get_the_ID(), $meta_key, true );
+    	echo get_the_ID(). ' / ' . $meta_key. ' / ' . $bio;
+    	die();
+    
+        // $bio = get_the_content();
         $bio = apply_filters( 'the_content', $bio );
         $bio = str_replace( ']]>', ']]&gt;', $bio );
-        return $bio;
+        return get_the_ID(). ' / ' . $meta_key. ' / ' . $bio;
     }
 
     static function bio_paragraph_shortcode(){
@@ -278,8 +284,8 @@ class Lab_Directory_Shortcode {
 
         // $slug => 'File Name'
         $template_slugs = array(
-            'grid' => 'lab_directory_staff_grid.php',
-            'list' => 'lab_directory_staff_list.php'
+            'grid' => 'staff_grid.php',
+            'list' => 'staff_list.php'
         );
 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;

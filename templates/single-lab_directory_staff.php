@@ -72,6 +72,7 @@
 
                               <section class="faculty-profile-content entry-content <?php echo $published; ?>" itemprop="articleBody">
                                 <?php
+                                    // replace by bio_shorcode !! 
                                     $content = get_the_content();
 
                                     if($content){
