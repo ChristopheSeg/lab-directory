@@ -95,7 +95,7 @@ class Lab_Directory_Settings {
 			usort( $meta_fields, __NAMESPACE__ . '\compare_order' );
 			update_option( 'lab_directory_staff_meta_fields', $meta_fields );
 			// Renew static variable
-			LAb_Directory::initiate_staff_meta_fields();
+			Lab_Directory::initiate_staff_meta_fields();
 		}
 		return;
 	}
@@ -663,9 +663,28 @@ class Lab_Directory_Settings {
 								 $champ_valeurs['mails'];
 						}
 					}
-					if ( $success ) {
+					if ( $success AND $champ_valeurs['photo_url']) {
 						// Import photo from URL
-						staff_photo_sideload( $champ_valeurs['photo_url'], $staff_post_id, $prenom_nom );
+						$filename = sanitize_file_name( $prenom_nom );
+						// remove old attachement
+						if(has_post_thumbnail( $staff_post_id )) {
+				        	$attachment_id = get_post_thumbnail_id( $staff_post_id );
+				        	wp_delete_attachment($attachment_id, true);
+				        }
+						
+						$image = Lab_Directory::attach_external_image( $champ_valeurs['photo_url'], $staff_post_id, true, $filename, 
+							array('post_title' => $prenom_nom));
+						if ( ! is_wp_error( $image ) ) {
+						$form_messages['ok'][]= ' done import photo de '.$prenom_nom ;
+						$form_messages['ok'][]= (string) $temp ;
+						// For future use !!
+						update_post_meta( $post_id, 'date_photo_updated', time() );
+					} else {
+						// Pprocess error
+						$form_messages['erreur'][]= ' echec import photo de '.$prenom_nom ;
+						
+					}
+		
 					}
 					if ( ! $success ) {
 						write_log( 

@@ -123,7 +123,7 @@ jQuery(document).ready(function() {
               <?php echo $lab_directory_meta_field_names[$field['slug']]; ?>
             </td>
             <td>
-              [<?php echo $field['slug']; ?>]
+              [ld_<?php echo $field['slug']; ?>]
               <input name="lab_directory_staff_meta_fields_slugs[<?php echo $index; ?>]" type="hidden" 
               value="<?php echo $field['slug']; ?>" />
             </td>

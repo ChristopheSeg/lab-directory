@@ -82,7 +82,9 @@ class Lab_Directory {
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_capabilities' ) );
-		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
+		// add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_translations' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_acronyms' ) );
 		
@@ -118,6 +120,9 @@ class Lab_Directory {
 		add_action( 'wp_ajax_get_my_form', array( 'Lab_Directory', 'thickbox_ajax_form' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'manage_listing_query' ) );
 		add_filter( 'post_row_actions', array( 'Lab_Directory', 'modify_quick_edit' ), 10, 1 );
+		add_filter( 'bulk_actions-edit-lab_directory_staff', array( 'Lab_Directory', 'modify_bulk_actions' ), 10, 1 );
+		
+		// add_filter( 'bulk_actions-edit-weddings', 'remove_from_bulk_actions' );
 		
 		// load single-page/profile template
 		add_filter( 'single_template', array( 'Lab_Directory', 'load_profile_template' ) );
@@ -168,6 +173,7 @@ class Lab_Directory {
 	}
 
 	static function create_lab_directory_staff_taxonomies() {
+		// TODO add internationalisation 
 		register_taxonomy( 
 			'lab_category', 
 			'lab_directory_staff', 
@@ -219,6 +225,7 @@ class Lab_Directory {
 			'cb' => '<input type="checkbox" />', 
 			'title' => __( 'Title' ), 
 			'id' => __( 'ID' ), 
+			'ldap' => __( 'LDAP' ),
 			'featured_image' => __( 'Staff photo' ), 
 			'date' => __( 'Date' ) );
 		
@@ -236,6 +243,10 @@ class Lab_Directory {
 			
 			case 'id' :
 				$out .= $post_id;
+				break;
+				
+			case 'ldap' : 
+				$out = get_post_meta( $post_id, 'ldap', true ) =='1'? '<span class="dashicons dashicons-yes"></span>': '';
 				break;
 			
 			default :
@@ -339,7 +350,16 @@ class Lab_Directory {
 	 * Simply add a metabox to change statut of this staff
 	 */
 	static function lab_directory_staff_meta_box_statut( $post ) {
-		$statuss = Lab_Directory::get_lab_directory_default_statuss();
+		
+		if ($post->post_status=='auto-draft' ) {
+			// Do not propose status meta_box when adding a new staff
+			echo '<p>' . __('You must first save staff name and firstname before being able to change his/her status','lab-directory') . '</p>';
+			
+			return; 
+		}
+
+
+$statuss = Lab_Directory::get_lab_directory_default_statuss();
 		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		
@@ -362,7 +382,7 @@ class Lab_Directory {
 <p>
 			<?php
 			
-if ( ! $activated ) {
+			if ( ! $activated ) {
 				echo '<span class="dashicons dashicons-lock"></span>';
 			} else {
 				echo '<span class="dashicons"></span>';
@@ -381,7 +401,7 @@ if ( ! $activated ) {
 		?>
 <p>
 	<button name="save" class="button button-primary button-large"
-		id="publish2" value="Update_Status" type="submit"><?php _e('Update staff status')?></button>
+		id="publish2" value="Update_Status" type="submit"><?php _e('Update staff status', 'lab-directory')?></button>
 </p>
 <p>Note: Staff details and staff status cannot be modified at the same
 	time. Please, first modify staff status, then modify staff details.</p>
@@ -489,8 +509,19 @@ p {
 	
 
 		<?php
+		// TODO pas de ID pour nouveau !!
 		echo_form_messages( get_post_meta( $post->ID, 'messages', true ) );
 		delete_post_meta( $post->ID, 'messages' );
+		
+		if ($post->post_status=='auto-draft' ) {
+			// Add New staff
+			$ldap_synced = false; 
+		}
+		else {
+			// Edit staff
+			$ldap_synced = ( get_post_meta( $post->ID, 'ldap', true ) != '0' );
+		}
+		
 		?>
 
 <div id="demoTabsId" class="labDirectoryTabsClass">
@@ -503,7 +534,7 @@ p {
         </ul>
         <?php
 		// TODO disable input depending on capability , LDAP...
-		$ldap_synced = ( get_post_meta( $post->ID, 'ldap', true ) != '0' );
+		
 		foreach ( $used_groups as $key => $group_name ) {
 			echo '<div id="Tab-' . $key . '">';
 			foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
@@ -557,6 +588,10 @@ p {
 		// Disable wp_user_id field
 		if ( $field['slug'] == 'wp_user_id' ) {
 			$field_type = 'disabled';
+		}
+		$required = ''; 
+		if ( ( $field['slug'] == 'name' ) OR  ($field['slug'] == 'firstname' ) ) {
+			$required= ' required ';
 		}
 		
 		$value = get_post_meta( $post->ID, $field['slug'], true );
@@ -622,9 +657,10 @@ p {
 			case 'url' :
 			case 'phone_number' :
 				echo $label;
+				// $required is ponly used ofr name and firstname
 				?>
 <input type="text"
-	name="lab_directory_staff_meta_<?php echo $field['slug'] ?>"
+	name="lab_directory_staff_meta_<?php echo $field['slug'] ?>" <?php echo $required; ?>
 	value="<?php echo $value; ?>" />
 <?php
 				echo $mv;
@@ -811,6 +847,7 @@ echo lab_directory_create_select(
 	}
 
 	static function save_meta_boxes( $post_id ) {
+		global $wpdb; 
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -823,8 +860,20 @@ echo lab_directory_create_select(
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
-		
-		$ldap_synced = ( get_post_meta( $post_id, 'ldap', true ) != '0' );
+	
+		if (get_post_status($post_id)=='draft' ) {
+			// Add New staff
+			$ldap_synced = false;
+			update_post_meta( $post_id, 'ldap', '0' );
+			$post_title = get_post_meta( $post_id, 'firstname',true) . ' ' . get_post_meta( $post_id, 'name',true); 
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' , 'post_title' => $post_title), array( 'ID' => $post_id ) );
+			clean_post_cache( $post_id );
+			
+		}
+		else {
+			// Edit staff
+			$ldap_synced = ( get_post_meta( $post->ID, 'ldap', true ) != '0' );
+		}
 		
 		if ( $_POST['save'] == 'Update_Status' ) {
 			// Update staff status
@@ -972,25 +1021,6 @@ echo lab_directory_create_select(
 		}
 	}
 
-	static function staff_photo_sideload( $url = '', $post_id = null, $desc ) {
-		if ( ! $url )
-			return;
-		
-		if ( ! $post_id )
-			return;
-		
-		if ( ! $desc ) {
-			$desc = __( 'Staff photo', 'lab-directory' );
-		}
-		
-		// TODO process optional error in $image??
-		$image = media_sideload_image( $url, $post_id, $desc );
-		if ( is_string( $image ) ) {
-			// for future use !!
-			update_post_meta( $post_id, 'date_photo_updated', time() );
-		}
-		return;
-	}
 
 	static function set_default_meta_fields_if_necessary() {
 		$current_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
@@ -1000,6 +1030,93 @@ echo lab_directory_create_select(
 			update_option( 'lab_directory_staff_meta_fields', $default_meta_fields );
 		}
 	}
+
+	/**
+	 * This function in taken from Open source  somatic framework 
+	 * https://wordpress.org/plugins/somatic-framework/
+	 *
+	 * Download an image from the specified URL and attach it to a post.
+	 * Modified version of core function media_sideload_image() in /wp-admin/includes/media.php  (which returns an html img tag instead of attachment ID)
+	 * Additional functionality: ability override actual filename, set as post thumbnail, and to pass $post_data to override values in wp_insert_attachment (original only allowed $desc)
+	 *
+	 *  
+	 * @since 1.4
+	 *
+	 * @param string $url (required) The URL of the image to download
+	 * @param int $post_id (required) The post ID the media is to be associated with
+	 * @param bool $thumb (optional) Whether to make this attachment the Featured Image for the post
+	 * @param string $filename (optional) Replacement filename for the URL filename (do not include extension)
+	 * @param array $post_data (optional) Array of key => values for wp_posts table (ex: 'post_title' => 'foobar', 'post_status' => 'draft')
+	 * @return int|object The ID of the attachment or a WP_Error on failure
+	 */
+	static function attach_external_image( $url = null, $post_id = null, $thumb = null, $filename = null, $post_data = array() ) {
+		if ( !$url || !$post_id ) return new WP_Error('missing', "Need a valid URL and post ID...");
+		// if ( !self::array_is_associative( $post_data ) ) return new WP_Error('missing', "Must pass post data as associative array...");
+	
+		// Download file to temp location, returns full server path to temp file, ex; /home/somatics/public_html/mysite/wp-content/26192277_640.tmp MUST BE FOLLOWED WITH AN UNLINK AT SOME POINT
+		$tmp = download_url( $url );
+	
+		// If error storing temporarily, unlink
+		if ( is_wp_error( $tmp ) ) {
+			@unlink($file_array['tmp_name']);	// clean up
+			$file_array['tmp_name'] = '';
+			return $tmp; // output wp_error
+		}
+	
+		preg_match('/[^\?]+\.(jpg|JPG|jpe|JPE|jpeg|JPEG|gif|GIF|png|PNG)/', $url, $matches);	// fix file filename for query strings
+		$url_filename = basename($matches[0]);													// extract filename from url for title
+		$url_type = wp_check_filetype($url_filename);											// determine file type (ext and mime/type)
+	
+		// override filename if given, reconstruct server path
+		if ( !empty( $filename ) ) {
+			$filename = sanitize_file_name($filename);
+			$tmppath = pathinfo( $tmp );														// extract path parts
+			$new = $tmppath['dirname'] . "/". $filename . "." . $tmppath['extension'];			// build new path
+			rename($tmp, $new);																	// renames temp file on server
+			$tmp = $new;																		// push new filename (in path) to be used in file array later
+		}
+	
+		// assemble file data (should be built like $_FILES since wp_handle_sideload() will be using)
+		$file_array['tmp_name'] = $tmp;															// full server path to temp file
+	
+		if ( !empty( $filename ) ) {
+			$file_array['name'] = $filename . "." . $url_type['ext'];							// user given filename for title, add original URL extension
+		} else {
+			$file_array['name'] = $url_filename;												// just use original URL filename
+		}
+	
+		// set additional wp_posts columns
+		if ( empty( $post_data['post_title'] ) ) {
+			$post_data['post_title'] = basename($url_filename, "." . $url_type['ext']);			// just use the original filename (no extension)
+		}
+	
+		// make sure gets tied to parent
+		if ( empty( $post_data['post_parent'] ) ) {
+			$post_data['post_parent'] = $post_id;
+		}
+	
+		// required libraries for media_handle_sideload
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once(ABSPATH . 'wp-admin/includes/media.php');
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+	
+		// do the validation and storage stuff
+		$att_id = media_handle_sideload( $file_array, $post_id, null, $post_data );				// $post_data can override the items saved to wp_posts table, like post_mime_type, guid, post_parent, post_title, post_content, post_status
+	
+		// If error storing permanently, unlink
+		if ( is_wp_error($att_id) ) {
+			@unlink($file_array['tmp_name']);	// clean up
+			return $att_id; // output wp_error
+		}
+	
+		// set as post thumbnail if desired
+		if ($thumb) {
+			set_post_thumbnail($post_id, $att_id);
+		}
+	
+		return $att_id;
+	}
+	
 
 	static function get_default_meta_fields() {
 		
@@ -1755,6 +1872,23 @@ EOT;
 	}
 
 	/** 
+	 * Remove bulk actions
+	 */
+	static function modify_bulk_actions( $actions ) {
+		
+		if ( get_post_type() == 'lab_directory_staff' ) {
+			// unset( $actions['edit'] );
+			// unset( $actions['view'] );
+			
+			if( ! current_user_can('administrator') ) {
+				unset( $actions['trash'] );
+				unset( $actions['inline hide-if-no-js'] );
+			}
+		}
+		return $actions;
+	}
+
+	/**
 	 * Remove quick-edit action
 	 */
 	static function modify_quick_edit( $actions ) {
@@ -1767,7 +1901,7 @@ EOT;
 		}
 		return $actions;
 	}
-
+	
 	static function add_lab_directory_staff_categories_admin_filter() {
 		global $post_type;
 		
@@ -2381,18 +2515,22 @@ EOT;
 	}
 
 	static function lab_directory_staff_photo_meta_box( $content, $post_id, $thumbnail_id ) {
+		//var_dump($content); die();
 		if ( get_post_meta( $post_id, 'ldap', true ) > 0 ) {
 			if ( $thumbnail_id ) {
 				$content = preg_match( '#(<img.*?>)#', $content, $matches ) ? $matches[0] : '';
+			} else {
+				$content = '';
 			}
-			
 			$content .= '<p><i><span class="dashicons dashicons-lock"></span>' .
-				 __( 'Staff photo synchronised with LDAP can only be changed on LDAP directory', 'lab_directory' ) .
+				 __( 'This staff details are synchronised with LDAP. Staff photo must be added or changed on LDAP directory', 'lab_directory' ) .
 				 '</i></p>';
 		}
 		return $content;
 	}
+	
 
+	
 	static function remove_publish_box() {
 		remove_meta_box( 'submitdiv', 'lab_directory_staff', 'side' );
 	}

@@ -100,24 +100,22 @@ class Lab_Directory_Admin {
 			?>
 				<p>
 			      
-					<br>TODO supprimer tout et resyncho pour phone_number (ex phone)
-					<br>TODO TESTER gérer photo: ajouter création thumbnail// à partir URL....
-					<br>TODO 
+					<br>TODO supprimer tout l'annuaire: et resyncho pour phone_number (ex phone modifié)
+					<br>TODO pas afficher status si post_id inconnu (nouveau personnel) 
+			      <br> TODO revoir aide sur les pages au style Wordpress ?
 			      <br>TODO  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TODO OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
 			      <br>TODO 
-			      <br>TODO supprimer trask ??
-			      <br>TODO modifier shotrcode bio qui recherche content! 
 			      <br>TODO 
-			      <br>TODO ajouter mandatory (name firstname = titre) ???
-			      <br>TODO voir add new/ ldap=0; 
+			      <br>TODO 
+			      <br>TODO voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
 			      <br>TODO ajouter slug calculés firstname_name....
 			      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
-			      <br>TODO link WP-ld : calculer un wp_user_id dans profile de LD
+			      <br>TODO 
 			      <br>TODO permissions : 
 			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 			      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
-			      <br>TODO supprimer les droits bin (sauf admin? ) 
+			      <br>TODO 
 			      <br>TODO Taxonomies
 			      <br>TODO   
 			      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]

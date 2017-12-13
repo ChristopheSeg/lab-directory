@@ -12,13 +12,12 @@ class Lab_Directory_Shortcode {
         //Shortcode to initiate the loop
         add_shortcode( 'lab_directory_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_staff_loop_shortcode' ) );
 
-        //List of predefined shortcode tags
-        $predefined_shortcodes = array(
-            'name',
+        //List of other shortcode tags
+        $other_shortcodes = array(
             'name_header',
+        	'name_firstname',
+        	'position',
             'photo',
-            'photo_url',
-            'bio',
             'bio_paragraph',
             'profile_link',
             'category'
@@ -26,28 +25,37 @@ class Lab_Directory_Shortcode {
 
         //Add shortcodes for all $predefined_shortcodes, link to function by
         //the name of {$code}_shortcode
-        foreach($predefined_shortcodes as $code){
-            add_shortcode( $code, array( 'Lab_Directory_Shortcode', $code . '_shortcode' ) );
+        foreach($other_shortcodes as $code){
+            add_shortcode( 'ld_' . $code, array( 'Lab_Directory_Shortcode', 'ld_' . $code . '_shortcode' ) );
         }
 
-        //Retrieve custom fields
+        // Add shortcodes for all metafields, link to function ld_{$code}_shortcode
+        // Or default function ld_meta_shortcode
          if ( !empty( Lab_Directory::$staff_meta_fields) ) {
             foreach ( Lab_Directory::$staff_meta_fields as $field ) {
-                $meta_key = $field['slug'];
-                add_shortcode( $meta_key, array( 'Lab_Directory_Shortcode', 'meta_shortcode' ) );
+                $meta_key = 'ld_' . $field['slug'];
+                $shortcode_function = $meta_key . '_shortcode';
+                if (method_exists('Lab_Directory_Shortcode',$shortcode_function)) {
+                	add_shortcode( $meta_key, array( 'Lab_Directory_Shortcode', $shortcode_function ) ); 
+                } else {
+                	add_shortcode( $meta_key, array( 'Lab_Directory_Shortcode', 'ld_meta_shortcode' ) );
+                }
             }
         }
+
 	}
 
     /*** Begin shortcode functions ***/
+	
+	// TODO ALL Shortcode: test display frontend, activated (frontend...), MV, tooltips
 
-    static function meta_shortcode( $atts, $content = NULL, $tag) {
-        $meta_key             = $tag;
+    static function ld_meta_shortcode( $atts, $content = NULL, $tag) {
+        $meta_key             = substr($tag,3);
         $meta_value           = get_post_meta( get_the_ID(), $meta_key, true );
         if($meta_value) {
             return $meta_value;
         } else {
-            return ""; // Print nothing and remove tag if no value
+            return ''; // Print nothing and remove tag if no value
         }
 
     }
@@ -62,64 +70,70 @@ class Lab_Directory_Shortcode {
             while ( $query->have_posts() ) {
                 $query->the_post();
                 $output .= do_shortcode($content);
+
             }
 
         }
+        
         return $output;
     }
 
-    static function name_shortcode(){
-        return get_the_title();
+    static function ld_name_firstname_shortcode(){
+        return get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
     }
 
-    static function name_header_shortcode(){
+    static function ld_name_header_shortcode(){
         return "<h3>" . self::name_shortcode() . "</h3>";
     }
 
-    static function photo_url_shortcode(){
+    static function ld_photo_url_shortcode(){
         if ( has_post_thumbnail() ) {
             $attachment_array = wp_get_attachment_image_src( get_post_thumbnail_id() );
-            return $attachment_array[0];
+            return $attachment_array[0];   
         } else {
-            return "";
+            return '';
         }
     }
 
-    static function photo_shortcode(){
-        $photo_url = self::photo_url_shortcode();
+    static function ld_photo_shortcode($atts){
+    	$atts = shortcode_atts( array(
+            'replace_empty'     => false,
+        ), $atts);
+        $photo_url = self::ld_photo_url_shortcode();
         if(!empty($photo_url)){
             return '<img src="' . $photo_url . '" />';
         } else {
-            return "";
+        	if ($atts['replace_empty']) {
+            return '<img src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
+        	} else {
+        		return ""; 
+        	}
         }
     }
 
-    static function bio_shortcode( $atts, $content = NULL, $tag){
-        // TODO bio_shortcode) 
-        // This more or less copies the_content().
-        // Taken straight from https://developer.wordpress.org/reference/functions/the_content/
-       	$meta_key = $tag;
-        $bio = get_post_meta( get_the_ID(), $meta_key, true );
-    	echo get_the_ID(). ' / ' . $meta_key. ' / ' . $bio;
-    	die();
-    
-        // $bio = get_the_content();
-        $bio = apply_filters( 'the_content', $bio );
-        $bio = str_replace( ']]>', ']]&gt;', $bio );
-        return get_the_ID(). ' / ' . $meta_key. ' / ' . $bio;
+    static function ld_bio_shortcode( $atts, $content = NULL, $tag){
+        $bio = get_post_meta( get_the_ID(), $tag, true );
+    	
+        /* 
+         * old code used the_content, no filter needed
+         * $bio = get_the_content();
+         * $bio = apply_filters( 'the_content', $bio );
+         * $bio = str_replace( ']]>', ']]&gt;', $bio );
+         * 
+         */
+        return $bio;
     }
 
-    static function bio_paragraph_shortcode(){
-        return "<p>" . self::bio_shortcode() . "</p>";
+    static function ld_bio_paragraph_shortcode(){
+        return "<p>" . self::ld_bio_shortcode() . "</p>";
     }
 
-    static function profile_link_shortcode($atts, $content = NULL){
+    static function ld_profile_link_shortcode($atts, $content = NULL){
         $atts = shortcode_atts( array(
             'target'     => "_self",
             'inner_text' => "Profile"
         ), $atts);
         $profile_link = get_permalink( get_the_ID() );
-
         if(!empty($content)) {
             return "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . do_shortcode($content) . "</a>";
         } else {
@@ -127,7 +141,7 @@ class Lab_Directory_Shortcode {
         }
     }
 
-    static function category_shortcode($atts){
+    static function ld_category_shortcode($atts){
         $atts = shortcode_atts( array(
             'all' => false,
         ), $atts);
@@ -285,7 +299,8 @@ class Lab_Directory_Shortcode {
         // $slug => 'File Name'
         $template_slugs = array(
             'grid' => 'staff_grid.php',
-            'list' => 'staff_list.php'
+            'list' => 'staff_list.php',
+        	'trombi' => 'staff_trombi.php',
         );
 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;

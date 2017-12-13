@@ -3,7 +3,21 @@
             <?php
                 $published = get_post_status( $post->$ID ) == 'published' ? '.published' : '';
             ?>
+<style type="text/css">
 
+  .single-lab_directory_staff {
+    padding: 0px 10px;
+  }
+</style>
+<div id="lab-directory-wrapper">
+
+    [lab_directory_staff_loop]
+        <div class="single-lab_directory_staff">
+            [ld_profile_link] [ld_name_firstname] [/ld_profile_link]
+        </div>
+    [/lab_directory_staff_loop]
+
+</div>
 			<div id="content">
 
 				<div id="inner-content" class="wrap cf">
@@ -41,10 +55,10 @@
                                   <?php //All shortcodes simply return the appropriate strings, so to print them all without the lab_directory_staff loop we have to echo do_shortcode() ?>
                                   <div class="lab-directory-profile-info <?php echo $published; ?>">
                                           <div class="single-lab_directory_staff">
-                                              <?php if(do_shortcode("[name]")): ?>
+                                              <?php if(do_shortcode("[ld_name]")): ?>
                                                   <div class="name" title="Name">
                                                       <i class="fa fa-user" aria-hidden="true"></i>
-                                                      <?php echo do_shortcode("[name]"); ?>
+                                                      <?php echo do_shortcode("[ld_name]"); ?>
                                                   </div>
                                               <?php endif; ?>
                                               <?php if(do_shortcode("[position]")): ?>
@@ -73,12 +87,12 @@
                               <section class="faculty-profile-content entry-content <?php echo $published; ?>" itemprop="articleBody">
                                 <?php
                                     // replace by bio_shorcode !! 
-                                    $content = get_the_content();
+                                    $content = get_post_meta ($post->ID , 'bio', true); // get_the_content();
 
                                     if($content){
-                                        the_content();
+                                        echo '<p>' . $content . '</p>';
                                     } else {
-                                        echo "<p> No biography found. </p>";
+                                        echo '<p> No biography found. </p>';
                                     }
 
                                 ?>

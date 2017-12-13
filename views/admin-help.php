@@ -65,22 +65,24 @@
   </p>
 
   <ul>
-    <li><code>[photo_url]</code> - the url to the featured image for the lab_directory_staff member</li>
-    <li><code>[photo]</code> - an &lt;img&gt; tag with the featured image for the lab_directory_staff member</li>
-    <li><code>[name]</code> - the lab_directory_staff member's name</li>
-    <li><code>[name_header]</code> - the lab_directory_staff member's name with &lt;h3&gt; tags</li>
-    <li><code>[bio]</code> - the lab_directory_staff member's bio</li>
-    <li><code>[bio_paragraph]</code> - the lab_directory_staff member's bio with &lt;p&gt; tags</li>
-    <li><code>[category]</code> - the lab_directory_staff member's category (first category only)</li>
-    <li><code>[category all=true]</code> - all of the lab_directory_staff member's categories in a comma-separated list</li>
-
-    <li><code>[email_link]</code> (deprecated, requires an Email field above)</li>
-    <li><code>[website_link]</code> (deprecated, requires a Website field above)</li>
-
-    <li><code>[profile_link]</code> - wrapper or standalone - creates a link to the lab_directory_staff member's profile
+    <li><code>[ld_photo_url]</code> - the url to the featured image for the lab_directory_staff member</li>
+    <li><code>[ld_photo replace_empty=true]</code> - an &lt;img&gt; tag with the featured image for the lab_directory_staff member</li>
         <ul style="text-indent:25px;">
-            <li>Used as a wrapper: <code>[profile_link target="_self"] Some Content [/profile_link]</code></li>
-            <li>Used standalone: <code>[profile_link inner_text="Some Text" target="_self"]</code></li>
+            <li>if replace_empty is given and non empty add a nobody photo for non existant photo</li>
+        </ul>    <li><code>[ld_name]</code> - the lab_directory_staff member's name</li>
+    <li><code>[ld_name_header]</code> - the lab_directory_staff member's name with &lt;h3&gt; tags</li>
+    <li><code>[ld_bio]</code> - the lab_directory_staff member's bio</li>
+    <li><code>[ld_bio_paragraph]</code> - the lab_directory_staff member's bio with &lt;p&gt; tags</li>
+    <li><code>[ld_category]</code> - the lab_directory_staff member's category (first category only)</li>
+    <li><code>[ld_category all=true]</code> - all of the lab_directory_staff member's categories in a comma-separated list</li>
+
+    <li><code>[ld_email_link]</code> Staff Email </li>
+    <li><code>[ld_website_link]</code> Staff Website</li>
+
+    <li><code>[ld_profile_link]</code> - wrapper or standalone - creates a link to the lab_directory_staff member's profile
+        <ul style="text-indent:25px;">
+            <li>Used as a wrapper: <code>[ld_profile_link target="_self"] Some Content [/ld_profile_link]</code></li>
+            <li>Used standalone: <code>[ld_profile_link inner_text="Some Text" target="_self"]</code></li>
             <li>Notice the 'inner_text' and 'target' attributes. 'inner_text' is only available for standalone profile_link tags, while target is available for either.</li>
         </ul>
     </li>
