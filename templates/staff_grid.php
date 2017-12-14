@@ -5,15 +5,28 @@
   #lab-directory-wrapper{
   	display: inline-block;
     }
-  .single-lab_directory_staff {
+   label, input {
+    float: right;
+    width: auto;
+    height: auto;
+    padding: 3px;
+    margin: 2px 5px;
+    font-size: 1em;
+    line-height: 1em;
+ }
+ #filtre_dynamique_saisie {
+     float: right;
+     width: 160px;
+
+ }
+ 
+   .single_lab_directory_staff {
     float: left;
-    width: 200px;
+    width: 160px; 
     padding: 3px;
     margin: 2px 5px;
     bottom: 0;
     display: block;
-    float: left;
-    width: 160px; 
     white-space: unset;
     word-wrap: break-word;
     background-color: #e9e9e9;;
@@ -22,15 +35,20 @@
     line-height: 1em;
   }
   
+  .text_surligne {
+    color: #000;
+    background-color: #fff59b;
+}
 </style>
 <script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/sansaccent.js"></script>
 
 <script type="text/javascript">
-jQuery(document).ready(function(){
 
- 
-// rendre jQuery :contains case insensitive (utilisé dans le code de filtrage) Cf. http://css-tricks.com/snippets/jquery/make-jquery-contains-case-insensitive/
+// function based on kitcnrs v5 (GNU GPL licencse) http://www.harmoweb.cnrs.fr
 // C. Seguinot: rendre la fonction active sans accent sur le texte recherché 
+jQuery(document).ready(function(){
+ 
 jQuery.expr[':'].contains = function(a, i, m) { 
   return jQuery(a).text().sansAccent().toUpperCase().indexOf(m[3].sansAccent().toUpperCase()) >= 0; 
 };
@@ -42,58 +60,51 @@ jQuery("#filtre_dynamique_saisie").keyup(function () {
   var saisie = jQuery(this).val();
   
  // highlight
-  jQuery("#content").removeHighlight("spip_surligne");
-  jQuery("#content").highlight(saisie,"spip_surligne");
+  jQuery("#lab-directory-wrapper").removeHighlight("text_surligne");
+  jQuery("#lab-directory-wrapper").highlight(saisie,"text_surligne");
  
-  // filtrage, basé sur http://stackoverflow.com/a/17075148/3177866
-  //split the current value of searchInput
+  // Filtrage, basé sur http://stackoverflow.com/a/17075148/3177866
+  // Split the current value of searchInput
   var data = saisie.split(" ");
-  //create a jquery object of the rows
-  var jo = jQuery("#content").find("div.single-lab_directory_staff"); 
+  // Create a jquery object of the rows
+  var jo = jQuery("#lab-directory-wrapper").find("div.single_lab_directory_staff"); 
   if (saisie == "") {
-    jo.show();
+    jo.show();// show all rows
     return;
   }
-  //hide all the rows
+  // Hide all the rows
   jo.hide();
-
-  //Recusively filter the jquery object to get results.
-  jo.filter(function (i, v) {
-    var $t = $(this);
+  // Recusively filter the jquery object to show div containing text.
+  jo.each(function(){  
     for (var d = 0; d < data.length; ++d) {
-      //pverrier modif ligne ci-dessous pour être case insensitive ; initialement: if ($t.is(":contains('" + data[d] + "')")) {
-      if ($t.is(":contains('" + data[d] + "')")) {
-        return true;
+      if (jQuery(this).is(":contains('" + data[d] + "')")) {
+    	  jQuery(this).show();// Show the rows that match
       }
     }
-    return false;
-  })
-  //show the rows that match.
-  .show();
+    
+  }); 
 
-
-}); // $("#filtre_dynamique_saisie").keyup(function () {...
+  }); // jQuery("#filtre_dynamique_saisie").keyup(function () {...
 
 //----- Bouton "Effacer"
 jQuery("#filtre_dynamique_effacer").click(function () {
-	jQuery("#content").removeHighlight("spip_surligne");
-	jQuery("#content").find("div").show();
+	jQuery("#lab-directory-wrapper").removeHighlight("text_surligne");
+	jQuery("#lab-directory-wrapper").find("div").show();
 
-
-}); // $("#filtre_dynamique_effacer").click(function () {...
+}); // jQuery("#filtre_dynamique_effacer").click(function () {...
  
-}); // $(document).ready(function(){...
+}); // jQuery(document).ready(function(){...
 </script>
 
 <form id="filtre_dynamique">
-  <label for="filtre_dynamique_saisie">Filtrer sur ce texte</label>
+  <input type="reset" id="filtre_dynamique_effacer" value="Sans filtre" />
   <input type="text" id="filtre_dynamique_saisie" />
-  <input type="reset" id="filtre_dynamique_effacer" value="Réinitialiser" />
+  <label for="filtre_dynamique_saisie">Filtrer sur ce texte</label>
 </form>
 <div id="lab-directory-wrapper">
 
     [lab_directory_staff_loop]
-        <div class="single-lab_directory_staff">
+        <div class="single_lab_directory_staff">
             [ld_profile_link] [ld_name_firstname] [/ld_profile_link]
         </div>
     [/lab_directory_staff_loop]
