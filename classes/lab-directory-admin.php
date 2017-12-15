@@ -554,7 +554,12 @@ class Lab_Directory_Admin {
 	}
 
 	static function import() {
+		
 		$did_import_old_lab_directory_staff = false;
+		
+		// TODO TEMPORARY REMOVE THIS 
+		Lab_Directory::import_spip_staff();
+					
 		if ( isset( $_GET['import'] ) && $_GET['import'] == 'true' ) {
 			Lab_Directory::import_old_lab_directory_staff();
 			$did_import_old_lab_directory_staff = true;

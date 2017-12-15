@@ -7,7 +7,7 @@ Stable Tag: tags/1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
- Easily display a list of lab_directory_staff/faculty/team members. Supports lab_directory_staff categories as well. Good for churches, companies, schools, teams, etc.
+ Easily display a list of lab_directory_staff/faculty/team members. Supports lab_directory_staff categories as well.
 This plugin is build from a fork a lab-directory from adamtootle
 == Description ==
 

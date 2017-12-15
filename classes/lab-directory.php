@@ -1630,6 +1630,17 @@ EOT;
 	}
 	
 	//
+	// TODO TEMPORARY, REMOVE THIS FUNCTION
+	// Try to import from spip 
+	//
+	
+	static function import_spip_staff() {
+		require_once( plugin_dir_path( __FILE__ ) . '../temp/import_spip.php' );
+		return; 
+		 
+	}
+	
+	//
 	// Related to old lab_directory_staff members
 	//
 	static function has_old_lab_directory_staff_table() {
