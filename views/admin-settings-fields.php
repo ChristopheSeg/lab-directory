@@ -15,17 +15,9 @@ function show_hide_unactivated() {
     }
 } 
  
-jQuery(document).ready(function($){
-	
-  });
   
 </script>
-<script type="text/javascript">
-jQuery(document).ready(function() {
-	jQuery('.select-toggleizer').toggleize();
-        })
 
-</script>
 
 <style type="text/css">
 

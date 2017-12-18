@@ -473,8 +473,13 @@ $statuss = Lab_Directory::get_lab_directory_default_statuss();
 label.lab_directory_staff-label {
 	width: 150px;
 	display: inline-block;
+	vertical-align: top;
 }
 
+
+span.value {
+ display: inline-block;
+}
 .dashicons {
 	font-size: 16px;
 }
@@ -498,9 +503,11 @@ textarea {
 	width: 100%;
 }
 
-p {
+div.lab_directory_staff_meta {
 	padding-left: 5px;
 	background-color: rgb(245, 245, 245);
+	font-size:0.9em;
+	margin: 1em 0;
 }
 </style>
 <?php
@@ -613,7 +620,11 @@ p {
 					$mv = '<br /><i>' . __( 'This entry accept multiple values', 'lab-directory' ) . ' (' .
 						 __( 'Vertical bar (|) separated values', 'lab-directory' ) . ')</i>';
 					break;
-				case 'MV' :
+				case '/' :
+					$mv = '<br /><i>' . __( 'This entry accept multiple values', 'lab-directory' ) . ' (' .
+						 __( 'Slash (/) separated values', 'lab-directory' ) . ')</i>';
+					break;
+					case 'MV' :
 				case 'CR' :
 					$mv = '<br /><i>' .
 						 __( 
@@ -637,7 +648,7 @@ p {
 				// else switch to a longtext
 				if ( ( $field_type == 'text' ) or ( $field_type == 'mail' ) or ( $field_type == 'url' ) or
 					 ( $field_type == 'phone_number' ) ) {
-					$field_type = 'long_text';
+					$field_type = 'longtext';
 				}
 			}
 		}
@@ -649,7 +660,7 @@ p {
 			$label .= '<span class="dashicons dashicons-lock"></span>';
 		}
 		$label .= $field_name . '</label>';
-		echo '<p>';
+		echo '<div class="lab_directory_staff_meta">';
 		
 		switch ( $field_type ) {
 			case 'text' :
@@ -657,7 +668,7 @@ p {
 			case 'url' :
 			case 'phone_number' :
 				echo $label;
-				// $required is ponly used ofr name and firstname
+				// $required is ponly used for name and firstname
 				?>
 <input type="text"
 	name="lab_directory_staff_meta_<?php echo $field['slug'] ?>" <?php echo $required; ?>
@@ -665,7 +676,7 @@ p {
 <?php
 				echo $mv;
 				break;
-			case 'long_text' :
+			case 'longtext' :
 				echo $label;
 				?>
 <textarea rows=1
@@ -757,11 +768,11 @@ p {
 			<td><?php
 					
 echo lab_directory_create_select( 
-						$field['slug'] . '_functions[]', 
+						'lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
 						$jury_functions, 
 						$jury_member['function'], 
 						'input-in-td', 
-						true ); // TODO(true) ?>
+						' ' ); // TODO(true) ?>
 					</td>
 			<td><input type="text"
 				name="lab_directory_staff_meta_<?php echo $field['slug'] ?>_names[]"
@@ -833,15 +844,15 @@ echo lab_directory_create_select(
 				echo $used;
 				
 				break;
-			case 'disabled' :
-			default : // We should never arrive there !!
-			          // Only display field value
-				echo $label;
-				echo $value; // echo $field['slug'];var_dump($value);
+			case 'disabled' : // Only display field value
+			default : // We should never arrive to default !!
+			          
+				echo $label; 
+				echo '<span class="value">' . ld_value_to_something( $value, $field['multivalue'], 'display' ) . '</span>'; // echo $field['slug'];var_dump($value);
 				break;
 		}
 		?>
-</p>
+</div>
 <div class="clear"></div>
 <?php
 	}
@@ -892,7 +903,8 @@ echo lab_directory_create_select(
 			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 			$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-			$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+			$staff_statuss = get_post_meta( $post_id, 'staff_statuss', true );
+			
 			$group_activations = get_option( 'lab_directory_group_activations' );
 			$used_groups = Lab_Directory_Settings::get_used_groups( 
 				$active_meta_fields, 
@@ -927,6 +939,7 @@ echo lab_directory_create_select(
 							$field_type = 'disabled';
 						}
 						if ( $field_type != 'disabled' ) {
+							// echo "<br> ". $field['group'] . ' '. $field['slug']. " $field_type"; 
 							Lab_Directory::lab_directory_save_meta_boxes_save_meta( 
 								$post_id, 
 								$field, 
@@ -977,7 +990,7 @@ echo lab_directory_create_select(
 			case 'studying_level' :
 				$value = sanitize_text_field( $value );
 				break;
-			case 'jury' :
+			case 'jury' : // phd_jury AND hdr_jury
 				$orders = $_POST[$slug . '_orders'];
 				$names = $_POST[$slug . '_names'];
 				$functions = $_POST[$slug . '_functions'];
@@ -1011,6 +1024,7 @@ echo lab_directory_create_select(
 			default : // We should never arrive there !!
 			          // update_post_meta( $post_id, $meta_field_slug, esc_attr( $_POST['lab_directory_staff_meta'][
 			          // $meta_field_slug ] ) );
+			          die('OUPS Something went wrong!! '. $field['type']); 
 				$value = esc_attr( $value );
 				
 				break;
@@ -1673,19 +1687,19 @@ EOT;
 			if ( $orderby == 'name' ) {
 				
 				$all_lab_directory_staff = $wpdb->get_results( 
-					"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE `category` = $filter ORDER BY `name` $order" );
+					"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE custom_groupcategorycustom_group = $filter ORDER BY custom_groupnamecustom_group $order" );
 			}
 			
 			if ( $orderby == 'category' ) {
 				
 				$categories = $wpdb->get_results( 
-					"SELECT * FROM $lab_directory_categories WHERE `cat_id` = $filter ORDER BY name $order" );
+					"SELECT * FROM $lab_directory_categories WHERE custom_groupcat_idcustom_group = $filter ORDER BY name $order" );
 				
 				foreach ( $categories as $category ) {
 					$cat_id = $category->cat_id;
 					// echo $cat_id;
 					$lab_directory_staff_by_cat = $wpdb->get_results( 
-						"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE `category` = $cat_id" );
+						"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE custom_groupcategorycustom_group = $cat_id" );
 					foreach ( $lab_directory_staff_by_cat as $lab_directory_staff ) {
 						$all_lab_directory_staff[] = $lab_directory_staff;
 					}
@@ -1698,7 +1712,7 @@ EOT;
 			if ( $orderby == 'name' ) {
 				
 				$all_lab_directory_staff = $wpdb->get_results( 
-					"SELECT * FROM " . LAB_DIRECTORY_TABLE . " ORDER BY `name` $order" );
+					"SELECT * FROM " . LAB_DIRECTORY_TABLE . " ORDER BY custom_groupnamecustom_group $order" );
 			}
 			
 			if ( $orderby == 'category' ) {
@@ -1711,7 +1725,7 @@ EOT;
 		} elseif ( isset( $filter ) and $filter != '' ) {
 			
 			$all_lab_directory_staff = $wpdb->get_results( 
-				"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE `category` = $filter" );
+				"SELECT * FROM " . LAB_DIRECTORY_TABLE . " WHERE custom_groupcategorycustom_group = $filter" );
 			if ( isset( $all_lab_directory_staff ) ) {
 				return $all_lab_directory_staff;
 			}
@@ -2251,7 +2265,7 @@ EOT;
 			'url' => 'text', 
 			'phone_number' => 'text', 
 			'date' => 'date', 
-			'long_text' => 'textarea', 
+			'longtext' => 'textarea', 
 			'jury' => 'jury', 
 			'studying_level' => 'studying_level' );
 		return $default_type_input_types;
@@ -2267,7 +2281,7 @@ EOT;
 			'phone_number' => __( 'Phone number', 'lab-directory' ), 
 			'date' => __( 'Date', 'lab-directory' ), 
 			'datetime' => __( 'Date and Time', 'lab-directory' ), 
-			'long_text' => __( 'Long text', 'lab-directory' ), 
+			'longtext' => __( 'Long text', 'lab-directory' ), 
 			'studying_level' => __( 'Studying_level', 'lab-directory' ), 
 			'editor' => __( 'HTML Text', 'lab-directory' ), 
 			'jury' => __( 'Jury', 'lab-directory' ) );
@@ -2321,6 +2335,7 @@ EOT;
 			',' => __( "(') separated list", 'lab-directory' ), 
 			';' => __( '(;) separated list', 'lab-directory' ), 
 			'|' => __( '(|) separated list', 'lab-directory' ), 
+			'/' => __( '(/) separated list', 'lab-directory' ), 
 			'CR' => __( 'CR separated list', 'lab-directory' ) )
 
 		;
@@ -2342,6 +2357,7 @@ EOT;
 			',' => __( "Comma (') separated list", 'lab-directory' ) . $note1, 
 			';' => __( 'Semicolumn (;) separated list (', 'lab-directory' ) . $note1, 
 			'|' => __( 'Vertical bar (|) separated list', 'lab-directory' ) . $note1, 
+			'S' => __( 'Slash (/) separated list', 'lab-directory' ) . $note1, 
 			'CR' => __( 'Carriage return separated list (*)', 'lab-directory' ) . $note1, 
 			'(*)' => __( 
 				'Carriage return separated list are saved in database using a Semicolumn (;) separated list', 
@@ -2633,33 +2649,42 @@ function ld_user_can_by_user( $capability, $user ) {
 /*
  * This function convert a value depending on its multivalue type
  */
-function ld_value_to_something( $value = false, $multivalue = false, $to = 'string' ) {
+function ld_value_to_something( $value = false, $multivalue = false, $to = 'display' ) {
+	//TODO common function for admin/frontend
 	switch ( $to ) {
-		case 'string' :
-			// TODO usefull?
+		case 'display' :
+			// process value for display with <br> instead fo line breaks
 			if ( ! $value ) {
 				return '';
 			}
 			switch ( $multivalue ) {
 				case 'special' :
 				case 'SV' :
-					break;
-				case 'MV' :
-					break;
-				case ',' :
-					break;
-				case ';' :
-					break;
-				case '|' :
+					// nothing to do
 					break;
 				case 'CR' :
+				case 'MV' :
+					$value = nl2br($value);
+					break;
+				case ',' :
+					$value = str_replace(',' , '<br />', ($value));
+					break;
+				case ';' :
+					$value = str_replace(';' , '<br />', ($value));
+					break;
+				case '|' :
+					$value = str_replace('|' , '<br />', ($value));
+					break;
+				case '/' :
+					$value = str_replace('/' , '<br />', ($value));
 					break;
 			}
+			return $value;
 			break;
 		case 'array' :
 			if ( ! $value ) {
-				$res = array();
-				return $res;
+				$value = array();
+				return $value;
 			}
 			switch ( $multivalue ) {
 				case 'special' :
@@ -2676,6 +2701,9 @@ function ld_value_to_something( $value = false, $multivalue = false, $to = 'stri
 				case '|' :
 					$value = explode( '|', $value );
 					break;
+				case '/' :
+					$value = explode( '/', $value );
+					break;
 				case 'CR' :
 					$value = explode( "\n", $value );
 					break;
@@ -2683,7 +2711,7 @@ function ld_value_to_something( $value = false, $multivalue = false, $to = 'stri
 			return $value;
 			break;
 	}
-	return $res;
+	return; 
 }
 
 function ld_network_icon( $key ) {
@@ -2737,3 +2765,4 @@ function get_default_social_networks() {
 		'viadeo' => 'Viadeo' );
 	return $networks;
 }
+

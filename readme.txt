@@ -44,7 +44,7 @@ Special thanks to those who have helped out at the Github repo:
 
 == Installation ==
 
-1. Upload the `lab-directory` directory to the `/wp-content/plugins/` directory
+1. Upload the custom_grouplab-directorycustom_group directory to the custom_group/wp-content/plugins/custom_group directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. See the admin help page for usage instructions
 

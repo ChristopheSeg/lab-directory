@@ -479,6 +479,7 @@ class Lab_Directory_Settings {
 								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode(';',$valeurs[0]);
 								break;
 							case '|' : // '| separated values' ,
+							case '/' : // '| separated values' ,
 								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode('|',$valeurs[0]);
 								break;
 							case 'CR' : // 'Carriage return separated values' ,
@@ -842,7 +843,6 @@ class Lab_Directory_Settings {
 		if ( $bio ) {
 			$used_groups['BIO'] = $group_names['BIO'];
 		}
-		
 		// That's all if $staff_statuss is empty
 		if ( ! is_array( $staff_statuss ) or empty( $staff_statuss ) ) {
 			return $used_groups;
@@ -857,7 +857,6 @@ class Lab_Directory_Settings {
 				$used_groups[$group] = $group_names[$group];
 			}
 		}
-		
 		return $used_groups;
 	}
 
