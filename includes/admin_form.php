@@ -40,6 +40,7 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
 	$select .= $select_options . '</select>';
 	
 	if ($disabled){
+		// select is hidden, only current value displayed
 		$select .= $current_value;
 	}	
     return $select;

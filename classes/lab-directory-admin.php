@@ -98,10 +98,18 @@ class Lab_Directory_Admin {
 		else {
 			// Temporary TODO list
 			?>
-				<p>
+				<p> 
+				<br> TODO revoir single/special
+				IMPOSER dans formulaire settings: (remettre MV à SV OU special) 
+				<br>type, SV fixés (select disabled): prenom nom login wpuid bio et champs en date/datetime (soutenances) jurys studying_level 
+				<br>non syncable (lock): wpuid jurys studying_level
+				<br>type imposé : mails other_mails, photo_url, webpage (sv ou mv)
+				<br> rétablir 'multivalue' => 'special', en SV ou special
+				<br> revoir tous les 'disabled' à supprimer pour ldap_attributes
+				
+			      <br> TODO mails/others mails supprimer doublons dans import LDAP
 			      
-					<br>TODO supprimer tout l'annuaire: et resyncho pour phone_number (ex phone modifié)
-					<br>TODO pas afficher status si post_id inconnu (nouveau personnel) 
+					<br>TODO pas afficher status si post_id inconnu (nouveau personnel, enregistrer nom prénom avant status) 
 			      <br> TODO revoir aide sur les pages au style Wordpress ?
 			      <br>TODO  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TODO OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine

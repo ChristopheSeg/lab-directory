@@ -113,6 +113,17 @@ class Lab_Directory_Settings {
 		$show_frontends = $_POST['lab_directory_staff_meta_fields_show_frontends'];
 		$ldap_attributes = $_POST['lab_directory_staff_meta_fields_ldap_attributes'];
 		
+		/*
+		// +++++++++++++++
+		$temp = array(); 
+		$default_meta_fields = Lab_Directory::get_default_meta_fields();
+		foreach ( $default_meta_fields as $default_meta_field ) {
+			$temp[$default_meta_field['slug']] = $default_meta_field; 
+		}
+		// +++++++++++++++
+		*/
+		
+
 		$index = 0;
 		
 		$meta_fields_array = array();
@@ -127,16 +138,17 @@ class Lab_Directory_Settings {
 			} else {
 				$calculated_ldap_attribute = 'disabled';
 			}
+			
 			$meta_fields_array[] = array( 
 				'slug' => $slug, 
 				'order' => $orders[$index], 
-				'type' => $types[$index], 
+				'type' => $types[$index], //$temp[$slug]['type'], // TOODO 
 				'group' => $groups[$index], 
 				'activated' => isset( $activateds[$index] ) ? '1' : '0', 
 				'order' => $orders[$index], 
-				'multivalue' => $special ? 'special' : $multivalues[$index], 
+				'multivalue' => $special ? 'special' : $multivalues[$index], //$temp[$slug]['multivalue'], //TODOTODO 
 				'ldap_attribute' => $calculated_ldap_attribute, 
-				'show_frontend' => isset( $show_frontends[$index] ) ? '1' : '0' );
+				'show_frontend' => isset( $show_frontends[$index] ) ? '1' : '0' );		
 		}
 		
 		// sort by activated, then by order
@@ -869,7 +881,84 @@ class Lab_Directory_Settings {
 		}
 		return $custom_fields;
 	}
-}
+	
+	/*
+	 *  Return an array of all metafields slug corresponding 
+	 *  to metafields whose type is fixed  and should not be changed
+	 */
+	 static function get_lab_directory_fixed_types() {
+		return array(
+					'firstname',
+					'name',
+					'login',
+					'wp_user_id',
+					'mails',
+					'other_mails',
+					'bio',
+					'photo_url',
+					'webpage',
+					'social_network',
+					'hdr_date',
+					'hdr_jury',
+					'phd_start_date',
+					'phd_date',
+					'phd_jury',
+					'post_doc_start_date',
+					'post_doc_end_date',
+					'internship_start_date',
+					'internship_end_date',
+					'studying_level',
+					'invitation_start_date',
+					'invitation_end_date',
+					'cdd_start_date',
+					'cdd_end_date',
+		);
+	}
+	
+	/*
+	 *  Return an array of all metafields slug corresponding
+	 *  to metafields whose type is fixed  and should not be changed
+	 */
+	static function get_lab_directory_fixed_MV() {
+			return array(
+					'firstname',
+					'name',
+					'login',
+					'wp_user_id',
+					'bio',
+					'photo_url',
+					'social_network',
+					'hdr_date',
+					'hdr_jury',
+					'phd_start_date',
+					'phd_date',
+					'phd_jury',
+					'post_doc_start_date',
+					'post_doc_end_date',
+					'internship_start_date',
+					'internship_end_date',
+					'studying_level',
+					'invitation_start_date',
+					'invitation_end_date',
+					'cdd_start_date',
+					'cdd_end_date',
+		);
+	}	
+	/*
+	 *  Return an array of all metafields slug corresponding
+	 *  to metafields whose type is not syncable with LDAP directory
+	 */
+	static function get_lab_directory_unsyncable() {
+			return array(
+					'wp_user_id',
+					'social_network',
+					'hdr_jury',
+					'phd_jury',
+					'studying_level',
+		);
+	}				
+
+} // End class
 
 function compare_order( $a, $b ) {
 	return 200 * ( (int) $b['activated'] - (int) $a['activated'] ) + ( (int) $a['order'] - (int) $b['order'] );

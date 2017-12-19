@@ -342,7 +342,7 @@ class Lab_Directory {
 			__( 'Staff status' ), 
 			array( 'Lab_Directory', 'lab_directory_staff_meta_box_statut' ), 
 			'lab_directory_staff', 
-			'normal', 
+			'side', 
 			'high' );
 	}
 
@@ -1193,7 +1193,7 @@ echo lab_directory_create_select(
 				'type' => 'text', 
 				'slug' => 'wp_user_id', 
 				'group' => 'CV', 
-				'ldap_attribute' => 'disabled', 
+				'ldap_attribute' => '', 
 				'multivalue' => 'special', 
 				'show_frontend' => '0', 
 				'activated' => '1' ), 
@@ -1330,7 +1330,7 @@ echo lab_directory_create_select(
 				'slug' => 'hdr_subject', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1356,13 +1356,13 @@ echo lab_directory_create_select(
 				'type' => 'jury', 
 				'slug' => 'hdr_jury', 
 				'group' => 'HDR', 
-				'ldap_attribute' => 'disabled', 
+				'ldap_attribute' => '', 
 				'multivalue' => 'special', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
 				'order' => 21, 
-				'type' => 'longtext', 
+				'type' => 'editor', 
 				'slug' => 'hdr_resume', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
@@ -1416,7 +1416,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 27, 
-				'type' => 'longtext', 
+				'type' => 'editor', 
 				'slug' => 'phd_resume', 
 				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
@@ -1470,7 +1470,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 32.1, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'internship_subject', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
@@ -1479,7 +1479,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 32.2, 
-				'type' => 'longtext', 
+				'type' => 'editor', 
 				'slug' => 'internship_resume', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
@@ -1500,7 +1500,7 @@ echo lab_directory_create_select(
 				'type' => 'studying_level', 
 				'slug' => 'studying_level', 
 				'group' => 'internship', 
-				'ldap_attribute' => 'disabled', 
+				'ldap_attribute' => '', 
 				'multivalue' => 'special', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
@@ -1524,7 +1524,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 37, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'invitation_goal', 
 				'group' => 'invited', 
 				'ldap_attribute' => '', 
@@ -1569,7 +1569,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 42, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'cdd_goal', 
 				'group' => 'CDD', 
 				'ldap_attribute' => '', 
@@ -2276,15 +2276,17 @@ EOT;
 		// Define the default type text to use for field name and their internationalisation
 		$default_type_texts = array( 
 			'text' => __( 'text', 'lab-directory' ), 
+			'longtext' => __( 'Long text', 'lab-directory' ), 
+			'editor' => __( 'HTML Text', 'lab-directory' ), 
 			'mail' => __( 'mail', 'lab-directory' ), 
 			'url' => __( 'URL', 'lab-directory' ), 
 			'phone_number' => __( 'Phone number', 'lab-directory' ), 
 			'date' => __( 'Date', 'lab-directory' ), 
 			'datetime' => __( 'Date and Time', 'lab-directory' ), 
-			'longtext' => __( 'Long text', 'lab-directory' ), 
 			'studying_level' => __( 'Studying_level', 'lab-directory' ), 
-			'editor' => __( 'HTML Text', 'lab-directory' ), 
-			'jury' => __( 'Jury', 'lab-directory' ) );
+			'jury' => __( 'Jury', 'lab-directory' ),
+			'social_network' => __( 'Social link', 'lab-directory' ),
+		);
 		return $default_type_texts;
 	}
 
@@ -2357,11 +2359,9 @@ EOT;
 			',' => __( "Comma (') separated list", 'lab-directory' ) . $note1, 
 			';' => __( 'Semicolumn (;) separated list (', 'lab-directory' ) . $note1, 
 			'|' => __( 'Vertical bar (|) separated list', 'lab-directory' ) . $note1, 
-			'S' => __( 'Slash (/) separated list', 'lab-directory' ) . $note1, 
-			'CR' => __( 'Carriage return separated list (*)', 'lab-directory' ) . $note1, 
-			'(*)' => __( 
-				'Carriage return separated list are saved in database using a Semicolumn (;) separated list', 
-				'lab-directory' ) );
+			'/' => __( 'Slash (/) separated list', 'lab-directory' ) . $note1, 
+			'CR' => __( 'Carriage return separated list', 'lab-directory' ) . $note1, 
+);
 		return $default_multivalue_names;
 	}
 
@@ -2653,12 +2653,13 @@ function ld_value_to_something( $value = false, $multivalue = false, $to = 'disp
 	//TODO common function for admin/frontend
 	switch ( $to ) {
 		case 'display' :
-			// process value for display with <br> instead fo line breaks
+			// prepare metafield value for displaying ( with <br> instead fo line breaks)
 			if ( ! $value ) {
 				return '';
 			}
 			switch ( $multivalue ) {
 				case 'special' :
+					//TODO treat all special (date jury...)
 				case 'SV' :
 					// nothing to do
 					break;
