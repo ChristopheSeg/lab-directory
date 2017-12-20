@@ -12,7 +12,7 @@ class Lab_Directory_Shortcode {
         //Shortcode to initiate the loop
         add_shortcode( 'lab_directory_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_staff_loop_shortcode' ) );
 
-        //List of other shortcode tags
+        //List of other shortcode tags (without the ld_ suffix)
         $other_shortcodes = array(
             'name_header',
         	'name_firstname',
@@ -20,7 +20,8 @@ class Lab_Directory_Shortcode {
             'photo',
             'bio_paragraph',
             'profile_link',
-            'category'
+            'category', 
+        	'categories_nav',
         );
 
         //Add shortcodes for all $predefined_shortcodes, link to function by
@@ -141,17 +142,50 @@ class Lab_Directory_Shortcode {
         }
     }
 
-    static function ld_category_shortcode($atts){
+   static function ld_category_shortcode($atts){
         $atts = shortcode_atts( array(
             'all' => false,
         ), $atts);
         $lab_directory_staff_categories     = wp_get_post_terms( get_the_ID(), 'lab_category' );
+        /* var_dump(get_the_ID()); 
+        var_dump($lab_directory_staff_categories); die();
+        */ 
         $all_lab_directory_staff_categories = "";
 
         if ( count( $lab_directory_staff_categories ) > 0 ) {
             $lab_category = $lab_directory_staff_categories[0]->name;
             foreach ( $lab_directory_staff_categories as $category ) {
                 $all_lab_directory_staff_categories .= $category->name . ", ";
+            }
+            $all_lab_directory_staff_categories = substr( $all_lab_directory_staff_categories, 0, strlen( $all_lab_directory_staff_categories ) - 2 );
+        } else {
+            $lab_category = "";
+        }
+
+        if( $atts['all'] === "true" || $atts['all'] === true ) {
+            return $all_lab_directory_staff_categories;
+        } else {
+            return $lab_category;
+        }
+
+    }
+    
+    static function ld_categories_nav_shortcode($atts){
+        $atts = shortcode_atts( array(
+            'all' => false,
+        ), $atts);
+        $lab_directory_staff_categories     = $terms = get_terms( array(
+		    'taxonomy' => 'lab_category',
+		    'hide_empty' => false,
+		) );
+       
+        $current_url = explode('?', "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $all_lab_directory_staff_categories = '<a href="' . $current_url[0] . '" >' . __(All) . '</a>, ';
+
+        if ( count( $lab_directory_staff_categories ) > 0 ) {
+            $lab_category = $lab_directory_staff_categories[0]->name;
+            foreach ( $lab_directory_staff_categories as $category ) {
+                $all_lab_directory_staff_categories .= '<a href="' . $current_url[0] . '?cat=' . $category->term_id . '" >' .$category->name . '</a>, ';
             }
             $all_lab_directory_staff_categories = substr( $all_lab_directory_staff_categories, 0, strlen( $all_lab_directory_staff_categories ) - 2 );
         } else {
@@ -200,13 +234,21 @@ class Lab_Directory_Shortcode {
 			'post_type'      => 'lab_directory_staff',
 			'posts_per_page' => - 1
 		);
-
+	
 		// check if it's a single lab_directory_staff member first, since single members won't be ordered
 		if ( ( isset( $params['id'] ) && $params['id'] != '' ) && ( ! isset( $params['cat'] ) || $params['cat'] == '' ) ) {
 			$query_args['p'] = $params['id'];
 		}
 		// ends single lab_directory_staff
 
+		// If no cat nor id filter in loop
+		if ( ( !isset( $params['cat'] ) || $params['cat'] == '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
+			// Try to add url parameter filter ($_GET) in $params filter
+			if ($_GET['cat']) {
+				$params['cat'] = $_GET['cat'];
+			}
+		}
+	
 		// check if we're returning a lab_directory_staff category
 		if ( ( isset( $params['cat'] ) && $params['cat'] != '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
             $cats_query = array();

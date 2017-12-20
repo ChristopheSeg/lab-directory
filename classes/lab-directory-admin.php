@@ -99,37 +99,27 @@ class Lab_Directory_Admin {
 			// Temporary TODO list
 			?>
 				<p> 
-				<br> TODO revoir single/special
-				IMPOSER dans formulaire settings: (remettre MV à SV OU special) 
-				<br>type, SV fixés (select disabled): prenom nom login wpuid bio et champs en date/datetime (soutenances) jurys studying_level 
-				<br>non syncable (lock): wpuid jurys studying_level
-				<br>type imposé : mails other_mails, photo_url, webpage (sv ou mv)
-				<br> rétablir 'multivalue' => 'special', en SV ou special
-				<br> revoir tous les 'disabled' à supprimer pour ldap_attributes
-				
-			      <br> TODO mails/others mails supprimer doublons dans import LDAP
-			      
-					<br>TODO pas afficher status si post_id inconnu (nouveau personnel, enregistrer nom prénom avant status) 
-			      <br> TODO revoir aide sur les pages au style Wordpress ?
-			      <br>TODO  avant photo!! créer un champ photo_modified avec date modification: comment?
-			      <br>TODO OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
-			      <br>TODO 
-			      <br>TODO 
-			      <br>TODO 
-			      <br>TODO voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
-			      <br>TODO ajouter slug calculés firstname_name....
-			      <br>TODO shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
-			      <br>TODO 
-			      <br>TODO permissions : 
-			      <br>TODO permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
-			      <br>TODO ajouter les droits accès edit ou admin sur lab-directory posts
-			      <br>TODO 
-			      <br>TODO Taxonomies
-			      <br>TODO   
-			      <br>TODO ajouter cando (who,action) groupes lab-directory [administrator,staff ]
-			      <br>TODO séparer admin et frontend
-			      <br>TODO voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
-			      <br>TODO ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
+				<br>TOBEDONE enregistrement personnel efface tout !!!!!
+			      <br>TOBEDONE revoir aide sur les pages au style Wordpress ?
+			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
+			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
+			      <br>TOBEDONE 
+			      <br>TOBEDONE 
+			      <br>TOBEDONE 
+			      <br>TOBEDONE voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
+			      <br>TOBEDONE ajouter slug calculés firstname_name....
+			      <br>TOBEDONE shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
+			      <br>TOBEDONE 
+			      <br>TOBEDONE permissions : 
+			      <br>TOBEDONE permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
+			      <br>TOBEDONE ajouter les droits accès edit ou admin sur lab-directory posts
+			      <br>TOBEDONE 
+			      <br>TOBEDONE Taxonomies
+			      <br>TOBEDONE   
+			      <br>TOBEDONE ajouter cando (who,action) groupes lab-directory [administrator,staff ]
+			      <br>TOBEDONE séparer admin et frontend
+			      <br>TOBEDONE voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
+			      <br>TOBEDONE ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
 			    </p>
 	<p> 
 	<ul>

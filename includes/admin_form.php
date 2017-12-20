@@ -12,6 +12,8 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
 	if (($name == false) OR ($values == false)) {
 		return '';
 	}
+	
+	
 	if ($allow_none !== false) {
 		if ($allow_none === true) {
 			$no_selection= __('no selection', 'lab_directory');
@@ -41,8 +43,10 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
 	
 	if ($disabled){
 		// select is hidden, only current value displayed
-		$select .= $current_value;
-	}	
+		$select .= $values[$current_value];
+	
+	}
+	
     return $select;
 		
 }

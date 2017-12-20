@@ -119,7 +119,7 @@
     </div>
 <div class="clear"></div>
 <h2>Social network used in metafields</h2>
-<p> TODO explain this</p>
+<p>Select whose social networks can be enabled for displaying links in LAB directory. </p>
 	<?php 
 	wp_enqueue_style('social-icons-css',
 			plugins_url( '/css/social_icons.css', dirname(__FILE__) ));
@@ -153,10 +153,10 @@
 	}
 	?> 
 	<div style="float:left; width: 20%; min-width: 150px;">
-	<strong><?php echo ($use_default_social_networks? 'Proposed social networks (default)':'Actually used'); ?></strong><br> <?php echo $used ;?> 
+	<strong><?php echo ($use_default_social_networks? 'Proposed social networks (default)':'Enabled'); ?></strong><br> <?php echo $used ;?> 
 	</div>
 	<div style="float:left; width: 40%; min-width: 150px;">
-	<strong>Other social networks available</strong><br> <?php echo $unused ;?> 
+	<strong>Other available social networks </strong><br> <?php echo $unused ;?> 
 	</div> 
 
 

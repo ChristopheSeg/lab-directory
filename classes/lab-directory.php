@@ -51,7 +51,7 @@ class Lab_Directory {
 	 * ["group"]=> string(2) "CV"
 	 * ["activated"]=> string(1) "1"
 	 * ["multivalue"]=> 'special'
-	 * ["ldap_attribute"]=> string(2) "sn" ( 'disabled' if ldap syncing disabled)
+	 * ["ldap_attribute"]=> string(2) "sn" 
 	 * ["show_frontend"]=> string(1) "1"
 	 * }
 	 * [1]=>
@@ -173,7 +173,7 @@ class Lab_Directory {
 	}
 
 	static function create_lab_directory_staff_taxonomies() {
-		// TODO add internationalisation 
+
 		register_taxonomy( 
 			'lab_category', 
 			'lab_directory_staff', 
@@ -587,10 +587,8 @@ div.lab_directory_staff_meta {
 		// TODO disable input depending on capability , LDAP...
 		
 		// Disable input when field is synced with LDAP
-		if ( $ldap_synced and isset( $field['ldap_attribute'] ) and ( $field['ldap_attribute'] != 'disabled' ) ) {
-			if ( $field['ldap_attribute'] ) {
-				$field_type = 'disabled';
-			}
+		if ( $ldap_synced and isset( $field['ldap_attribute'] ) and ( $field['ldap_attribute'] != '' ) ) {
+			$field_type = 'disabled';
 		}
 		// Disable wp_user_id field
 		if ( $field['slug'] == 'wp_user_id' ) {
@@ -820,9 +818,9 @@ echo lab_directory_create_select(
 				echo $label;
 				;
 				echo '<button onclick="show_hide_social_networks(); return false;">' .
-					 __( 'Show or Hide Social networks', 'lab_directory' ) .
-					 '<span class="social_networks" style="display:none;"><i class="fa fa-arrow-down" aria-hidden="true"></i></span>' .
-					 '<span class="social_networks"><i class="fa fa-arrow-up" aria-hidden="true"></i></span></button>';
+					 __( 'Fold Unfold Social networks input', 'lab_directory' ) .
+					 '<span class="social_networks" style="display:none;"><span class="dashicons dashicons-arrow-down"></span></span>' .
+					 '<span class="social_networks"><span class="dashicons dashicons-arrow-up"></span></span></button>';
 				wp_enqueue_style( 'social-icons-css', plugins_url( '/css/social_icons.css', dirname( __FILE__ ) ) );
 				
 				$possible_social_networks = get_possible_social_networks();
@@ -928,8 +926,7 @@ echo lab_directory_create_select(
 						// TODO disable input depending on capability , LDAP...
 						
 						// Disable input when field is synced with LDAP
-						if ( $ldap_synced and isset( $field['ldap_attribute'] ) and
-							 ( $field['ldap_attribute'] != 'disabled' ) ) {
+						if ( $ldap_synced and isset( $field['ldap_attribute'] ) ) {
 							if ( $field['ldap_attribute'] ) {
 								$field_type = 'disabled';
 							}
@@ -954,10 +951,16 @@ echo lab_directory_create_select(
 	}
 
 	static function lab_directory_save_meta_boxes_save_meta( $post_id, $field, $field_name ) {
-		$slug = 'lab_directory_staff_meta_' . $field['slug'];
 		
+		
+		
+		$slug = 'lab_directory_staff_meta_' . $field['slug'];
+		// Do not save if meta field is disabled
+		if (!isset( $_POST[$slug] )) {
+			return; 
+		}
 		// Unsanitized value
-		$value = isset( $_POST[$slug] ) ? $_POST[$slug] : '';
+		$value = $_POST[$slug];
 		
 		switch ( $field['type'] ) {
 			case 'text' :
@@ -1142,15 +1145,13 @@ echo lab_directory_create_select(
 		 * name : the name of the field in english default language (translatable)
 		 * type : type of this field (see $default_type)
 		 * slug : the slug define the field, it cannot be changed
-		 * ldap_attribute : empty string or 'disabled' if this field is not LDAP syncable
+		 * ldap_attribute : empty string or ldap attribute used for syncing
 		 * multivalue : as defined in $default_multivalue
-		 * or 'special' for field always having single value and fixed type
-		 * (example jury, dates, studying level...)
+		 * 		=SV for special fields (example jury, dates, studying level...)
 		 * show_frontend : '1' if this field should not be displayed in frontend
 		 * predefined : '1' if this field is predefined by the plugin (always here)
 		 */
 		
-		// TODO move slug to main key?
 		$default_meta_fields = array( 
 			array( 
 				'order' => 1, 
@@ -1158,7 +1159,7 @@ echo lab_directory_create_select(
 				'slug' => 'firstname', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1167,12 +1168,12 @@ echo lab_directory_create_select(
 				'slug' => 'name', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
 				'order' => 3, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'position', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1185,7 +1186,7 @@ echo lab_directory_create_select(
 				'slug' => 'login', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '0', 
 				'activated' => '1' ), 
 			array( 
@@ -1194,12 +1195,12 @@ echo lab_directory_create_select(
 				'slug' => 'wp_user_id', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '0', 
 				'activated' => '1' ), 
 			array( 
 				'order' => 5, 
-				'type' => 'text', 
+				'type' => 'mail', 
 				'slug' => 'mails', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1208,7 +1209,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 5, 
-				'type' => 'text', 
+				'type' => 'mail', 
 				'slug' => 'other_mails', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1222,7 +1223,7 @@ echo lab_directory_create_select(
 				'slug' => 'bio', 
 				'group' => 'BIO', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1231,7 +1232,7 @@ echo lab_directory_create_select(
 				'slug' => 'idhal', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1240,7 +1241,7 @@ echo lab_directory_create_select(
 				'slug' => 'photo_url', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1249,7 +1250,7 @@ echo lab_directory_create_select(
 				'slug' => 'webpage', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1267,12 +1268,12 @@ echo lab_directory_create_select(
 				'slug' => 'social_network', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
 				'order' => 11, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'title', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1281,7 +1282,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 12, 
-				'type' => 'text', 
+				'type' => 'phone_number', 
 				'slug' => 'phone_number', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1290,7 +1291,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 13, 
-				'type' => 'text', 
+				'type' => 'phone_number', 
 				'slug' => 'fax_number', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
@@ -1321,7 +1322,7 @@ echo lab_directory_create_select(
 				'slug' => 'exit_date', 
 				'group' => 'CV', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '0', 
 				'activated' => '1' ), 
 			array( 
@@ -1335,16 +1336,16 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 18, 
-				'type' => 'date', 
+				'type' => 'datetime', 
 				'slug' => 'hdr_date', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
 				'order' => 19, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'hdr_location', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
@@ -1357,7 +1358,7 @@ echo lab_directory_create_select(
 				'slug' => 'hdr_jury', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1375,7 +1376,7 @@ echo lab_directory_create_select(
 				'slug' => 'phd_start_date', 
 				'group' => 'HDR', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1389,7 +1390,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 24, 
-				'type' => 'date', 
+				'type' => 'datetime', 
 				'slug' => 'phd_date', 
 				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
@@ -1398,7 +1399,7 @@ echo lab_directory_create_select(
 				'activated' => '1' ), 
 			array( 
 				'order' => 25, 
-				'type' => 'text', 
+				'type' => 'longtext', 
 				'slug' => 'phd_location', 
 				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
@@ -1411,7 +1412,7 @@ echo lab_directory_create_select(
 				'slug' => 'phd_jury', 
 				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1429,7 +1430,7 @@ echo lab_directory_create_select(
 				'slug' => 'post_doc_start_date', 
 				'group' => 'post-doctorate', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1438,7 +1439,7 @@ echo lab_directory_create_select(
 				'slug' => 'post_doc_end_date', 
 				'group' => 'post-doctorate', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1456,7 +1457,7 @@ echo lab_directory_create_select(
 				'slug' => 'internship_start_date', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1465,7 +1466,7 @@ echo lab_directory_create_select(
 				'slug' => 'internship_end_date', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1501,7 +1502,7 @@ echo lab_directory_create_select(
 				'slug' => 'studying_level', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1510,7 +1511,7 @@ echo lab_directory_create_select(
 				'slug' => 'invitation_start_date', 
 				'group' => 'invited', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1519,7 +1520,7 @@ echo lab_directory_create_select(
 				'slug' => 'invitation_end_date', 
 				'group' => 'invited', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1555,7 +1556,7 @@ echo lab_directory_create_select(
 				'slug' => 'cdd_start_date', 
 				'group' => 'CDD', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -1564,7 +1565,7 @@ echo lab_directory_create_select(
 				'slug' => 'cdd_end_date', 
 				'group' => 'CDD', 
 				'ldap_attribute' => '', 
-				'multivalue' => 'special', 
+				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
@@ -2277,6 +2278,7 @@ EOT;
 		$default_type_texts = array( 
 			'text' => __( 'text', 'lab-directory' ), 
 			'longtext' => __( 'Long text', 'lab-directory' ), 
+			'textarea' => __( 'Multiline text', 'lab-directory' ),
 			'editor' => __( 'HTML Text', 'lab-directory' ), 
 			'mail' => __( 'mail', 'lab-directory' ), 
 			'url' => __( 'URL', 'lab-directory' ), 
@@ -2454,12 +2456,12 @@ EOT;
 			'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
 			'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
 			'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
-			'studying_school' => __( 'Studying school', 'lab-directory' ), 
-			'studying_level' => __( 'Studying level', 'lab-directory' ), 
-			'invitation_start_date' => __( 'Start date', 'lab-directory' ), 
-			'invitation_end_date' => __( 'End date', 'lab-directory' ), 
+			'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
+			'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
+			'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
+			'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
 			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
-			'invited_position' => __( 'Position', 'lab-directory' ), 
+			'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
 			'invited_origin' => __( 'Invited origin', 'lab-directory' ),
 				/* translators Fixed term contract information */
 				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
@@ -2658,8 +2660,6 @@ function ld_value_to_something( $value = false, $multivalue = false, $to = 'disp
 				return '';
 			}
 			switch ( $multivalue ) {
-				case 'special' :
-					//TODO treat all special (date jury...)
 				case 'SV' :
 					// nothing to do
 					break;
