@@ -45,10 +45,16 @@
 
 <form method="post">
 
-    <h2>General settings</h2>
+    <h2>LDAP syncing</h2>
 
 	<input name="lab_directory_use_ldap" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ldap' ) ); ?> /> Check this to use LDAP and LDAP sync
 
+    <h2>Staff Taxonomies</h2>
+    <p>Staff can be registerd in categories such as team, laboratory institution... using one or two taxonomies. By default, taxonomy1 corresponds to teams, taxonomy2 corresponds to laboratories  (usefull if your staff belong to several laboratories). Each taxonomy can be customized to correspond to others categorization.</p>
+ 	<p><input name="lab_directory_use_taxonomy1" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy1' ) ); ?> /> Check this to use Taxonomy 1</p>
+    <p><input name="lab_directory_use_taxonomy2" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy2' ) ); ?> /> Check this to use Taxonomy 2</p>
+    
+    
     <h2>Single profile templates</h2>
     <p>Template instructions can be found on the <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-help#lab_directory_staff-template-tags">Staff Help page</a></p>
 

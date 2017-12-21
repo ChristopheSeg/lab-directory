@@ -171,33 +171,25 @@ class Lab_Directory_Shortcode {
     }
     
     static function ld_categories_nav_shortcode($atts){
-        $atts = shortcode_atts( array(
-            'all' => false,
-        ), $atts);
-        $lab_directory_staff_categories     = $terms = get_terms( array(
+        
+        $lab_directory_staff_categories = get_terms( array(
 		    'taxonomy' => 'lab_category',
 		    'hide_empty' => false,
 		) );
+        
+        if ( count( $lab_directory_staff_categories ) < 2 ) {
+        	return ''; 
+        }
        
         $current_url = explode('?', "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $all_lab_directory_staff_categories = '';
         $all_lab_directory_staff_categories = '<a href="' . $current_url[0] . '" >' . __(All) . '</a>, ';
 
-        if ( count( $lab_directory_staff_categories ) > 0 ) {
-            $lab_category = $lab_directory_staff_categories[0]->name;
-            foreach ( $lab_directory_staff_categories as $category ) {
-                $all_lab_directory_staff_categories .= '<a href="' . $current_url[0] . '?cat=' . $category->term_id . '" >' .$category->name . '</a>, ';
-            }
-            $all_lab_directory_staff_categories = substr( $all_lab_directory_staff_categories, 0, strlen( $all_lab_directory_staff_categories ) - 2 );
-        } else {
-            $lab_category = "";
-        }
-
-        if( $atts['all'] === "true" || $atts['all'] === true ) {
-            return $all_lab_directory_staff_categories;
-        } else {
-            return $lab_category;
-        }
-
+		$all_lab_directory_staff_categories = '<a href="' . $current_url[0] . '" >' . __(All) . '</a>, ';
+		foreach ( $lab_directory_staff_categories as $category ) {
+			$all_lab_directory_staff_categories .= '<a href="' . $current_url[0] . '?cat=' . $category->term_id . '" >' .$category->name . '</a>, ';
+		}
+       return $all_lab_directory_staff_categories;
     }
 
 	static function shortcode( $params ) {

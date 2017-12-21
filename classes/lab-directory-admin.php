@@ -8,16 +8,17 @@ class Lab_Directory_Admin {
 	static function add_admin_menu_items() {
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
-			'lab-directory-help', array( 'Lab_Directory_Admin', 'help' ) );
+		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Taxonomies', 'Taxonomies', 'publish_posts',
+			'lab-directory-taxonomies', array( 'Lab_Directory_Admin', 'taxonomies' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Translations', 'Translations', 'publish_posts',
 			'lab-directory-translations', array( 'Lab_Directory_Admin', 'translations' ) );
+		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
+			'lab-directory-help', array( 'Lab_Directory_Admin', 'help' ) );
 		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
 	}
 
-	static function translations() {
-		
+	static function translations() {	
 		
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations();
@@ -51,6 +52,36 @@ class Lab_Directory_Admin {
 				$locale, $language_list[$locale]['native_name']);
 	
 	}
+	
+	static function taxonomies() {
+	
+		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		$language_list = wp_get_available_translations();
+	
+		$locale = get_locale(); //string(5) "fr_FR"
+		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : $locale;
+	
+		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }
+		unset($available_languages[$locale]);
+	
+		if (($key = array_search($locale, $available_languages)) !== false) {
+			unset($available_languages[$key]);
+		}
+		array_unshift($available_languages, $locale);
+	
+		$html = '<h2 class="nav-tab-wrapper">';
+		foreach( $available_languages as $available_language){
+			$language_name = $language_list[$available_language]['native_name'] . ' ('. $available_language . ')';
+			$class = ( $available_language == $current_tab ) ? 'nav-tab-active' : '';
+			$html .= '<a class="nav-tab ' . $class . '" href="edit.php?post_type=lab_directory_staff&page=lab-directory-taxonomies&tab=' . $available_language . '">' . $language_name . '</a>';
+		}
+		$html .= '</h2>';
+		echo $html;
+	
+		Lab_Directory_Admin::settings_taxonomies($current_tab, $language_list[$current_tab]['native_name'],
+			$locale, $language_list[$locale]['native_name']);
+	
+	}
    
 	static function settings() {
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
@@ -62,7 +93,6 @@ class Lab_Directory_Admin {
 				'groups'   => __( 'Groups of fields', 'lab-directory' ),
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
-				'taxonomy'  => __( 'Taxonomies', 'lab-directory' ),
 				'third'  => 'TODO list',
 		);
 		$html = '<h2>Lab Directory Settings</h2>';
@@ -92,14 +122,12 @@ class Lab_Directory_Admin {
 		elseif ( $current_tab == 'test_sync' ) {
 			Lab_Directory_Admin::settings_test_sync();
 		}
-		elseif ( $current_tab == 'taxonomy' ) {
-			Lab_Directory_Admin::settings_taxonomy();
-		}
+
 		else {
 			// Temporary TODO list
 			?>
 				<p> 
-				<br>TOBEDONE enregistrement personnel efface tout !!!!!
+				<br>TOBEDONE T1 T1 remplacer par un seul array partout + ajouter test non différents
 			      <br>TOBEDONE revoir aide sur les pages au style Wordpress ?
 			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
@@ -209,6 +237,48 @@ class Lab_Directory_Admin {
 		
 		}
 		
+	static function settings_taxonomies($lang, $lang_name, $locale, $locale_name) {
+				$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+			$form_messages = array('form_saved' => false);
+		
+			// Check $_POST and _wpnonce
+			if ($_POST['admin-settings-taxonomies']) {
+				if ( ($_POST['admin-settings-taxonomies']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomies' )){
+					$lang = $_POST['lab_directory_taxonomies_for'];
+					$slugs = $_POST['lab_directory_taxonomies_slugs'];
+					$post_translations = $_POST['lab_directory_taxonomies_translations'];
+										
+					$translations = array();
+
+					// save translations
+					$index = -1;
+					foreach ( $slugs as $slug ) {
+						$index++;
+						if ($post_translations[$index]) {
+							$translations[$slug] = $post_translations[$index];
+						}
+					}
+					
+					// Test if taxonomies have different name translation
+		
+					// save used language  (ex: lab_directory_translations_fr_FR) or acronyms
+					update_option( 'lab_directory_taxonomies_' . $lang, $translations);
+					$form_messages['form_saved']= true;	
+					
+				}else{
+					// Error
+					$form_messages['erreur'][]= __('Security check fail : form not saved.');
+					echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
+				}
+			} else {
+				// Form initialisation load only acronyms or used language translations (ex: lab_directory_translations_fr-FR)
+				$translations = get_option('lab_directory_taxonomies_' . $lang);
+				
+			}
+		
+			require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomies.php' );
+	}	
+		
 	static function settings_general() {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -220,6 +290,8 @@ class Lab_Directory_Admin {
 
 				// Process/save form fields
 				update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_taxonomy1', isset( $_POST['lab_directory_use_taxonomy1'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
 				
 				if ( isset( $_GET['delete-template'] ) ) {
 					$lab_directory_staff_settings->delete_custom_template( $_GET['delete-template'] );
@@ -520,6 +592,7 @@ class Lab_Directory_Admin {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-test-sync.php' );
 	}
 	
+	/* 
 	static function settings_taxonomy() {
 	
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -545,7 +618,7 @@ class Lab_Directory_Admin {
 	
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomy.php' );
 	}
-	
+	*/ 
 	
 	static function help() {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-help.php' );

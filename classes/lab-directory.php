@@ -179,22 +179,23 @@ class Lab_Directory {
 			'lab_directory_staff', 
 			array( 
 				'hierarchical' => true, 
-				'labels' => array( 
-					'name' => _x( 'Staff Category', 'taxonomy general name' ), 
-					'singular_name' => _x( 'lab_directory_staff-category', 'taxonomy singular name' ), 
-					'search_items' => __( 'Search Staff Categories' ), 
-					'all_items' => __( 'All Staff Categories' ), 
-					'parent_item' => __( 'Parent Staff Category' ), 
-					'parent_item_colon' => __( 'Parent Staff Category:' ), 
-					'edit_item' => __( 'Edit Staff Category' ), 
-					'update_item' => __( 'Update Staff Category' ), 
-					'add_new_item' => __( 'Add New Staff Category' ), 
-					'new_item_name' => __( 'New Staff Category Name' ), 
-					'menu_name' => __( 'Staff Categories' ) ), 
-				'rewrite' => array( 
-					'slug' => 'lab_directory_staff-categories', 
-					'with_front' => false, 
-					'hierarchical' => true ) ) );
+				'labels' => array(
+					'name' => _x( 'Teams', 'taxonomy general name' ),
+					'singular_name' => _x( 'Team', 'taxonomy singular name' ),
+					'search_items' => __( 'Search Staff Teams' ),
+					'all_items' => __( 'All Staff Teams' ),
+					'parent_item' => __( 'Parent Staff Team' ),
+					'parent_item_colon' => __( 'Parent Staff Team :' ),
+					'edit_item' => __( 'Edit Staff Team' ),
+					'update_item' => __( 'Update Staff Team' ),
+					'add_new_item' => __( 'Add New Staff Team' ),
+					'new_item_name' => __( 'New Staff Team Name' ),
+					'menu_name' => __( 'Staff Teams (cat)' ) ),
+				'rewrite' => array(
+					'slug' => 'lab_directory_staff-teams',
+					'with_front' => false,
+					'hierarchical' => true ) )
+			);
 	}
 
 	static function load_profile_template( $original ) {
@@ -2507,7 +2508,17 @@ EOT;
 	}
 
 	static function initiate_translations() {
-		self::$translations = get_option( 'lab_directory_translations_' . get_locale() );
+		$translations = array(); 
+		$temp = get_option( 'lab_directory_translations_' . get_locale() ); 
+		if (is_array($temp)) {
+			$translations = array_merge($translations,$temp);
+		}
+		$temp = get_option( 'lab_directory_taxonomies_' . get_locale() ); 
+		if (is_array($temp)) {
+			$translations = array_merge($translations,$temp);
+		}
+		self::$translations = $translations; 
+	
 	}
 
 	static function initiate_acronyms() {
@@ -2563,6 +2574,54 @@ EOT;
 	static function remove_publish_box() {
 		remove_meta_box( 'submitdiv', 'lab_directory_staff', 'side' );
 	}
+	
+	static function lab_directory_get_taxonomies()  {
+		/* 
+		 * IMPORTANT: do not change__('string') in this function. This would break custom translation
+		 * registered before the change
+		 */ 
+		
+		return array(
+			'ld_taxonomy_team' => array(
+				'hierarchical' => true,
+				'labels' => array(
+					'name' => _x( 'Staff Teams', 'taxonomy general name' ),
+					'singular_name' => _x( 'Staff Team', 'taxonomy singular name' ),
+					'search_items' => __( 'Search Staff Teams' ),
+					'all_items' => __( 'All Staff Teams' ),
+					'parent_item' => __( 'Parent Staff Team' ),
+					'parent_item_colon' => __( 'Parent Staff Team :' ),
+					'edit_item' => __( 'Edit Staff Team' ),
+					'update_item' => __( 'Update Staff Team' ),
+					'add_new_item' => __( 'Add New Staff Team' ),
+					'new_item_name' => __( 'New Staff Team Name' ),
+					'menu_name' => __( 'Staff Teams' ) ),
+				'rewrite' => array(
+					'slug' => 'lab_directory_staff-teams',
+					'with_front' => false,
+					'hierarchical' => true ) ), 
+
+			'ld_taxonomy_laboratory' => array(
+				'hierarchical' => true,
+				'labels' => array(
+					'name' => _x( 'Laboratory', 'taxonomy general name' ),
+					'singular_name' => _x( 'lab_directory_staff-category', 'taxonomy singular name' ),
+					'search_items' => __( 'Search Staff Categories' ),
+					'all_items' => __( 'All Staff Categories' ),
+					'parent_item' => __( 'Parent Staff Category' ),
+					'parent_item_colon' => __( 'Parent Staff Category:' ),
+					'edit_item' => __( 'Edit Staff Category' ),
+					'update_item' => __( 'Update Staff Category' ),
+					'add_new_item' => __( 'Add New Staff Category' ),
+					'new_item_name' => __( 'New Staff Category Name' ),
+					'menu_name' => __( 'Staff laboratories' ) ),
+				'rewrite' => array(
+					'slug' => 'lab_directory_staff-laboratories',
+					'with_front' => false,
+					'hierarchical' => true ) ),
+		);
+		}
+
 
 	static function hide_permalink( $content ) {
 		return $content;

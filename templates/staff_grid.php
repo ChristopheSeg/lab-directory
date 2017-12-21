@@ -60,4 +60,4 @@
     [/lab_directory_staff_loop]
 
 </div>
-ld_categories_nav : [ld_categories_nav all=true]
+[ld_categories_nav]
