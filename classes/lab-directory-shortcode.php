@@ -79,6 +79,24 @@ class Lab_Directory_Shortcode {
         return $output;
     }
 
+    static function lab_directory_defense_loop_shortcode( $atts, $content = NULL ) {
+
+        $query = Lab_Directory_Shortcode::$lab_directory_defense_query;
+        $output = "";
+
+        if ( $query->have_posts() ) {
+
+            while ( $query->have_posts() ) {
+                $query->the_post();
+                $output .= do_shortcode($content);
+
+            }
+
+        }
+        
+        return $output;
+    }
+    
     static function ld_name_firstname_shortcode(){
         return get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
     }
@@ -146,13 +164,10 @@ class Lab_Directory_Shortcode {
         $atts = shortcode_atts( array(
             'all' => false,
         ), $atts);
-        $lab_directory_staff_categories     = wp_get_post_terms( get_the_ID(), 'lab_category' );
-        /* var_dump(get_the_ID()); 
-        var_dump($lab_directory_staff_categories); die();
-        */ 
-        $all_lab_directory_staff_categories = "";
+        $lab_directory_staff_categories = wp_get_post_terms( get_the_ID(), 'lab_category' );
+    	$all_lab_directory_staff_categories = "";
 
-        if ( count( $lab_directory_staff_categories ) > 0 ) {
+        if ( ! is_a($lab_directory_staff_categories, 'WP_error')) {
             $lab_category = $lab_directory_staff_categories[0]->name;
             foreach ( $lab_directory_staff_categories as $category ) {
                 $all_lab_directory_staff_categories .= $category->name . ", ";
@@ -192,7 +207,8 @@ class Lab_Directory_Shortcode {
        return $all_lab_directory_staff_categories;
     }
 
-	static function shortcode( $params ) {
+	 
+	 static function shortcode( $params ) {
 
         $lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 
@@ -213,9 +229,12 @@ class Lab_Directory_Shortcode {
 	}
 
     /*** End shortcode functions ***/
-
+	/*
+	 * $params["template"] contains used template
+	 */
 	static function show_lab_directory( $params = null ) {
 		global $wpdb;
+var_dump($params);
 
 		// make sure we aren't calling both id and cat at the same time
 		if ( isset( $params['id'] ) && $params['id'] != '' && isset( $params['cat'] ) && $params['cat'] != '' ) {
@@ -271,10 +290,28 @@ class Lab_Directory_Shortcode {
 		if ( isset( $params['meta_key'] ) && $params['meta_key'] != '' ) {
 			$query_args['meta_key'] = $params['meta_key'];
 		}
+		
+		// restrict Query for defense if necessary
+		if (in_array($params["template"], array('defense_list') ) ) { 
+			$query_args['meta_query'] = array(
+				'relation' => 'AND',
+				array(
+					'key'     => 'staff_statuss',
+					'value'   => 'HDR',
+					// Warning, WP>=4.8.3: LIKE do not works in meta_key search https://core.trac.wordpress.org/ticket/42746
+					'compare' => 'REGEXP',
+				),
+				/* TODOTODO TEMP array(
+					'key'     => 'hdr_date',
+					'value'   => date( "Y-m-d" ),
+					'compare' => '>=',
+				),
+				*/
+			);
+		}
 
         //Store in class scope so we can access query from lab_directory_staff_loop shortcode
 		Lab_Directory_Shortcode::$lab_directory_staff_query = new WP_Query( $query_args );
-
         $output = '';
 
         if ( Lab_Directory_Shortcode::$lab_directory_staff_query->have_posts() ) {
@@ -332,9 +369,10 @@ class Lab_Directory_Shortcode {
 
         // $slug => 'File Name'
         $template_slugs = array(
-            'grid' => 'staff_grid.php',
-            'list' => 'staff_list.php',
-        	'trombi' => 'staff_trombi.php',
+            'staff_grid' => 'staff_grid.php',
+            'staff_list' => 'staff_list.php',
+        	'staff_trombi' => 'staff_trombi.php',
+        	'defense_list' =>'defense_list.php',
         );
 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;

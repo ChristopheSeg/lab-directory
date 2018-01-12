@@ -304,7 +304,7 @@ msgstr ""
 #. Description of the plugin
 msgid ""
 "Allows Wordpress to keep track of your lab_directory_staff directory for "
-"your website. Good for churches, small companies, etc."
+"your website. Good for small companies, etc."
 msgstr ""
 
 #. URI of the plugin

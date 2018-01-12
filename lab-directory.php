@@ -4,7 +4,7 @@
  * Plugin Name: Lab Directory
  * Plugin URI: http://www.nourl.yet
  * Description: Allows Wordpress to keep track of your lab_directory_staff directory for your website. Good for
- * churches, small companies, etc.
+ * small companies, etc.
  * Version: 0.1
  * Author: Christophe Seguinot
  * Author URI: http://www.nourl.yet
@@ -35,6 +35,7 @@ require_once ( dirname( __FILE__ ) . '/includes/admin_form.php' );
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory.php' );
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-shortcode.php' );
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-admin.php' );
+require_once ( dirname( __FILE__ ) . '/classes/ld_widget_defenses.php' );
 
 Lab_Directory::register_post_types();
 Lab_Directory::set_default_meta_fields_if_necessary();

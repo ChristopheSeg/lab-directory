@@ -127,7 +127,7 @@ class Lab_Directory_Admin {
 			// Temporary TODO list
 			?>
 				<p> 
-				<br>TOBEDONE T1 T1 remplacer par un seul array partout + ajouter test non différents
+				<br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
 			      <br>TOBEDONE revoir aide sur les pages au style Wordpress ?
 			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
@@ -142,7 +142,7 @@ class Lab_Directory_Admin {
 			      <br>TOBEDONE permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 			      <br>TOBEDONE ajouter les droits accès edit ou admin sur lab-directory posts
 			      <br>TOBEDONE 
-			      <br>TOBEDONE Taxonomies
+			      <br>TOBEDONE Taxonomies ou statuts
 			      <br>TOBEDONE   
 			      <br>TOBEDONE ajouter cando (who,action) groupes lab-directory [administrator,staff ]
 			      <br>TOBEDONE séparer admin et frontend
@@ -319,7 +319,7 @@ class Lab_Directory_Admin {
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
 					foreach($_POST['lab_directory_used_social_networks'] as $key =>$value) {
-						$socialnetworks[$key] = $value; //$value is a key 'google-plus', not 'Google Plus' for example
+						$socialnetworks[$key] = $value; 
 					}
 				}
 				update_option( 'lab_directory_used_social_networks', $socialnetworks );

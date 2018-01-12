@@ -174,28 +174,10 @@ class Lab_Directory {
 
 	static function create_lab_directory_staff_taxonomies() {
 
-		register_taxonomy( 
-			'lab_category', 
-			'lab_directory_staff', 
-			array( 
-				'hierarchical' => true, 
-				'labels' => array(
-					'name' => _x( 'Teams', 'taxonomy general name' ),
-					'singular_name' => _x( 'Team', 'taxonomy singular name' ),
-					'search_items' => __( 'Search Staff Teams' ),
-					'all_items' => __( 'All Staff Teams' ),
-					'parent_item' => __( 'Parent Staff Team' ),
-					'parent_item_colon' => __( 'Parent Staff Team :' ),
-					'edit_item' => __( 'Edit Staff Team' ),
-					'update_item' => __( 'Update Staff Team' ),
-					'add_new_item' => __( 'Add New Staff Team' ),
-					'new_item_name' => __( 'New Staff Team Name' ),
-					'menu_name' => __( 'Staff Teams (cat)' ) ),
-				'rewrite' => array(
-					'slug' => 'lab_directory_staff-teams',
-					'with_front' => false,
-					'hierarchical' => true ) )
-			);
+		$taxonomies = self::lab_directory_get_taxonomies();	
+		foreach ($taxonomies as $key => $taxonomie ) {
+			register_taxonomy($key, 'lab_directory_staff', $taxonomie );
+		}
 	}
 
 	static function load_profile_template( $original ) {
@@ -348,6 +330,46 @@ class Lab_Directory {
 	}
 
 	/*
+	 *  A function to save statuss as a comma separated list of activated statuss
+	 */
+	static function update_staff_statuss( $post_ID, $statuss ){
+		// Only keep activated status 
+		$meta_value ='';
+		foreach($statuss as $status =>$value) {
+			if ($value) {
+				$meta_value .= $status . ',';
+			}
+		}
+		// Set activated statuss to true 
+		return update_post_meta( $post_ID, 'staff_statuss', $meta_value);
+	}
+
+	/*
+	 *  A function to retrieve statuss from a comma separated list of activated statuss
+	 */ 
+	static function get_staff_statuss( $post_ID){
+		// Initiate statuss to false for all status
+		$statuss = array(
+				'permanent' => false,
+				'administrator' => false,
+				'HDR' => false,
+				'doctorate' => false,
+				'post-doctorate' => false,
+				'internship' => false,
+				'invited' => false,
+				'CDD' => false,
+				'custom_group' => false,
+		);
+		// Set activated statuss to true
+		$activated_statuss = explode(',', get_post_meta( $post_ID, 'staff_statuss', $single=true));
+		foreach ($activated_statuss as $key =>$status) {
+			$statuss[$status]=true; 
+		}
+		return $statuss;
+	
+	}
+	
+	/*
 	 * Simply add a metabox to change statut of this staff
 	 */
 	static function lab_directory_staff_meta_box_statut( $post ) {
@@ -360,8 +382,8 @@ class Lab_Directory {
 		}
 
 
-$statuss = Lab_Directory::get_lab_directory_default_statuss();
-		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+		$statuss = Lab_Directory::get_lab_directory_default_statuss();
+		$staff_statuss =Lab_Directory::get_staff_statuss( $post->ID);
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		
 		foreach ( $statuss as $key => $status ) {
@@ -424,7 +446,7 @@ $statuss = Lab_Directory::get_lab_directory_default_statuss();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
-		$staff_statuss = get_post_meta( $post->ID, 'staff_statuss', true );
+		$staff_statuss = Lab_Directory::get_staff_statuss( $post->ID);
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		$used_groups = Lab_Directory_Settings::get_used_groups( 
 			$active_meta_fields, 
@@ -567,8 +589,9 @@ div.lab_directory_staff_meta {
 </p>
 <?php if ($ldap_synced) {?>
 <p>
-	<span class="dashicons dashicons-lock"></span>This field is synced with
-	LDAP and cannot be modified.
+	<span class="dashicons dashicons-lock"></span>
+	<?php echo __( 'These fields are synced with LDAP and cannot be modified.', 'lab-directory' ) ?>
+	
 </p>
 <?php }?>
     <?php wp_nonce_field( 'lab_directory_staff_meta_box_nonce_action', 'lab_directory_staff_meta_box_nonce' ); ?>
@@ -817,30 +840,36 @@ echo lab_directory_create_select(
 				break;
 			case 'social_network' :
 				echo $label;
-				;
-				echo '<button onclick="show_hide_social_networks(); return false;">' .
-					 __( 'Fold Unfold Social networks input', 'lab_directory' ) .
-					 '<span class="social_networks" style="display:none;"><span class="dashicons dashicons-arrow-down"></span></span>' .
-					 '<span class="social_networks"><span class="dashicons dashicons-arrow-up"></span></span></button>';
-				wp_enqueue_style( 'social-icons-css', plugins_url( '/css/social_icons.css', dirname( __FILE__ ) ) );
-				
 				$possible_social_networks = get_possible_social_networks();
 				$lab_directory_used_social_networks = get_option( 'lab_directory_used_social_networks', false );
-				
-				$used = '';
-				
-				foreach ( $lab_directory_used_social_networks as $key => $temp ) {
-					$icon = ld_network_icon( $key );
-					$url = isset( $value[$key] ) ? $value[$key] : '';
-					$used .= '<p class="social_networks">';
-					$used .= '<label  class="lab_directory_staff-label" style="width:50px;"></label>';
-					$used .= '<label  class="lab_directory_staff-label" style="width:150px;">' . $icon . ' ' .
-						 $possible_social_networks[$key] . '</label>';
-					$used .= '<input name="lab_directory_staff_used_social_networks[' . $key . ']" value="' . $url .
-						 '" type="text" size="60"></p>';
-					;
+				if (empty($lab_directory_used_social_networks)) { 
+					// This should not be the case but...
+					echo __( 'No Social networks activated yet! (ask to your admin)', 'lab_directory' );
+				} else {
+					if (count($lab_directory_used_social_networks)>2) {
+						// Add fold unfold buttoon if more than 2 entries
+						echo '<button onclick="show_hide_social_networks(); return false;">' .
+							 __( 'Fold Unfold Social networks input', 'lab_directory' ) .
+							 '<span class="social_networks" style="display:none;"><span class="dashicons dashicons-arrow-down"></span></span>' .
+							 '<span class="social_networks"><span class="dashicons dashicons-arrow-up"></span></span></button>';
+					}
+					
+					wp_enqueue_style( 'social-icons-css', plugins_url( '/css/social_icons.css', dirname( __FILE__ ) ) );
+					$used = '';
+					
+					foreach ( $lab_directory_used_social_networks as $key => $temp ) {
+						$icon = ld_network_icon( $key );
+						$url = isset( $value[$key] ) ? $value[$key] : '';
+						$used .= '<p class="social_networks">';
+						$used .= '<label  class="lab_directory_staff-label" style="width:50px;"></label>';
+						$used .= '<label  class="lab_directory_staff-label" style="width:150px;">' . $icon . ' ' .
+							 $possible_social_networks[$key] . '</label>';
+						$used .= '<input name="lab_directory_staff_used_social_networks[' . $key . ']" value="' . $url .
+							 '" type="text" size="60"></p>';
+						;
+					}
+					echo $used;
 				}
-				echo $used;
 				
 				break;
 			case 'disabled' : // Only display field value
@@ -892,7 +921,7 @@ echo lab_directory_create_select(
 			foreach ( $statuss as $key => $status ) {
 				$staff_statuss[$key] = isset( $_POST['status_' . $key] );
 			}
-			update_post_meta( $post_id, 'staff_statuss', $staff_statuss );
+			Lab_Directory::update_staff_statuss( $post_id, $staff_statuss );
 			return;
 		}
 		
@@ -902,7 +931,7 @@ echo lab_directory_create_select(
 			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 			$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-			$staff_statuss = get_post_meta( $post_id, 'staff_statuss', true );
+			$staff_statuss = Lab_Directory::get_staff_statuss( $post_id);
 			
 			$group_activations = get_option( 'lab_directory_group_activations' );
 			$used_groups = Lab_Directory_Settings::get_used_groups( 

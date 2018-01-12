@@ -131,6 +131,7 @@
 			plugins_url( '/css/social_icons.css', dirname(__FILE__) ));
 	
 	$possible_social_networks= get_possible_social_networks();
+	
 	$lab_directory_used_social_networks = get_option ('lab_directory_used_social_networks', false );
 	$use_default_social_networks = $lab_directory_used_social_networks? false :true; 
 	if ($use_default_social_networks) {
@@ -148,12 +149,12 @@
 		if (array_key_exists($key, $lab_directory_used_social_networks)) {
 			// used social network 
 			$used .= '<div style="float:left; width: 140px;" >';
-			$used .= '<input name="lab_directory_used_social_networks[]" value="' . $key .'" '. $checkhed .' type="checkbox">';
+			$used .= '<input name="lab_directory_used_social_networks[' . $key .']" value="' . $key .'" '. $checkhed .' type="checkbox">';
 			$used .= $icon. ' ' . $value . '</div>';
 		} else {
 			// used social network
 			$unused .= '<div style="float:left; width: 140px;" >';
-			$unused .= '<input name="lab_directory_used_social_networks[]" value="' . $key. '" type="checkbox">';
+			$unused .= '<input name="lab_directory_used_social_networks[' . $key .']" value="' . $key. '" type="checkbox">';
 			$unused .= $icon. ' ' . $value . '</div>';
 		}
 	}
