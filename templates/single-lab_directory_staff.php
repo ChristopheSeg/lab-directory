@@ -9,41 +9,21 @@
     padding: 0px 10px;
   }
 </style>
-<div id="lab-directory-wrapper">
 
-    [lab_directory_staff_loop]
-        <div class="single-lab_directory_staff">
-            [ld_profile_link] [ld_name_firstname] [/ld_profile_link]
-        </div>
-    [/lab_directory_staff_loop]
-
-</div>
 			<div id="content">
+
 
 				<div id="inner-content" class="wrap cf">
 					<main id="main" class="faculty-main <?php echo $published; ?>" role="main" itemscope itemprop="mainContentOfPage" itemtype="http://schema.org/Blog">
 
-						<?php if (have_posts()) : while (have_posts()) : the_post(); ?>
+						<?php if (have_posts()) :?>
 
                             <article id="post-<?php the_ID(); ?>" <?php post_class('cf'); ?> role="article" itemscope itemprop="blogPost" itemtype="http://schema.org/BlogPosting">
 
-                              <header class="article-header entry-header">
-
-                                <h1 class="entry-title single-title" itemprop="headline" rel="bookmark"><?php the_title(); ?></h1>
-
-                                <p class="entry-meta vcard">
-
-                                  <?php printf( 'Updated %1$s',
-                                     /* the time the post was published */
-                                     '<time class="entry-time" datetime="' . get_the_time('Y-m-d') . '" itemprop="datePublished">' . get_the_time(get_option('date_format')) . '</time>'
-                                  ); ?>
-
-                                </p>
-
-                              </header> <?php // end article header ?>
-
+ 
                               <div class="faculty-profile-info entry-content <?php echo $published; ?>">
-                                  <?php if (has_post_thumbnail( $post->ID ) ){
+                                  SINGLE-l_d_staff.php
+                                 <?php if (has_post_thumbnail( $post->ID ) ){
                                           $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'large' );
                                           ?>
                                               <img src="<?php echo $image[0]; ?>" alt="profile image">
@@ -61,19 +41,19 @@
                                                       <?php echo do_shortcode("[ld_name]"); ?>
                                                   </div>
                                               <?php endif; ?>
-                                              <?php if(do_shortcode("[position]")): ?>
+                                              <?php if(do_shortcode("[ld_position]")): ?>
                                                   <div class="position" title="Position">
                                                       <i class="fa fa-briefcase" aria-hidden="true"></i>
                                                       <?php echo do_shortcode("[position]"); ?>
                                                   </div>
                                               <?php endif; ?>
-                                              <?php if(do_shortcode("[email]")): ?>
+                                              <?php if(do_shortcode("[ld_email]")): ?>
                                                   <div class="email" title="E-mail address">
                                                       <i class="fa fa-envelope" aria-hidden="true"></i>
                                                       <?php echo do_shortcode("[email]"); ?>
                                                   </div>
                                               <?php endif; ?>
-                                              <?php if(do_shortcode("[phone_number]")): ?>
+                                              <?php if(do_shortcode("[ld_phone_number]")): ?>
                                                   <div class="phone" title="Phone number">
                                                       <i class="fa fa-phone" aria-hidden="true"></i>
                                                       <?php echo do_shortcode("[phone_number]"); ?>
@@ -102,7 +82,7 @@
 
                             </article> <?php // end article ?>
 
-						<?php endwhile; ?>
+					
 
 						<?php else : ?>
 

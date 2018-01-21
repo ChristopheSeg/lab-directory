@@ -238,45 +238,45 @@ class Lab_Directory_Admin {
 		}
 		
 	static function settings_taxonomies($lang, $lang_name, $locale, $locale_name) {
-				$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-			$form_messages = array('form_saved' => false);
-		
-			// Check $_POST and _wpnonce
-			if ($_POST['admin-settings-taxonomies']) {
-				if ( ($_POST['admin-settings-taxonomies']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomies' )){
-					$lang = $_POST['lab_directory_taxonomies_for'];
-					$slugs = $_POST['lab_directory_taxonomies_slugs'];
-					$post_translations = $_POST['lab_directory_taxonomies_translations'];
-										
-					$translations = array();
+		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+		$form_messages = array('form_saved' => false);
+	
+		// Check $_POST and _wpnonce
+		if ($_POST['admin-settings-taxonomies']) {
+			if ( ($_POST['admin-settings-taxonomies']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomies' )){
+				$lang = $_POST['lab_directory_taxonomies_for'];
+				$slugs = $_POST['lab_directory_taxonomies_slugs'];
+				$post_translations = $_POST['lab_directory_taxonomies_translations'];
+									
+				$translations = array();
 
-					// save translations
-					$index = -1;
-					foreach ( $slugs as $slug ) {
-						$index++;
-						if ($post_translations[$index]) {
-							$translations[$slug] = $post_translations[$index];
-						}
+				// save translations
+				$index = -1;
+				foreach ( $slugs as $slug ) {
+					$index++;
+					if ($post_translations[$index]) {
+						$translations[$slug] = $post_translations[$index];
 					}
-					
-					// Test if taxonomies have different name translation
-		
-					// save used language  (ex: lab_directory_translations_fr_FR) or acronyms
-					update_option( 'lab_directory_taxonomies_' . $lang, $translations);
-					$form_messages['form_saved']= true;	
-					
-				}else{
-					// Error
-					$form_messages['erreur'][]= __('Security check fail : form not saved.');
-					echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 				}
-			} else {
-				// Form initialisation load only acronyms or used language translations (ex: lab_directory_translations_fr-FR)
-				$translations = get_option('lab_directory_taxonomies_' . $lang);
 				
+				// Test if taxonomies have different name translation
+	
+				// save used language  (ex: lab_directory_translations_fr_FR) or acronyms
+				update_option( 'lab_directory_taxonomies_' . $lang, $translations);
+				$form_messages['form_saved']= true;	
+				
+			}else{
+				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
+				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
-		
-			require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomies.php' );
+		} else {
+			// Form initialisation load only acronyms or used language translations (ex: lab_directory_translations_fr-FR)
+			$translations = get_option('lab_directory_taxonomies_' . $lang);
+			
+		}
+	
+		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomies.php' );
 	}	
 		
 	static function settings_general() {
@@ -592,34 +592,6 @@ class Lab_Directory_Admin {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-test-sync.php' );
 	}
 	
-	/* 
-	static function settings_taxonomy() {
-	
-		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$form_messages = array('form_saved' => false); 
-	
-		// Remove LDAP tab if LDAP not used
-		if (get_option( 'lab_directory_use_ldap' ) == '0') {
-			echo 'no LDAP ';
-		}
-			
-		// Check $_POST and _wpnonce
-		if(isset($_POST['admin-settings-taxonomy'])) {
-			if ( !empty($_POST['admin-settings-taxonomy']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomy' )){
-	
-				// Process/save form fields
-	
-			}else{
-				// Error
-				$form_messages['erreur'][]= __('Security check fail : form not saved.');
-				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
-			}
-		}
-	
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomy.php' );
-	}
-	*/ 
-	
 	static function help() {
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-help.php' );
 	}
@@ -628,7 +600,7 @@ class Lab_Directory_Admin {
 		
 		$did_import_old_lab_directory_staff = false;
 		
-		// TODO TEMPORARY REMOVE THIS 
+		// TODO TEMPORARY statement  REMOVE THIS 
 		Lab_Directory::import_spip_staff();
 					
 		if ( isset( $_GET['import'] ) && $_GET['import'] == 'true' ) {

@@ -126,14 +126,21 @@ class Lab_Directory {
 		
 		// load single-page/profile template
 		add_filter( 'single_template', array( 'Lab_Directory', 'load_profile_template' ) );
+
+		// add single post content hook (title and content )
+		add_filter( 'the_content', array( 'Lab_Directory', 'ld_content_filter' ) );
+		add_filter( 'posts_results',  array( 'Lab_Directory', 'ld_posts_results_filter' ) );
 		
-		add_action( 
-			'restrict_manage_posts', 
+		add_action(	'restrict_manage_posts', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'filter_admin_lab_directory_staff_by_category' ) );
 		
 		// Custom field translation filter
 		add_filter( 'gettext', array( 'Lab_Directory', 'lab_directory_custom_translations' ), 10, 3 );
+		
+		// Rewrite rules modification for additionnal hdr/phd endpoints
+		add_action( 'init',  array( 'Lab_Directory','lab_directory_rewrite_add_rewrites' ) );
+		
 	}
 
 	static function create_post_types() {
@@ -179,11 +186,58 @@ class Lab_Directory {
 			register_taxonomy($key, 'lab_directory_staff', $taxonomie );
 		}
 	}
+	
+	static function lab_directory_rewrite_add_rewrites()
+	{
+		add_rewrite_endpoint( 'hdr', EP_PERMALINK );
+		add_rewrite_endpoint( 'phd', EP_PERMALINK );
+	}
+	
+	static function ld_posts_results_filter( $posts ) {
+			global $wp_query;
+			if ( is_singular() ) {
+				if ($posts[0]->post_content == '') {
+					// add empty span to display hooked content on a page
+					$posts[0]->post_content = '<span></span>'; 
+				}
+				if (isset($wp_query->query_vars['hdr']) ) {
+					$posts[0]->post_title= "HDR: ". $posts[0]->post_title;
+				}
+				if (isset($wp_query->query_vars['phd']) ) {
+					$posts[0]->post_title= "PHD: ". $posts[0]->post_title;
+				}
+			}
+				 
+				return $posts ;
+		}
+	
+	static function ld_content_filter($content) {
 
+	    global $wp_query, $post;
+
+	    if ( is_singular( 'lab_directory_staff' ) AND (!Lab_directory_shortcode::$hdr_loop) ){
+	    	if (isset($wp_query->query_vars['hdr'] ) ) {
+	    		Lab_directory_shortcode::$hdr_loop=true;
+	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+	    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
+	    	}  	
+	    	if (isset($wp_query->query_vars['phd'] ) ) {
+	    		Lab_directory_shortcode::$hdr_loop=true;
+	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+				$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
+	    	} 
+	    }
+
+    	return $content;
+	    
+	}
+	
 	static function load_profile_template( $original ) {
-		global $post;
 		
+		// get_page_templates
 		if ( is_singular( 'lab_directory_staff' ) ) {
+			$original = get_page_template();
+			return $original; //TODO 
 			$single_template_option = get_option( 'lab_directory_staff_single_template' );
 			if ( strtolower( $single_template_option ) != 'default' ) {
 				$template = locate_template( $single_template_option );
@@ -196,8 +250,8 @@ class Lab_Directory {
 			// doesn't visit the settings page in order to instantiate the defaults,
 			// we'll still be using a template specified for lab-directory, not the
 			// default single.php
-			$default_file_name = 'single-lab_directory_staff.php';
-			return LAB_DIRECTORY_LIST_TEMPLATES . $default_file_name;
+			$default_file_name = 'single.php';
+			return LAB_DIRECTORY_TEMPLATES . $default_file_name;
 		}
 		
 		return $original;
@@ -1404,7 +1458,7 @@ echo lab_directory_create_select(
 				'order' => 22, 
 				'type' => 'date', 
 				'slug' => 'phd_start_date', 
-				'group' => 'HDR', 
+				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
 				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
@@ -1650,8 +1704,8 @@ echo lab_directory_create_select(
 
   [lab_directory_staff_loop]
 
-    [name_header]
-    [bio_paragraph]
+    [ld-name_header]
+    [ld_bio_paragraph]
 
     <div class="lab-directory-divider"></div>
 
@@ -1771,7 +1825,7 @@ EOT;
 		
 		$old_categories_table = $wpdb->prefix . 'lab_directory_categories';
 		$old_lab_directory_table = $wpdb->prefix . 'lab_directory';
-		$old_templates_table = LAB_DIRECTORY_TEMPLATES;
+		// $old_templates_table = LAB_DIRECTORY_TEMPLATES;
 		
 		//
 		// Copy old categories over first
@@ -2584,7 +2638,7 @@ EOT;
 	}
 
 	static function lab_directory_staff_photo_meta_box( $content, $post_id, $thumbnail_id ) {
-		//var_dump($content); die();
+	
 		if ( get_post_meta( $post_id, 'ldap', true ) > 0 ) {
 			if ( $thumbnail_id ) {
 				$content = preg_match( '#(<img.*?>)#', $content, $matches ) ? $matches[0] : '';
@@ -2610,6 +2664,7 @@ EOT;
 		 * registered before the change
 		 */ 
 		
+		// TODO translations ? 
 		return array(
 			'ld_taxonomy_team' => array(
 				'hierarchical' => true,
