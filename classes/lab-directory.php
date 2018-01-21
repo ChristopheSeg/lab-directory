@@ -216,16 +216,22 @@ class Lab_Directory {
 	    global $wp_query, $post;
 
 	    if ( is_singular( 'lab_directory_staff' ) AND (!Lab_directory_shortcode::$hdr_loop) ){
+
 	    	if (isset($wp_query->query_vars['hdr'] ) ) {
 	    		Lab_directory_shortcode::$hdr_loop=true;
 	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 	    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
 	    	}  	
-	    	if (isset($wp_query->query_vars['phd'] ) ) {
+	    	elseif (isset($wp_query->query_vars['phd'] ) ) {
 	    		Lab_directory_shortcode::$hdr_loop=true;
 	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 				$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
+	    	} else {
+	    		Lab_directory_shortcode::$hdr_loop=true;
+	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+				$content .= lab_directory_shortcode::retrieve_template_html('single_staff');
 	    	} 
+	    	
 	    }
 
     	return $content;
@@ -237,7 +243,9 @@ class Lab_Directory {
 		// get_page_templates
 		if ( is_singular( 'lab_directory_staff' ) ) {
 			$original = get_page_template();
-			return $original; //TODO 
+			return $original; 
+			
+			//TODO add possibility to change template in settings BUT suppress old single
 			$single_template_option = get_option( 'lab_directory_staff_single_template' );
 			if ( strtolower( $single_template_option ) != 'default' ) {
 				$template = locate_template( $single_template_option );

@@ -294,17 +294,12 @@ class Lab_Directory_Shortcode {
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
     	 
        	if (  isset($wp_query->query_vars['hdr']) ) {
-       		echo "query_vars['hdr'] isset";
-       		$template = isset($params['template'])? $params['template'] :
-       		'single_staff_hdr';
-       		// $lab_directory_staff_settings->get_current_default_lab_directory_staff_template();
+       		$template = isset($params['template'])? $params['template'] : 'single_staff_hdr';
        	}
        	elseif (  isset($wp_query->query_vars['phd']) ) {
-       		echo "query_vars['phd'] isset";
+       		$template = isset($params['template'])? $params['template'] : 'single_staff_phd';
        	} else {
-       		$template = isset($params['template'])? $params['template'] :
-       		'single_staff'; 
-       		// $lab_directory_staff_settings->get_current_default_lab_directory_staff_template();
+       		$template = isset($params['template'])? $params['template'] : 'single_staff'; 
        	}
        	
         return self::retrieve_template_html($template); 
@@ -628,16 +623,21 @@ class Lab_Directory_Shortcode {
 	    global $wp_query;
 	    
 	    	$template_slugs = array(
-            'staff_grid' => 'staff_grid.php',
-            'staff_list' => 'staff_list.php',
-        	'staff_trombi' => 'staff_trombi.php',
-        	'defense_list' => 'defense_list.php',
-        	'single_staff' => 'single_staff.php',
-       		'single_staff_hdr' => 'single_staff_hdr.php',
-       		'single_staff_phd' => 'single_staff_phd.php',
+            'staff_grid' => 'ld_staff_grid.php',
+            'staff_list' => 'ld_staff_list.php',
+        	'staff_trombi' => 'ld_staff_trombi.php',
+        	'defense_list' => 'ld_defense_list.php',
+        	'single_staff' => 'ld_single_staff.php',
+       		'single_staff_hdr' => 'ld_single_staff_hdr.php',
+       		'single_staff_phd' => 'ld_single_staff_phd.php',
 	    	);
 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;
+        
+        //TODO check if template is override 
+echo "<br>template =  " . LAB_DIRECTORY_TEMPLATES . $cur_template; 
+$template2 = get_query_template($slug); 
+echo "<br>template =  " . $template2;
 
         if ($cur_template) {
             $template_contents = file_get_contents( LAB_DIRECTORY_TEMPLATES . $cur_template);
