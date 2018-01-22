@@ -259,7 +259,7 @@ class Lab_Directory {
 			// we'll still be using a template specified for lab-directory, not the
 			// default single.php
 			$default_file_name = 'single.php';
-			return LAB_DIRECTORY_TEMPLATES . $default_file_name;
+			return LAB_DIRECTORY_TEMPLATES . '/' . $default_file_name;
 		}
 		
 		return $original;

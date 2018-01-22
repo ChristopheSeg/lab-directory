@@ -632,15 +632,14 @@ class Lab_Directory_Shortcode {
        		'single_staff_phd' => 'ld_single_staff_phd.php',
 	    	);
 
+        // Check if template slug exists 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;
         
-        //TODO check if template is override 
-echo "<br>template =  " . LAB_DIRECTORY_TEMPLATES . $cur_template; 
-$template2 = get_query_template($slug); 
-echo "<br>template =  " . $template2;
+        // Check if template is overrided 
+		$cur_template = self::ld_locate_template($cur_template); 
 
         if ($cur_template) {
-            $template_contents = file_get_contents( LAB_DIRECTORY_TEMPLATES . $cur_template);
+            $template_contents = file_get_contents( $cur_template);
             return do_shortcode($template_contents);
         } else {
             $lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -662,4 +661,38 @@ echo "<br>template =  " . $template2;
             return $output;
         }
     }
+
+    /**
+     * Function forked from Wordpress core 
+     * Retrieve the name of the highest priority template file ($template_names) that exists in: 
+     *  0- first look for template saved in settings
+     *  1- wp-content/themes/lab-directory/ (highest priority )
+     *  2- wp-content/themes/yourtheme/ (create a child theme before)
+     *  3- wp-content/plugins/lab-directory/templates/ (default location)
+     *
+     *
+     * @param string$template_names Template file(s) to search for, in order.
+     * @return string The template filename if one is located.
+     */
+    static function ld_locate_template($template_name, $load = false, $require_once = true ) {
+    	
+    	// TODO First check if a template has been set in settings
+    	if ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_name ) )
+    	{
+    		return WP_CONTENT_DIR . '/themes/lab-directory/' . $template_name;
+    	} 
+    	elseif ( file_exists(get_template_directory() . '/' . $template_name) ) 
+    	{
+    		return get_template_directory() . '/' . $template_name;
+    	} 
+    	elseif ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $template_name)) 
+    	{
+    		return LAB_DIRECTORY_TEMPLATES . '/' . $template_name;
+    	}   		
+    	return '';
+    }
+    
+    
 }
+
+

@@ -93,6 +93,7 @@ class Lab_Directory_Admin {
 				'groups'   => __( 'Groups of fields', 'lab-directory' ),
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
+				'templates'   => __( 'Templates'),
 				'third'  => 'TODO list',
 		);
 		$html = '<h2>Lab Directory Settings</h2>';
@@ -122,7 +123,10 @@ class Lab_Directory_Admin {
 		elseif ( $current_tab == 'test_sync' ) {
 			Lab_Directory_Admin::settings_test_sync();
 		}
-
+		elseif ( $current_tab == 'templates' ) {
+			Lab_Directory_Admin::settings_templates();
+		}
+		
 		else {
 			// Temporary TODO list
 			?>
@@ -335,6 +339,38 @@ class Lab_Directory_Admin {
 		$custom_templates = $lab_directory_staff_settings->get_custom_lab_directory_staff_templates();
 
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-general.php' );
+	}
+	
+	static function settings_templates() {
+	
+		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
+		$form_messages = array('form_saved' => false);
+	
+		// Check $_POST and _wpnonce
+		if(isset($_POST['admin-settings-templates'])) {
+			if ( !empty($_POST['admin-settings-templates']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-general' )){
+	
+				if ( isset( $_POST['lab_directory_staff_templates']['slug'] ) ) {
+					$lab_directory_staff_settings->update_default_lab_directory_staff_template_slug( $_POST['lab_directory_staff_templates']['slug'] );
+					$form_messages['form_saved'] = true;
+				}
+	
+				if ( isset( $_POST['custom_lab_directory_staff_templates'] ) ) {
+					$lab_directory_staff_settings->update_custom_lab_directory_staff_templates( $_POST['custom_lab_directory_staff_templates'] );
+					$form_messages['form_saved'] = true;
+				}
+		
+			}else{
+				// Error
+				$form_messages['erreur'][]= __('Security check fail : form not saved.');
+				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
+			}
+		}
+	
+		$current_template = $lab_directory_staff_settings->get_current_default_lab_directory_staff_template();
+		$custom_templates = $lab_directory_staff_settings->get_custom_lab_directory_staff_templates();
+	
+		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-templates.php' );
 	}
 	
 	
