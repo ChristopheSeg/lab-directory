@@ -12,7 +12,7 @@ Lab-directory is a directory plugins that can :
 - populate and sync some staff profile from an LDAP directory (optionnal, only one way syncing from LDAP to Lab-Directory)
 
 Lab-directory is primarily designed for Laboratory and University team. It is highly configurable so it that can be used to browse most directory list :
-- special group of fields are used for rendering HDR an PHD informations (jury, date, subject...)
+- special group of fields are used for rendering HDR, PHD, post-doc and internship informations (jury, date, subject...)
 - unwanted group of fields can be disabled
 - custom fields are available for customization  
 
@@ -30,7 +30,7 @@ Lab-Directory is ready to be translated in your language. Default language are F
 
 
 ### Sample Lab-Directory loop code
-<code>
+```
 <style type="text/css">
   .clearfix {
     clear: both;
@@ -77,5 +77,5 @@ Lab-Directory is ready to be translated in your language. Default language are F
         </div>
     [/lab_directory_single_staff_loop]
 </div>
-</code> 
+```
 
