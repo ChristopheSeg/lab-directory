@@ -3,21 +3,145 @@
 class Lab_Directory_Admin {
 	static function register_admin_menu_items() {
 		add_action( 'admin_menu', array( 'Lab_Directory_Admin', 'add_admin_menu_items' ) );
+		
 	}
 
 	static function add_admin_menu_items() {
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
+		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Taxonomies', 'Taxonomies', 'publish_posts',
+		add_action('load-' . $ld_admin_page,  array( 'Lab_Directory_Admin', 'ld_admin_help_tab_settings'));
+
+		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Taxonomies', 'Taxonomies', 'publish_posts',
 			'lab-directory-taxonomies', array( 'Lab_Directory_Admin', 'taxonomies' ) );
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Translations', 'Translations', 'publish_posts',
+		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_taxonomies'));
+		
+		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Translations', 'Translations', 'publish_posts',
 			'lab-directory-translations', array( 'Lab_Directory_Admin', 'translations' ) );
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
+		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin',  'ld_admin_help_tab_translations'));
+		
+		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
 			'lab-directory-help', array( 'Lab_Directory_Admin', 'help' ) );
-		add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
+		
+		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
+		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
+				
+		
 	}
 
+	static function ld_admin_help_tab_settings() {
+		$screen = get_current_screen();
+		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
+		
+		$tabs = array(
+			'general'   => __( 'General', 'lab-directory' ),
+			'capabilities' => __('Permissions', 'lab-directory' ),
+			'ldap'   => __( 'LDAP server', 'lab-directory' ),
+			'groups'   => __( 'Groups of fields', 'lab-directory' ),
+			'fields'  => __( 'Meta fields', 'lab-directory' ),
+			'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
+			'templates'   => __( 'Templates'),
+			);
+		$screen = get_current_screen();
+		
+		// When using several tab, use unique IDs ! 
+		switch ($current_tab) {
+			case 'general':
+				$content =''; 
+				$screen->add_help_tab( array(
+						'id'	=> $current_tab,
+						'title'	=> $tabs[$current_tab],
+						'content' => $content));
+				break;
+			case 'capabilities':
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab].'_1',
+					'content' => $content));
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> _('Help2'),
+					'title'	=> $tabs[$current_tab].'_2',
+					'content' => $content));
+				break;
+			case 'ldap':
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab],
+					'content' => $content));
+				break;
+			case 'groups':
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab],
+					'content' => $content));				
+				break;
+			case 'fields':
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab],
+					'content' => $content));
+				break;
+			case 'test_sync':
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab],
+					'content' => ''));
+				break;
+			case 'templates':
+				$content =''; 
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> $tabs[$current_tab],
+					'content' => $content));
+				break;
+		}
+		
+	}
+	
+	static function ld_admin_help_tab_taxonomies() {
+		$screen = get_current_screen();
+		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> __('Taxonomies'),
+			'title'	=> __('Taxonomies translation'),
+			'content' => $content,
+		) );
+	}	
+	
+	static function ld_admin_help_tab_translations() {
+		$screen = get_current_screen();
+		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		
+		$screen->add_help_tab( array(
+			'id'	=> 'acronyms',
+			'title'	=> __('Acronyms'),
+			'content' => $content,
+			) );
+		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> 'translations',
+			'title'	=> __('Translation'),
+			'content' => $content,
+			) );
+	}	
+	
+	static function ld_admin_help_tab_import() {
+		$screen = get_current_screen();
+		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		
+		$screen->add_help_tab( array(
+			'id'	=> 'import',
+			'title'	=> __('Import'),
+			'content' => $content,
+			) );
+	}
+	
+	
 	static function translations() {	
 		
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
@@ -131,12 +255,16 @@ class Lab_Directory_Admin {
 			// Temporary TODO list
 			?>
 				<p> 
-				<br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
-			      <br>TOBEDONE revoir aide sur les pages au style Wordpress ?
+				  <br>TOBEDONE 
+				  <br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
+			      <br>TOBEDONE insérer aide sur les pages admin
 			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
 			      <br>TOBEDONE 
-			      <br>TOBEDONE 
+			      <br>TOBEDONE CSS: ajouter div dans loop_shortcode, les supprimer des loop.php
+			      <br>TOBEDONE CSS: ajouter des css par défault (list, grid, ...) et les supprimer des loop.php
+			      
+			      <br>TOBEDONE CSS: ajourer sur chaque field une classe spécifique + class ld pour CSS
 			      <br>TOBEDONE 
 			      <br>TOBEDONE voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
 			      <br>TOBEDONE ajouter slug calculés firstname_name....
@@ -146,19 +274,15 @@ class Lab_Directory_Admin {
 			      <br>TOBEDONE permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
 			      <br>TOBEDONE ajouter les droits accès edit ou admin sur lab-directory posts
 			      <br>TOBEDONE 
-			      <br>TOBEDONE Taxonomies ou statuts
 			      <br>TOBEDONE   
 			      <br>TOBEDONE ajouter cando (who,action) groupes lab-directory [administrator,staff ]
-			      <br>TOBEDONE séparer admin et frontend
-			      <br>TOBEDONE voir si on maintient les ,[shortcode], ou si on peut automatiser l'ordre dans les templates: comment faire une mise en forme ajustable mais respecter l'ordre défini en admin? <br/>
-			      <br>TOBEDONE ?? définir une [fields_loop], et une liste de champs limitéé pour list, grid, ...??
+			      <br>TOBEDONE code php: séparer admin et frontend
 			    </p>
 	<p> 
 	<ul>
 	
-	<li>champ à redéfinir autrement</li>
+	<li>champ à redéfinir autrement(Widgets ??)</li>
 	<li>
-	<li>'idequipe'           => 'bigint(21) NOT NULL DEFAULT "0"',
 	<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
 	<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
 	<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
@@ -296,30 +420,7 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy1', isset( $_POST['lab_directory_use_taxonomy1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
-				
-				if ( isset( $_GET['delete-template'] ) ) {
-					$lab_directory_staff_settings->delete_custom_template( $_GET['delete-template'] );
-				}
-				if ( isset( $_POST['lab_directory_staff_single_template'] ) ) {
-		            update_option( 'lab_directory_staff_single_template', $_POST['lab_directory_staff_single_template'] );
-					$form_messages['form_saved'] = true;
-				} else {
-		            if ( get_option( 'lab_directory_staff_single_template' ) == '' ) {
-		    			update_option( 'lab_directory_staff_single_template', 'default' );
-		                $form_messages['form_saved'] = true;
-		    		}
-		        }
-		
-				if ( isset( $_POST['lab_directory_staff_templates']['slug'] ) ) {
-					$lab_directory_staff_settings->update_default_lab_directory_staff_template_slug( $_POST['lab_directory_staff_templates']['slug'] );
-					$form_messages['form_saved'] = true;
-				}
-		
-				if ( isset( $_POST['custom_lab_directory_staff_templates'] ) ) {
-					$lab_directory_staff_settings->update_custom_lab_directory_staff_templates( $_POST['custom_lab_directory_staff_templates'] );
-					$form_messages['form_saved'] = true;
-				}
-				
+										
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
 					foreach($_POST['lab_directory_used_social_networks'] as $key =>$value) {
@@ -335,9 +436,6 @@ class Lab_Directory_Admin {
 			}
 		}
 
-		$current_template = $lab_directory_staff_settings->get_current_default_lab_directory_staff_template();
-		$custom_templates = $lab_directory_staff_settings->get_custom_lab_directory_staff_templates();
-
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-general.php' );
 	}
 	
@@ -348,16 +446,19 @@ class Lab_Directory_Admin {
 	
 		// Check $_POST and _wpnonce
 		if(isset($_POST['admin-settings-templates'])) {
-			if ( !empty($_POST['admin-settings-templates']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-general' )){
-	
-				if ( isset( $_POST['lab_directory_staff_templates']['slug'] ) ) {
-					$lab_directory_staff_settings->update_default_lab_directory_staff_template_slug( $_POST['lab_directory_staff_templates']['slug'] );
-					$form_messages['form_saved'] = true;
-				}
+			if ( !empty($_POST['admin-settings-templates']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-templates' )){
 	
 				if ( isset( $_POST['custom_lab_directory_staff_templates'] ) ) {
-					$lab_directory_staff_settings->update_custom_lab_directory_staff_templates( $_POST['custom_lab_directory_staff_templates'] );
-					$form_messages['form_saved'] = true;
+					foreach ($_POST['custom_lab_directory_staff_templates'] as $template_slug => $template_content) {
+						$template_content = trim ($template_content);
+						if ($template_content) {
+							update_option( 'ld_template_'.$template_slug, $template_content);
+						}
+						else {
+							delete_option( 'ld_template_'.$template_slug);
+						}
+						
+					}
 				}
 		
 			}else{
@@ -366,9 +467,6 @@ class Lab_Directory_Admin {
 				echo '<div class="error notice"><p>Security check fail : form not saved !!</p></div>';
 			}
 		}
-	
-		$current_template = $lab_directory_staff_settings->get_current_default_lab_directory_staff_template();
-		$custom_templates = $lab_directory_staff_settings->get_custom_lab_directory_staff_templates();
 	
 		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-templates.php' );
 	}

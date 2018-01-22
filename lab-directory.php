@@ -28,8 +28,6 @@ add_action( 'init', 'lab_directory_load_textdomain' );
 
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-settings.php' );
 
-Lab_Directory_Settings::setup_defaults();
-
 require_once ( dirname( __FILE__ ) . '/includes/admin_form.php' );
 
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory.php' );
@@ -45,8 +43,6 @@ Lab_Directory_Shortcode::register_shortcode();
 if ( Lab_Directory::show_import_message() ) {
 	Lab_Directory_Admin::register_import_old_lab_directory_staff_message();
 }
-
-register_activation_hook( __FILE__, array( 'Lab_Directory', 'set_default_templates_if_necessary' ) );
 
 function modify_the_link( $post_url, $post ) {
 	return '/wp-content/plugins/lab-directory/view.php?id=' . $post->ID;

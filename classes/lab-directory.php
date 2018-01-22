@@ -117,6 +117,8 @@ class Lab_Directory {
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
 		
 		add_action( 'init', array( 'Lab_Directory', 'init_tinymce_button' ) );
+		
+		//  TODO what is this for ? Usefull? 
 		add_action( 'wp_ajax_get_my_form', array( 'Lab_Directory', 'thickbox_ajax_form' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'manage_listing_query' ) );
 		add_filter( 'post_row_actions', array( 'Lab_Directory', 'modify_quick_edit' ), 10, 1 );
@@ -140,6 +142,7 @@ class Lab_Directory {
 		
 		// Rewrite rules modification for additionnal hdr/phd endpoints
 		add_action( 'init',  array( 'Lab_Directory','lab_directory_rewrite_add_rewrites' ) );
+		
 		
 	}
 
@@ -195,7 +198,8 @@ class Lab_Directory {
 	
 	static function ld_posts_results_filter( $posts ) {
 			global $wp_query;
-			if ( is_singular() ) {
+		
+			if ( is_singular() and $posts[0]) {
 				if ($posts[0]->post_content == '') {
 					// add empty span to display hooked content on a page
 					$posts[0]->post_content = '<span></span>'; 
@@ -245,8 +249,8 @@ class Lab_Directory {
 			$original = get_page_template();
 			return $original; 
 			
-			//TODO add possibility to change template in settings BUT suppress old single
-			$single_template_option = get_option( 'lab_directory_staff_single_template' );
+			//TODOTODO  add possibility to change template in settings BUT suppress old single
+			// $single_template_option = get_option( 'lab_directory_staff_single_template' );
 			if ( strtolower( $single_template_option ) != 'default' ) {
 				$template = locate_template( $single_template_option );
 				if ( $template && ! empty( $template ) ) {
@@ -1696,47 +1700,6 @@ echo lab_directory_create_select(
 	}
 	
 	//
-	// Default templates
-	//
-	static function set_default_templates_if_necessary() {
-		if ( get_option( 'lab_directory_template_slug' ) == '' ) {
-			update_option( 'lab_directory_template_slug', 'list' );
-		}
-		
-		$has_custom_templates = count( 
-			Lab_Directory_Settings::shared_instance()->get_custom_lab_directory_staff_templates() ) > 0;
-		
-		if ( get_option( 'lab_directory_html_template' ) == '' && ! $has_custom_templates ) {
-			$default_html_template = <<<EOT
-<div class="lab-directory">
-
-  [lab_directory_staff_loop]
-
-    [ld-name_header]
-    [ld_bio_paragraph]
-
-    <div class="lab-directory-divider"></div>
-
-  [/lab_directory_staff_loop]
-
-</div>
-EOT;
-			update_option( 'lab_directory_html_template', $default_html_template );
-		}
-		
-		if ( get_option( 'lab_directory_css_template' ) == '' && ! $has_custom_templates ) {
-			$default_css_template = <<<EOT
-.lab-directory-divider{
-  border-top: solid black thin;
-  width: 90%;
-  margin:15px 0;
-}
-EOT;
-			update_option( 'lab_directory_css_template', $default_css_template );
-		}
-	}
-	
-	//
 	// TODO TEMPORARY, REMOVE THIS FUNCTION
 	// Try to import from spip 
 	//
@@ -1917,7 +1880,7 @@ EOT;
         template_name='lab_directory_staff_index_html'
     ";
 		$old_html_template_results = $wpdb->get_results( $old_html_template_sql );
-		update_option( 'lab_directory_html_template', $old_html_template_results[0]->template_code );
+		//  update_option( 'lab_directory_html_template', $old_html_template_results[0]->template_code );
 		
 		$old_css_template_sql = "
       SELECT
@@ -1930,7 +1893,7 @@ EOT;
         template_name='lab_directory_staff_index_css'
     ";
 		$old_css_template_results = $wpdb->get_results( $old_css_template_sql );
-		update_option( 'lab_directory_css_template', $old_css_template_results[0]->template_code );
+		// update_option( 'lab_directory_css_template', $old_css_template_results[0]->template_code );
 		
 		//
 		// Now delete the old tables

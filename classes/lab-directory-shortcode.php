@@ -618,19 +618,35 @@ class Lab_Directory_Shortcode {
 
     }
 
+    static function retrieve_template_list() {
+       	return array(
+		    	'staff_grid' => 'ld_staff_grid.php',
+		    	'staff_list' => 'ld_staff_list.php',
+		    	'staff_trombi' => 'ld_staff_trombi.php',
+		    	'defense_list' => 'ld_defense_list.php',
+		    	'single_staff' => 'ld_single_staff.php',
+		    	'single_staff_hdr' => 'ld_single_staff_hdr.php',
+		    	'single_staff_phd' => 'ld_single_staff_phd.php',
+	    );
+	    }
+	    
+    static function retrieve_template_info() {
+		return array(  	
+		    	'staff_grid' => __('This template is used to display staff directory as a grid', 'lab_directory'),
+		    	'staff_list' => __('This template is used to display staff directory as a list', 'lab_directory'),
+		    	'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab_directory'),
+		    	'defense_list' => __('This template is used to display a defenses list', 'lab_directory'),
+		    	'single_staff' => __('This template is used to display a single staff profile', 'lab_directory'),
+		    	'single_staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab_directory'),
+		    	'single_staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab_directory'),
+    );
+    }
+    
     static function retrieve_template_html($slug) {
         // $slug => 'File Name'
 	    global $wp_query;
 	    
-	    	$template_slugs = array(
-            'staff_grid' => 'ld_staff_grid.php',
-            'staff_list' => 'ld_staff_list.php',
-        	'staff_trombi' => 'ld_staff_trombi.php',
-        	'defense_list' => 'ld_defense_list.php',
-        	'single_staff' => 'ld_single_staff.php',
-       		'single_staff_hdr' => 'ld_single_staff_hdr.php',
-       		'single_staff_phd' => 'ld_single_staff_phd.php',
-	    	);
+	    $template_slugs = self::retrieve_template_list();
 
         // Check if template slug exists 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;

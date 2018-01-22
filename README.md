@@ -25,7 +25,8 @@ Lab-Directory can use up to 2 taxonomies to organise your staff directory. Defau
 
 ### Lab-Directory I18n (Internationalisation)
 Lab-Directory is ready to be translated in your language. Default language are French and English 
-### Lab-Directory Widgets
+
+### Lab-Directory Widgets (to come)
 - Defense List (HDR and PHD)
 
 
@@ -67,7 +68,7 @@ Lab-Directory is ready to be translated in your language. Default language are F
         <div class="single-lab_directory_staff">
                 <div class="ld_photo">[ld_photo]</div>
             	<div class="ld_name" >[ld_name]</div> 
-				<div class="ld_name" >[ld_position]</div>
+            	<div class="ld_name" >[ld_position]</div>
                 <div class="ld_name" >[ld_mails]</div>
                 <div class="ld_name" >[ld_phone_number]</div>
                 <div class="ld_name" >[ld_webpage]</div>
