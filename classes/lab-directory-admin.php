@@ -25,8 +25,11 @@ class Lab_Directory_Admin {
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
 		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
-				
 		
+		// ()
+		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
+		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
+
 	}
 
 	static function ld_admin_help_tab_settings() {
@@ -47,53 +50,61 @@ class Lab_Directory_Admin {
 		// When using several tab, use unique IDs ! 
 		switch ($current_tab) {
 			case 'general':
-				$content =''; 
+				$content = '<p>' . __('This settings should be accessible only to authorized webmasters. It is used to activate/unactivate LDAP syncing, set taxonomies and social networks in use. ','lab-directory') . '</p>';
 				$screen->add_help_tab( array(
 						'id'	=> $current_tab,
 						'title'	=> $tabs[$current_tab],
 						'content' => $content));
 				break;
 			case 'capabilities':
-				$content =''; 
-				$screen->add_help_tab( array(
+				 $content  = '<p>' . __('Permission in lab-directory are given by checking first the wordpress group of a user (editor, author, ... subscriber)  and secondly the possibility for a user to pertain a lab-directory group of staff (permanent staff, doctorate...). At least one of these permission should be given to grant permission to the a user.','lab-directory') . '</p>'; 
+				 $content .= '<h4>' . __('Permissions tests','lab-directory') . '</h4>';
+				 $content .= '<p>' . __('Please note that when a user is selected, permissions are simulated with the user supposed to be connected. All granted permission are marked with a checked square in the first column. For one action ( for example Validate new staff entry), 2 permissions are calculated; and the permission would be granted if at least one is checked.','lab-directory') . '</p>'; 
+				 $content .= '<h4>' . __('Permissions settings based on Wordpress groups','lab-directory') . '</h4>';
+				 $content .= '<p>' . __('These permission depend on Worpdress groups. They are granted by webmaster having access to Wordpress group management.','lab-directory') . '</p>'; 
+				 $content .= '<p>' . __('(1). For a specific capability (for example "Give PHd status") If a user is granted several permissions (can cannot cannot..) the less restrictive applies (can in this case). You can create a specific user roles in WordPress to manage permissions. This require installing a users/roles manager plugin. Note that Administrators have all permissions.','lab-directory') . '</p>';
+				 $content .= '<h4>' . __('Permissions settings based on  Lab Directory groups', 'lab-directory')  . '</h4>';
+				 $content .= '<p>' . __('These permissions will only be effective if (first) the user is registered and (secondly) lab-directory is able to link wordpress profile and lad-directory profile.','lab-directory') . '</p>'; 
+				 $content .= '<p>' . __('(2). This (owner) permission should apply to owner (current logged user) if and only if the current logged user wordpress profile can be linked to the lab-directory profile 4.','lab-directory') . '</p>';
+				 $content .= '<p>' . __('Scope limited permission should not be more restrictive than the same permission defined with a larger scope (all).','lab-directory') . '</p>';
+				 $content .= '<p>' . __('(3). Permissions settings based on Lab Directory groups only apply if the current logged user wordpress profile can be linked to the lab-directory profile 4','lab-directory') . '</p>';
+				 $content .= '<p>' . __('(4). This link is based on login or email comparison between Worpdress user profile and staff profile.','lab-directory') . '</p>';
+				 $screen->add_help_tab( array(
 					'id'	=> $current_tab,
-					'title'	=> $tabs[$current_tab].'_1',
-					'content' => $content));
-				$content =''; 
-				$screen->add_help_tab( array(
-					'id'	=> _('Help2'),
-					'title'	=> $tabs[$current_tab].'_2',
+					'title'	=> $tabs[$current_tab],
 					'content' => $content));
 				break;
 			case 'ldap':
-				$content =''; 
+				$content = '<p>' . __('TODO help needed','lab-directory') . '</p>'; 
 				$screen->add_help_tab( array(
 					'id'	=> $current_tab,
 					'title'	=> $tabs[$current_tab],
 					'content' => $content));
 				break;
 			case 'groups':
-				$content =''; 
+				$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 				$screen->add_help_tab( array(
 					'id'	=> $current_tab,
 					'title'	=> $tabs[$current_tab],
 					'content' => $content));				
 				break;
 			case 'fields':
-				$content =''; 
+				$content = '<p>' . __('This page allows you to set details fields and to create custom details fields for each Staff member. In case a group of fields is disabled, settings of corresponding fields can be changed but this fielfd will never be displayed in the directory.','lab-directory') . '</p>';
+				$content .= '<p>' . __('In order to display one meta field in the staff directory pages: the meta field must be enabled, and the corresponding group must also be activated.','lab-directory') . '</p>';
+				$screen->add_help_tab( array(
+					'id'	=> $current_tab,
+					'title'	=> __('Custom Fields','lab-directory'),
+					'content' => $content));
+				break;
+			case 'test_sync':
+				$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 				$screen->add_help_tab( array(
 					'id'	=> $current_tab,
 					'title'	=> $tabs[$current_tab],
 					'content' => $content));
 				break;
-			case 'test_sync':
-				$screen->add_help_tab( array(
-					'id'	=> $current_tab,
-					'title'	=> $tabs[$current_tab],
-					'content' => ''));
-				break;
 			case 'templates':
-				$content =''; 
+				$content = '<p>' . __('TODO help needed','lab-directory') . '</p>'; 
 				$screen->add_help_tab( array(
 					'id'	=> $current_tab,
 					'title'	=> $tabs[$current_tab],
@@ -105,7 +116,7 @@ class Lab_Directory_Admin {
 	
 	static function ld_admin_help_tab_taxonomies() {
 		$screen = get_current_screen();
-		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> __('Taxonomies'),
 			'title'	=> __('Taxonomies translation'),
@@ -115,14 +126,14 @@ class Lab_Directory_Admin {
 	
 	static function ld_admin_help_tab_translations() {
 		$screen = get_current_screen();
-		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		
 		$screen->add_help_tab( array(
 			'id'	=> 'acronyms',
 			'title'	=> __('Acronyms'),
 			'content' => $content,
 			) );
-		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> 'translations',
 			'title'	=> __('Translation'),
@@ -132,7 +143,7 @@ class Lab_Directory_Admin {
 	
 	static function ld_admin_help_tab_import() {
 		$screen = get_current_screen();
-		$content = '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>';
+		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		
 		$screen->add_help_tab( array(
 			'id'	=> 'import',
@@ -140,6 +151,51 @@ class Lab_Directory_Admin {
 			'content' => $content,
 			) );
 	}
+	
+	static function ld_admin_help_add_new_staff() {
+		$screen = get_current_screen();
+		$content = '<p>' . __('This page is used to add a new staff in the staff directory. When LDAP syncing is used, do not add a staff that can be synced with your LDAP directory. ','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> 'add_new_staff',
+			'title'	=> __( 'New staff', 'lab-directory' ),
+			'content' => $content,
+		) );
+		$content = '<p>' . __('Staff meta fields are grouped by group of meta fields (CV, Biography...). These groups are restricted to those groups defined in the staff status. For a new staff, first save name and fisrtsname, then adjust staff  statuts, then you will have access to the entire staff profile settings. ','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> 'staff_details',
+			'title'	=> __('Staff Details', 'lab-directory' ),
+			'content' => $content,
+		) );
+		$content = '<p>' . __('Staff status define which group of mea filelds will be shown. Note that a staff access to certains pages is restricted/allowed on status base. Do not give some staff improper status which could lead to giving unwanted permissions to him. ','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> __('staff_status'),
+			'title'	=> __('Staff status', 'lab-directory' ),
+			'content' => $content,
+		) );
+		$content = '<p>' . __('When LDAP syncing is used and LDAP staff photo is synced, staff photo is disabled and replaced whith the LDAP Staff photo. In that case, you should add staff photo in the LDAP directory, it will appear in lab-directory at the next LDAP sync. ','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> 'staff_photo',
+			'title'	=> __( 'Staff photo', 'lab-directory' ),
+			'content' => $content,
+		) );
+		$content = '<p>' . __('If your webmaster allows using taxonomies, you can categorise staff depending on their team laboatory... Taxonomies will be used to filter staff list, by team for example. ','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> __('taxonomies'),
+			'title'	=> __('taxonomies'),
+			'content' => $content,
+		) );
+	}
+
+	static function ld_admin_help_edit_taxonomies() {
+		$screen = get_current_screen();
+		$content = '<p>' . __('Taxonomies are enabled on this staff directory. In order to categorise staff (by team for example), just add the correspoding teams one by one. You can also define nested categories (team and sub-team). Please note that the default taxonomies (Team and laboratory) can be overrided if you need using different taxonomies (see taxonomies menu in lab-directory admin menu).','lab-directory') . '</p>';
+		$screen->add_help_tab( array(
+			'id'	=> __('Taxonomies'),
+			'title'	=> __('Edit Taxonomies'),
+			'content' => $content,
+		) );
+	}
+	
 	
 	
 	static function translations() {	
@@ -218,9 +274,9 @@ class Lab_Directory_Admin {
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
 				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
 				'templates'   => __( 'Templates'),
-				'third'  => 'TODO list',
+				'third'  => __('About'),
 		);
-		$html = '<h2>Lab Directory Settings</h2>';
+		
 		$html .= '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current_tab ) ? 'nav-tab-active' : '';
@@ -254,8 +310,43 @@ class Lab_Directory_Admin {
 		else {
 			// Temporary TODO list
 			?>
+			<style>
+			ol, ul {padding-left: 20px; list-style:disc;}
+			</style>
+			
+			<h2>About Lab-Directory</h2>
+			<p>Lab-Directory is an Open Source plugin.</p>
+			<ul>
+				<li>Contributors: Christophe Seguinot, </li>
+				<li><a href="https://github.com/ChristopheSeg/lab-directory">Lab-Directory on Github</a></li>
+				<li>Tags: laboratory  directory, lab_directory_staff, employees, team members, faculty</li>
+				<li>Requires at least: 4.8.2</li>
+				<li>Tested up to: 4.9.12</li>
+				<li>Stable Tag: tags/0.9</li>
+				<li>License: GPLv2 or later</li>
+				<li>License URI: http://www.gnu.org/licenses/gpl-2.0.html</li>
+				<li></li>
+				<li>This plugin is build from a fork of <a href="https://github.com/adamtootle/staff-directory">staff-directory from adamtootle</a></li>
+				
+			</ul></p>
+			<h2>Changelog</h2>
+			<h4>Version 0.9</h4>
+			<ul>
+			<li>- </li>
+			<li>- </li>
+			<li>- </li>
+			<li>- </li>
+			</ul>
+			<h4>Beta (current)</h4>
+			<ul>
+			<li>- </li>
+			<li>- </li>
+			<li>- </li>
+			<li>- </li>
+			</ul>
+			
 				<p> 
-				  <br>TOBEDONE 
+				  <br>TOBEDONE menu admin staf list en double!!
 				  <br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
 			      <br>TOBEDONE insérer aide sur les pages admin
 			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?

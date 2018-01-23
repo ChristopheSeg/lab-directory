@@ -275,7 +275,7 @@ class Lab_Directory {
 			'title' => __( 'Title' ), 
 			'id' => __( 'ID' ), 
 			'ldap' => __( 'LDAP' ),
-			'featured_image' => __( 'Staff photo' ), 
+			'featured_image' =>__( 'Staff photo', 'lab-directory' ),
 			'date' => __( 'Date' ) );
 		
 		return $new_columns;
@@ -381,14 +381,14 @@ class Lab_Directory {
 	static function add_lab_directory_staff_custom_meta_boxes() {
 		add_meta_box( 
 			'lab_directory_staff-meta-box', 
-			__( 'Staff Details' ), 
+			__( 'Staff Details', 'lab-directory' ), 
 			array( 'Lab_Directory', 'lab_directory_staff_meta_box_output' ), 
 			'lab_directory_staff', 
 			'normal', 
 			'high' );
 		add_meta_box( 
 			'lab_directory_staff-meta-box_statut', 
-			__( 'Staff status' ), 
+			__( 'Staff status', 'lab-directory' ), 
 			array( 'Lab_Directory', 'lab_directory_staff_meta_box_statut' ), 
 			'lab_directory_staff', 
 			'side', 
@@ -572,8 +572,11 @@ span.value {
 .dashicons {
 	font-size: 16px;
 }
-
-input.large-text {
+textarea {
+	resize: both;
+	width: 80%;
+}
+textarea.large-text,  input.large-text {
 	width: 80%;
 }
 
@@ -587,10 +590,7 @@ a.normal {
 	color: #0073aa;
 }
 
-textarea {
-	resize: both;
-	width: 100%;
-}
+
 
 div.lab_directory_staff_meta {
 	padding-left: 5px;

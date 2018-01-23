@@ -44,7 +44,7 @@
 
 
 <form method="post">
-
+<h2><?php _e('Lab Directory : General settings','lab-directory'); ?></h2>
     <h2>LDAP syncing</h2>
 
 	<input name="lab_directory_use_ldap" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ldap' ) ); ?> /> Check this to use LDAP and LDAP sync

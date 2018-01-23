@@ -63,14 +63,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
        
 ?>
 <form method="post">
-    <h2>Custom Details Fields</h2>
-
-    <p>
-    This page allows you to set details fields and to create custom details fields for each Staff member. In case a group of fields is disabled, settings of corresponding fields can be changed but this fielfd will never be displayed in the directory. 
-    </p>
-    <p>  
-    In order to display one meta field in the staff directory pages: the meta field must be enabled, and the corresponding group must also be activated. 
-    </p>
+    <h2><?php echo __('Lab Directory Settings','lab-directory'). ' : '; _e('Custom Fields','lab-directory'); ?></h2>
 	<p>
     	<button type="submit" name="admin-settings-fields" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
     	
