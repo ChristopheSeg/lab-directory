@@ -29,7 +29,8 @@ class Lab_Directory_Admin {
 		// ()
 		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
 		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
-
+		add_action('load-post.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_staff'));
+		
 	}
 
 	static function ld_admin_help_tab_settings() {
@@ -152,14 +153,35 @@ class Lab_Directory_Admin {
 			) );
 	}
 	
-	static function ld_admin_help_add_new_staff() {
+	
+	static function ld_admin_help_edit_staff() {
+		self::ld_admin_help_add_new_staff('edit');
+	}
+	
+		/*
+		 * Edit != false used to generate edit staff help (use same translation)
+		 */
+		static function ld_admin_help_add_new_staff($edit=false) {
 		$screen = get_current_screen();
-		$content = '<p>' . __('This page is used to add a new staff in the staff directory. When LDAP syncing is used, do not add a staff that can be synced with your LDAP directory. ','lab-directory') . '</p>';
-		$screen->add_help_tab( array(
-			'id'	=> 'add_new_staff',
-			'title'	=> __( 'New staff', 'lab-directory' ),
-			'content' => $content,
-		) );
+		if ($edit) { 
+		 	$content = '<p>' . __('This page is used to edit staff profile. Some fields may be locked depending on LDAP Syncing and user permissions.','lab-directory') . '</p>';
+			$screen->add_help_tab( array(
+				'id'	=> 'edit_staff',
+				'title'	=> __( 'Edit staff profile', 'lab-directory' ),
+				'content' => $content,
+			) );
+				
+		}
+		else {
+			$content = '<p>' . __('This page is used to add a new staff in the staff directory. When LDAP syncing is used, do not add a staff that can be synced with your LDAP directory. ','lab-directory') . '</p>';
+			$screen->add_help_tab( array(
+				'id'	=> 'add_new_staff',
+				'title'	=> __( 'New staff', 'lab-directory' ),
+				'content' => $content,
+			) );
+				
+		}
+		
 		$content = '<p>' . __('Staff meta fields are grouped by group of meta fields (CV, Biography...). These groups are restricted to those groups defined in the staff status. For a new staff, first save name and fisrtsname, then adjust staff  statuts, then you will have access to the entire staff profile settings. ','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> 'staff_details',
@@ -347,14 +369,10 @@ class Lab_Directory_Admin {
 			
 				<p> 
 				  <br>TOBEDONE install metafields vides !!  
-				  social networks : input trop large, pas ajusté à gauche
-				  aide edit staff details
+				  liste social vide: proposed/prefered en 1ère colonne + PAS DE SENES !!!!
 				  acronym sans link -----
-				  siteorigin pb single utilise page .php mais have_post vide et content -
-				  
-				  <br>TOBEDONE menu admin staf list en double!!
+				  TITRE/RESUME hdr phd SINTERNSHIP AJOUTER ANGLAIS+LOCALE? 
 				  <br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
-			      <br>TOBEDONE insérer aide sur les pages admin
 			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
 			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
 			      <br>TOBEDONE 

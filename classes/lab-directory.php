@@ -199,16 +199,18 @@ class Lab_Directory {
 	static function ld_posts_results_filter( $posts ) {
 			global $wp_query;
 		
-			if ( is_singular() and $posts[0]) {
-				if ($posts[0]->post_content == '') {
-					// add empty span to display hooked content on a page
-					$posts[0]->post_content = '<span>HDRHDR</span>'; 
-				}
-				if (isset($wp_query->query_vars['hdr']) ) {
-					$posts[0]->post_title= "HDR: ". $posts[0]->post_title;
-				}
-				if (isset($wp_query->query_vars['phd']) ) {
-					$posts[0]->post_title= "PHD: ". $posts[0]->post_title;
+			if ( is_singular() and $posts[0] ) {
+				if ($posts[0]->post_type == 'lab_directory_staff') {
+					if ($posts[0]->post_content == '') {
+						// add empty span to display hooked content on a page
+						$posts[0]->post_content = '<span></span>'; 
+					}
+					if (isset($wp_query->query_vars['hdr']) ) {
+						$posts[0]->post_title= "HDR: ". $posts[0]->post_title;
+					}
+					if (isset($wp_query->query_vars['phd']) ) {
+						$posts[0]->post_title= "PHD: ". $posts[0]->post_title;
+					}
 				}
 			}
 				 
@@ -216,32 +218,34 @@ class Lab_Directory {
 		}
 	
 	static function ld_content_filter($content) {
+    	global $wp_query, $post;
 
-	    
-	    	global $wp_query, $post;
-	    	if (isset($wp_query->query_vars['hdr'] ) ) { $content .= ' encoreHDR ';}
-	    	
-	    // TODO singular si defense list avec 1 seul post !! 
-	    if ( is_singular( 'lab_directory_staff' ) AND (!Lab_directory_shortcode::$hdr_loop) ){
-	    	
-	    	if (isset($wp_query->query_vars['hdr'] ) ) {
-	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-	    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
-	            //TODOTODO  filter called but modified content not displayed by siteorigin !!
-	    		
-	    	}  	
-	    	elseif (isset($wp_query->query_vars['phd'] ) ) {
-	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-				$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
-	    	} else {
-	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-				$content .= lab_directory_shortcode::retrieve_template_html('single_staff');
-	    	} 
-	    	
-	    }
+    		// Check if we're inside the main loop in a single post page AND and ($post->post_type == 'lab_directory_staff'
+   		 	if ( in_the_loop() && is_main_query() AND  $post and ($post->post_type == 'lab_directory_staff') ) {
+		    		
+					// TODO singular si defense list avec 1 seul post !! 
+		    	if (!Lab_directory_shortcode::$hdr_loop ){
+			    	
+			    	if (isset($wp_query->query_vars['hdr'] ) ) {
+			    		Lab_directory_shortcode::$hdr_loop=true;
+			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+			    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
+			            //TODOTODO  filter called but modified content not displayed by siteorigin !!
+			    		
+			    	}  	
+			    	elseif (isset($wp_query->query_vars['phd'] ) ) {
+			    		Lab_directory_shortcode::$hdr_loop=true;
+			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+						$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
+			    	} else {
+			    		Lab_directory_shortcode::$hdr_loop=true;
+			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+						$content .= lab_directory_shortcode::retrieve_template_html('single_staff');
+			    	}
+		    	}
+			    	
+		    }
+    	
 
     	return $content;
 	    
