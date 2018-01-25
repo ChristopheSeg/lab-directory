@@ -1,7 +1,7 @@
 <?php echo_form_messages($form_messages);?>
 
 <form method="post">
-<h2><?php echo __('Lab Directory Settings','lab-directory'). ' : '; _e('LDAP Synchronization and LDAP tests','lab-directory'); ?></h2>
+<h2><?php _e('Lab Directory Settings','lab-directory'). ' : '; _e('LDAP Synchronization and LDAP tests','lab-directory'); ?></h2>
  
 	<table class="form-table">
 	<tbody>
@@ -25,16 +25,18 @@
 				<p class="description" id="ldap_test_filter-description">
 				<input name="ldap_test_avec_import" type="checkbox" value="1" <?php checked( '1', $lab_directory_ldap_test_avec_import ); ?> /> 
 				Cochez pas cette case pour tester aussi l'importation des fiches LDAP dans l'annuaire
-				<br><b>il est recommandé de faire les premiers tests sans import</b> </p>
+				<br><b>il est recommandé de faire les premiers tests sans import</b> 
+				<br>N.B. This feature can be used to import non synced staff profile (profile out of synchronization filter) in your Lab-Directory; however these profiles will not be synced if they are not added to the synchronization filter.  
+				</p>
 			</td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="ldap_test_avec_import">Test sync with: </label></th>
 			<td>
-			    <button type="submit" name="admin-settings-test-sync-with-filter" class="button button-primary button-large" value="Test filter"><?php _e('Test filter')?></button>&nbsp;&nbsp;&nbsp;
-			    <button type="submit" name="admin-settings-test-sync-with-email" class="button button-primary button-large" value="Email(s) filter"><?php _e('Email(s) filter')?></button>&nbsp;&nbsp;&nbsp;
-			    <button type="submit" name="admin-settings-test-sync-with-sync_filter" class="button button-primary button-large" value="Synchronisation filter"><?php _e('Synchronisation filter')?></button>&nbsp;&nbsp;&nbsp;
-			    <button type="submit" name="admin-settings-test-sync" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
+			    <button type="submit" name="admin-settings-test-sync-with-filter" class="button button-primary button-large" value="Test filter"><?php _e('Test filter'); ?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync-with-email" class="button button-primary button-large" value="Email(s) filter"><?php _e('Email(s) filter'); ?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync-with-sync_filter" class="button button-primary button-large" value="Synchronisation filter"><?php _e('Synchronisation filter'); ?></button>&nbsp;&nbsp;&nbsp;
+			    <button type="submit" name="admin-settings-test-sync" class="button button-primary button-large" value="Save"><?php _e('Save without testing LDAP', 'lab-directory'); ?></button>
 			</td>
 		</tr>	
 		</tbody>

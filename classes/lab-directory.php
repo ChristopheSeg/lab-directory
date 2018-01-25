@@ -202,7 +202,7 @@ class Lab_Directory {
 			if ( is_singular() and $posts[0]) {
 				if ($posts[0]->post_content == '') {
 					// add empty span to display hooked content on a page
-					$posts[0]->post_content = '<span></span>'; 
+					$posts[0]->post_content = '<span>HDRHDR</span>'; 
 				}
 				if (isset($wp_query->query_vars['hdr']) ) {
 					$posts[0]->post_title= "HDR: ". $posts[0]->post_title;
@@ -217,22 +217,27 @@ class Lab_Directory {
 	
 	static function ld_content_filter($content) {
 
-	    global $wp_query, $post;
-
+	    
+	    	global $wp_query, $post;
+	    	if (isset($wp_query->query_vars['hdr'] ) ) { $content .= ' encoreHDR ';}
+	    	
+	    // TODO singular si defense list avec 1 seul post !! 
 	    if ( is_singular( 'lab_directory_staff' ) AND (!Lab_directory_shortcode::$hdr_loop) ){
-
+	    	
 	    	if (isset($wp_query->query_vars['hdr'] ) ) {
 	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 	    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
+	            //TODOTODO  filter called but modified content not displayed by siteorigin !!
+	    		
 	    	}  	
 	    	elseif (isset($wp_query->query_vars['phd'] ) ) {
 	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 				$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
 	    	} else {
 	    		Lab_directory_shortcode::$hdr_loop=true;
-	    		remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+	    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 				$content .= lab_directory_shortcode::retrieve_template_html('single_staff');
 	    	} 
 	    	
@@ -927,8 +932,7 @@ echo lab_directory_create_select(
 						$icon = ld_network_icon( $key );
 						$url = isset( $value[$key] ) ? $value[$key] : '';
 						$used .= '<p class="social_networks">';
-						$used .= '<label  class="lab_directory_staff-label" style="width:50px;"></label>';
-						$used .= '<label  class="lab_directory_staff-label" style="width:150px;">' . $icon . ' ' .
+						$used .= '<label  class="lab_directory_staff-label" >' . $icon . ' ' .
 							 $possible_social_networks[$key] . '</label>';
 						$used .= '<input name="lab_directory_staff_used_social_networks[' . $key . ']" value="' . $url .
 							 '" type="text" size="60"></p>';

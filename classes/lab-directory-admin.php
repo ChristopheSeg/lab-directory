@@ -277,12 +277,12 @@ class Lab_Directory_Admin {
 				'third'  => __('About'),
 		);
 		
-		$html .= '<h2 class="nav-tab-wrapper">';
+		$html .= '<h4 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current_tab ) ? 'nav-tab-active' : '';
 			$html .= '<a class="nav-tab ' . $class . '" href="edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=' . $tab . '">' . $name . '</a>';
 		}
-		$html .= '</h2>';
+		$html .= '</h4>';
 		echo $html;
 	
 		if ( $current_tab == 'general' ) {
@@ -346,6 +346,12 @@ class Lab_Directory_Admin {
 			</ul>
 			
 				<p> 
+				  <br>TOBEDONE install metafields vides !!  
+				  social networks : input trop large, pas ajusté à gauche
+				  aide edit staff details
+				  acronym sans link -----
+				  siteorigin pb single utilise page .php mais have_post vide et content -
+				  
 				  <br>TOBEDONE menu admin staf list en double!!
 				  <br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
 			      <br>TOBEDONE insérer aide sur les pages admin
