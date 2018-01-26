@@ -44,7 +44,7 @@ class Lab_Directory_Admin {
 			'groups'   => __( 'Groups of fields', 'lab-directory' ),
 			'fields'  => __( 'Meta fields', 'lab-directory' ),
 			'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
-			'templates'   => __( 'Templates'),
+			'templates'   => __( 'Templates', 'lab-directory' ),
 			);
 		$screen = get_current_screen();
 		
@@ -120,7 +120,7 @@ class Lab_Directory_Admin {
 		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> __('Taxonomies'),
-			'title'	=> __('Taxonomies translation'),
+			'title'	=> __('Taxonomies translation','lab-directory'),
 			'content' => $content,
 		) );
 	}	
@@ -131,7 +131,7 @@ class Lab_Directory_Admin {
 		
 		$screen->add_help_tab( array(
 			'id'	=> 'acronyms',
-			'title'	=> __('Acronyms'),
+			'title'	=> __('Acronyms', 'lab-directory'),
 			'content' => $content,
 			) );
 		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
@@ -203,7 +203,7 @@ class Lab_Directory_Admin {
 		$content = '<p>' . __('If your webmaster allows using taxonomies, you can categorise staff depending on their team laboatory... Taxonomies will be used to filter staff list, by team for example. ','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> __('taxonomies'),
-			'title'	=> __('taxonomies'),
+			'title'	=> __('Taxonomies'),
 			'content' => $content,
 		) );
 	}
@@ -213,7 +213,7 @@ class Lab_Directory_Admin {
 		$content = '<p>' . __('Taxonomies are enabled on this staff directory. In order to categorise staff (by team for example), just add the correspoding teams one by one. You can also define nested categories (team and sub-team). Please note that the default taxonomies (Team and laboratory) can be overrided if you need using different taxonomies (see taxonomies menu in lab-directory admin menu).','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> __('Taxonomies'),
-			'title'	=> __('Edit Taxonomies'),
+			'title'	=> __('Edit Taxonomies','lab-directory'),
 			'content' => $content,
 		) );
 	}
@@ -240,7 +240,7 @@ class Lab_Directory_Admin {
 		$html = '<h2 class="nav-tab-wrapper">';
 		foreach( $available_languages as $available_language){
 			if ($available_language=='acronyms') {
-				$language_name = __('Acronyms', 'lab-directory'); 
+				$language_name = __('Acronym tooltips', 'lab-directory'); 
 			} else {
 				$language_name = $language_list[$available_language]['native_name'] . ' ('. $available_language . ')';
 			}
@@ -289,12 +289,12 @@ class Lab_Directory_Admin {
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
 	
 		$tabs = array(
-				'general'   => __( 'General', 'lab-directory' ),
+				'general'   => __( 'General settings', 'lab-directory' ),
 				'capabilities' => __('Permissions', 'lab-directory' ),
 				'ldap'   => __( 'LDAP server', 'lab-directory' ),
 				'groups'   => __( 'Groups of fields', 'lab-directory' ),
 				'fields'  => __( 'Meta fields', 'lab-directory' ),
-				'test_sync'   => __( 'LDAP sync', 'lab-directory' ),
+				'test_sync'   => __( 'LDAP tests', 'lab-directory' ),
 				'templates'   => __( 'Templates'),
 				'third'  => __('About'),
 		);

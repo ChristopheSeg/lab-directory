@@ -16,7 +16,7 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
 	
 	if ($allow_none !== false) {
 		if ($allow_none === true) {
-			$no_selection= __('no selection', 'lab_directory');
+			$no_selection= __('no selection', 'lab-directory');
 		} else {
 			$no_selection = $allow_none;
 		}

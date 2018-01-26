@@ -177,7 +177,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  				<?php 
  				if ($unsyncable) {
  					// Nothing to display this ldap field is disabled (unsyncable)
- 					echo '<span class="dashicons dashicons-lock"></span>';echo __('Not syncable', 'Lab_Directory');
+ 					echo '<span class="dashicons dashicons-lock"></span>';echo __('Not syncable', 'Lab-Directory');
  				} else { 
  					echo lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
  							$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', __('No syncing'));

@@ -151,14 +151,14 @@ class Lab_Directory {
 			'lab_directory_staff', 
 			array( 
 				'labels' => array( 
-					'name' => __( 'Staffs (Lab Directory)', 'lab-directory' ), 
-					'singular_name' => __( 'Staffs', 'lab-directory' ), 
+					'name' => __( 'Lab Directory staff', 'lab-directory' ), 
+					'singular_name' => __( 'Staff', 'lab-directory' ), 
 					'add_new' => __( 'New staff', 'lab-directory' ), 
 					'add_new_item' => __( 'Add a new staff', 'lab-directory' ), 
 					'edit_item' => __( 'Edit staff details', 'lab-directory' ), 
 					'new_item' => __( 'New staff', 'lab-directory' ), 
-					'view_item' => __( 'View staff', 'lab-directory' ), 
-					'view_items' => __( 'View staffs', 'lab-directory' ), 
+					'view_item' => _x( 'View staff', 'single','lab-directory' ), 
+					'view_items' => _x( 'View staff','plural', 'lab-directory' ), 
 					'search_items' => __( 'Search staff', 'lab-directory' ), 
 					'not_found' => __( 'No staff found.', 'lab-directory' ), 
 					'not_found_in_trash' => __( 'No staff in Trash.', 'lab-directory' ), 
@@ -167,9 +167,9 @@ class Lab_Directory {
 					'set_featured_image' => __( 'Set staff photo', 'lab-directory' ), 
 					'remove_featured_image' => __( 'Remove staff photo', 'lab-directory' ), 
 					'use_featured_image' => __( 'Use a staff photo', 'lab-directory' ), 
-					'filter_items_list' => __( 'Filter staffs list', 'lab-directory' ), 
-					'items_list_navigation' => __( 'Staffs list navigation', 'lab-directory' ), 
-					'items_list' => __( 'Staffs list', 'lab-directory' ) )
+					'filter_items_list' => __( 'Filter staff list', 'lab-directory' ), 
+					'items_list_navigation' => __( 'Staff list navigation', 'lab-directory' ), 
+					'items_list' => __( 'Staff list', 'lab-directory' ) )
 
 				, 
 				'supports' => array( 'title', 
@@ -283,7 +283,7 @@ class Lab_Directory {
 			'cb' => '<input type="checkbox" />', 
 			'title' => __( 'Title' ), 
 			'id' => __( 'ID' ), 
-			'ldap' => __( 'LDAP' ),
+			'ldap' => __( 'LDAP syncing', 'lab-directory' ),
 			'featured_image' =>__( 'Staff photo', 'lab-directory' ),
 			'date' => __( 'Date' ) );
 		
@@ -313,12 +313,14 @@ class Lab_Directory {
 		echo $out;
 	}
 
+	// TODOTODO categories replaced with builtin taxonomies, is this used??? 
 	static function set_lab_category_columns() {
 		$new_columns = array( 
 			'cb' => '<input type="checkbox" />', 
 			'name' => __( 'Name' ), 
 			'id' => __( 'ID' ), 
 			'description' => __( 'Description' ), 
+			// TODO translation, what is this for?? 
 			'slug' => __( 'Slug' ), 
 			'posts' => __( 'Posts' ) );
 		
@@ -919,12 +921,12 @@ echo lab_directory_create_select(
 				$lab_directory_used_social_networks = get_option( 'lab_directory_used_social_networks', false );
 				if (empty($lab_directory_used_social_networks)) { 
 					// This should not be the case but...
-					echo __( 'No Social networks activated yet! (ask to your admin)', 'lab_directory' );
+					echo __( 'No Social networks activated yet! (ask to an administrator)', 'lab-directory' );
 				} else {
 					if (count($lab_directory_used_social_networks)>2) {
 						// Add fold unfold buttoon if more than 2 entries
 						echo '<button onclick="show_hide_social_networks(); return false;">' .
-							 __( 'Fold Unfold Social networks input', 'lab_directory' ) .
+							 __( 'Fold/Unfold Social networks input', 'lab-directory' ) .
 							 '<span class="social_networks" style="display:none;"><span class="dashicons dashicons-arrow-down"></span></span>' .
 							 '<span class="social_networks"><span class="dashicons dashicons-arrow-up"></span></span></button>';
 					}
@@ -2170,9 +2172,9 @@ echo lab_directory_create_select(
 			"ld_internship_give_permanent_status" => "0", 
 			"ld_invited_give_permanent_status" => "0", 
 			"ld_CDD_give_permanent_status" => "0", 
-			"ld_custom_group_give_permanent_status" => "0", 
-			"wp_editor_give_administrative_status" => "0", 
-			"wp_author_give_administrative_status" => "0", 
+			"ld_custom_group_give_permanent_status" => "0",
+			"wp_editor_give_administrative_status" => "0",
+			"wp_author_give_administrative_status" => "0",
 			"wp_contributor_give_administrative_status" => "0", 
 			"wp_subscriber_give_administrative_status" => "0", 
 			"ld_permanent_give_administrative_status" => "0", 
@@ -2343,13 +2345,13 @@ echo lab_directory_create_select(
 			'longtext' => __( 'Long text', 'lab-directory' ), 
 			'textarea' => __( 'Multiline text', 'lab-directory' ),
 			'editor' => __( 'HTML Text', 'lab-directory' ), 
-			'mail' => __( 'mail', 'lab-directory' ), 
+			'mail' => __( 'Mail', 'lab-directory' ), 
 			'url' => __( 'URL', 'lab-directory' ), 
 			'phone_number' => __( 'Phone number', 'lab-directory' ), 
 			'date' => __( 'Date', 'lab-directory' ), 
 			'datetime' => __( 'Date and Time', 'lab-directory' ), 
-			'studying_level' => __( 'Studying_level', 'lab-directory' ), 
-			'jury' => __( 'Jury', 'lab-directory' ),
+			'studying_level' => __( 'Studying_level', 'lab-directory' ),
+			'jury' => __( 'PHD or HDR Jury', 'lab-directory' ),
 			'social_network' => __( 'Social link', 'lab-directory' ),
 		);
 		return $default_type_texts;
@@ -2359,28 +2361,29 @@ echo lab_directory_create_select(
 		
 		// Define the default groups used for meta field grouping
 		$groups = array(
-				/* translators: CV Curriculum Vitae (no need to translate this) */ 
+				/* translators: CV stands for Curriculum Vitae */ 
 				'CV' => __( 'CV', 'lab-directory' ), 'BIO' => __( 'Biography', 'lab-directory' ) );
 		$groups = array_merge( $groups, self::get_lab_directory_default_group_names2() );
 		return $groups;
 	}
 
 	function get_lab_directory_default_group_names2() {
-		
+	
 		// Define the default groups used for meta field grouping
 		$groups = array(
-				/* translators: HDR french acronym for Habilitation à Diriger les Recherches */
-				'HDR' => __( 'HDR', 'lab-directory' ), 
-			'doctorate' => __( 'Doctorate', 'lab-directory' ), 
-			'post-doctorate' => __( 'Post-doctorate', 'lab-directory' ), 
-			'internship' => __( 'Internship', 'lab-directory' ), 
+			/* translators: HDR french acronym for "Habilitation a Diriger les Recherches" */
+			'HDR' => __( 'HDR', 'lab-directory' ),
+			'doctorate' => __( 'Doctorate', 'lab-directory' ),
+			'post-doctorate' => __( 'Post-doctorate', 'lab-directory' ),
+			'internship' => __( 'Internship', 'lab-directory' ),
+			/* translators: "invited" refers to some people (teacher or researcher) being invited but not permanent staff of the structure*/
 			'invited' => __( 'Invited', 'lab-directory' ),
-				/* translators: CDD is a french acronym for Fixed term contract*/
-				'CDD' => __( 'CDD', 'lab-directory' ), 
+			/* translators: CDD in french or "Fixed term contract" in english. Please use a short string, preferably less then 20 characters*/
+			'CDD' => __( 'Fixed term contract', 'lab-directory' ),
 			'custom_group' => __( 'custom_group', 'lab-directory' ) );
 		return $groups;
 	}
-
+	
 	function get_lab_directory_default_statuss() {
 		
 		// Define the default groups used for meta field grouping
@@ -2413,7 +2416,7 @@ echo lab_directory_create_select(
 		
 		// Explain the list of option related to single and multivalue of fields
 		$note1 = ' (' .
-			 __( 'only first value of attribute will be extracted if LDAP attribute is multivalued', 'lab-directory' ) .
+			 __( 'Only first value of attribute will be extracted if LDAP attribute is multivalued', 'lab-directory' ) .
 			 ')';
 		$default_multivalue_names = array( 
 			
@@ -2439,7 +2442,7 @@ echo lab_directory_create_select(
 			'L2' => __( 'L2 (Bachelor 2nd year)', 'lab-directory' ), 
 			'L3' => __( 'L3 (Bachelor 3rd yaer)', 'lab-directory' ), 
 			'M1' => __( 'M1 (Master 1st year)', 'lab-directory' ), 
-			'M2' => __( 'M2 (Master 2ème année)', 'lab-directory' ), 
+			'M2' => __( 'M2 (Master 2nd year)', 'lab-directory' ), 
 			'ING' => __( 'Engineering School', 'lab-directory' ) );
 		return $studying_levels;
 	}
@@ -2448,23 +2451,22 @@ echo lab_directory_create_select(
 		
 		// Define the list of function use in HDR and PHD jury
 		$jury_functions = array( 
-			'guarantor' => __( 'Garant de la HDR', 'lab-directory' ), 
+			'guarantor' => __( 'HDR guarantor', 'lab-directory' ), 
 			'chairman' => __( 'President', 'lab-directory' ), 
-			'chairwoman' => __( 'Presidente', 'lab-directory' ), 
+			'chairwoman' => __( 'President', 'lab-directory' ), 
 			'director' => __( 'Directeur', 'lab-directory' ), 
 			'directress' => __( 'Directrice', 'lab-directory' ), 
 			'directors' => __( 'Directeurs', 'lab-directory' ), 
 			'examiner' => __( 'Examinateur', 'lab-directory' ),
-	/* translator examiner / female */
-	'examiner_f' => __( 'Examinatrice', 'lab-directory' ), 
-			'examiners' => __( 'Examinateurs', 'lab-directory' ), 
-			'referee' => __( 'Rapporteur', 'lab-directory' ),
-	/* translator referee / female*/
-	'referee_f' => __( 'Rapportrice', 'lab-directory' ), 
+			'examiner' => _x( 'Examiner', 'male', 'lab-directory' ), 
+			'examiner_f' => _x( 'Examiner', 'female', 'lab-directory' ), 
+			'examiners' => __( 'Examiners', 'lab-directory' ), 
+			'referee' => _x( 'Referee', 'male', 'lab-directory' ),
+			'referee_f' => _x( 'Referee', 'female', 'lab-directory' ), 
 			'referees' => __( 'Rapporteurs', 'lab-directory' ), 
-			'invited' => __( 'Invité', 'lab-directory' ), 
-			'invited_f' => __( 'Invitée', 'lab-directory' ), 
-			'inviteds' => __( 'Invités', 'lab-directory' ) );
+			'invited' => _x( 'Invited', 'male', 'lab-directory' ), 
+			'invited_f' => _x( 'Invited', 'female', 'lab-directory' ), 
+			'invited_p' => _x( 'Invited', 'plural', 'lab-directory' ) );
 		return $jury_functions;
 	}
 
@@ -2482,50 +2484,50 @@ echo lab_directory_create_select(
 		
 		// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
 		$default_meta_field_names = array( 
-			'firstname' => __( 'Firstname', 'lab-directory' ), 
-			'name' => __( 'Name', 'lab-directory' ), 
-			'position' => __( 'Position', 'lab-directory' ), 
-			'login' => __( 'Login', 'lab-directory' ), 
-			'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ), 
-			'mails' => __( 'Mail', 'lab-directory' ), 
-			'bio' => __( 'Biography', 'lab-directory' ), 
-			'other_mails' => __( 'Other mails', 'lab-directory' ), 
-			'idhal' => __( 'ID HAL', 'lab-directory' ), 
-			'photo_url' => __( 'Photo URL', 'lab-directory' ), 
-			'webpage' => __( 'Professionnal webpage', 'lab-directory' ), 
-			'social_network' => __( 'Social Network', 'lab-directory' ), 
-			'function' => __( 'Function', 'lab-directory' ), 
-			'title' => __( 'Title', 'lab-directory' ), 
-			'phone_number' => __( 'Phone number', 'lab-directory' ), 
-			'fax_number' => __( 'Fax number', 'lab-directory' ), 
-			'office' => __( 'Office', 'lab-directory' ), 
-			'team' => __( 'Team', 'lab-directory' ), 
-			'exit_date' => __( 'End activity date', 'lab-directory' ), 
-			'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
-			'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
-			'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
-			'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
-			'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
-			'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
-			'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
-			'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
-			'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
-			'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
-			'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
-			'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
-			'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
-			'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
-			'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
-			'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
-			'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
-			'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
-			'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
-			'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
-			'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
-			'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
-			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
-			'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
-			'invited_origin' => __( 'Invited origin', 'lab-directory' ),
+				'firstname' => __( 'Firstname', 'lab-directory' ), 
+				'name' => __( 'Name', 'lab-directory' ), 
+				'position' => __( 'Position', 'lab-directory' ), 
+				'login' => __( 'Login', 'lab-directory' ), 
+				'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ), 
+				'mails' => __( 'Mail', 'lab-directory' ), 
+				'bio' => __( 'Biography', 'lab-directory' ), 
+				'other_mails' => __( 'Other mails', 'lab-directory' ), 
+				'idhal' => __( 'ID HAL', 'lab-directory' ), 
+				'photo_url' => __( 'Photo URL', 'lab-directory' ), 
+				'webpage' => __( 'Professionnal webpage', 'lab-directory' ), 
+				'social_network' => __( 'Social Network', 'lab-directory' ), 
+				'function' => __( 'Function', 'lab-directory' ), 
+				'title' => __( 'Title', 'lab-directory' ), 
+				'phone_number' => __( 'Phone number', 'lab-directory' ), 
+				'fax_number' => __( 'Fax number', 'lab-directory' ), 
+				'office' => __( 'Office', 'lab-directory' ), 
+				'team' => __( 'Team', 'lab-directory' ), 
+				'exit_date' => __( 'End activity date', 'lab-directory' ), 
+				'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
+				'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
+				'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
+				'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
+				'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
+				'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
+				'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
+				'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
+				'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
+				'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
+				'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
+				'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
+				'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
+				'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
+				'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
+				'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
+				'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
+				'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
+				'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
+				'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
+				'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
+				'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
+				'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
+				'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
+				'invited_origin' => __( 'Invited origin', 'lab-directory' ),
 				/* translators Fixed term contract information */
 				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
 				/* translators Fixed term contract information */
@@ -2534,25 +2536,25 @@ echo lab_directory_create_select(
 				'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
 				/* translators Fixed term contract information */
 				'cdd_position' => __( 'Occupied position', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_2' => __( 'custom_field_2', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_3' => __( 'custom_field_3', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_4' => __( 'custom_field_4', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_5' => __( 'custom_field_5', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_6' => __( 'custom_field_6', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_7' => __( 'custom_field_7', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_8' => __( 'custom_field_8', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
-				/* translators: Do not translate.  This will be translated by each user depending on their custom fields usage. */ 
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ) );
 		return $default_meta_field_names;
 	}
@@ -2589,6 +2591,7 @@ echo lab_directory_create_select(
 
 	static function initiate_capabilities() {
 		$temp = array( "0" => "test permissions modifié" );
+		//TODO add translations 
 		self::$capabilities = array( 
 			'settings_general' => array( 'name' => 'General settings', 'scope' => 'all' ), 
 			'settings_permissions' => array( 'name' => 'Permissions settings', 'scope' => 'all' ), 
@@ -2625,7 +2628,7 @@ echo lab_directory_create_select(
 				$content = '';
 			}
 			$content .= '<p><i><span class="dashicons dashicons-lock"></span>' .
-				 __( 'This staff details are synchronised with LDAP. Staff photo must be added or changed on LDAP directory', 'lab_directory' ) .
+				 __( 'This staff profile (including photo) is synchronised with LDAP. Staff photo must be added or changed on LDAP directory', 'lab-directory' ) .
 				 '</i></p>';
 		}
 		return $content;
@@ -2648,17 +2651,28 @@ echo lab_directory_create_select(
 			'ld_taxonomy_team' => array(
 				'hierarchical' => true,
 				'labels' => array(
-					'name' => _x( 'Staff Teams', 'taxonomy general name' ),
-					'singular_name' => _x( 'Staff Team', 'taxonomy singular name' ),
-					'search_items' => __( 'Search Staff Teams' ),
-					'all_items' => __( 'All Staff Teams' ),
-					'parent_item' => __( 'Parent Staff Team' ),
-					'parent_item_colon' => __( 'Parent Staff Team :' ),
-					'edit_item' => __( 'Edit Staff Team' ),
-					'update_item' => __( 'Update Staff Team' ),
-					'add_new_item' => __( 'Add New Staff Team' ),
-					'new_item_name' => __( 'New Staff Team Name' ),
-					'menu_name' => __( 'Staff Teams' ) ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'name' => _x( 'Staff Teams', '1st taxonomy general name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'singular_name' => _x( 'Staff Team', '1st taxonomy singular name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'search_items' => __( 'Search Staff Teams', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'all_items' => __( 'All Staff Teams', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'parent_item' => __( 'Parent Staff Team', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'parent_item_colon' => __( 'Parent Staff Team :', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'edit_item' => __( 'Edit Staff Team', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'update_item' => __( 'Update Staff Team', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'add_new_item' => __( 'Add New Staff Team', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'new_item_name' => __( 'New Staff Team Name', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'menu_name' => __( 'Staff Teams', 'lab-directory'  ) ),
 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-teams',
 					'with_front' => false,
@@ -2667,17 +2681,28 @@ echo lab_directory_create_select(
 			'ld_taxonomy_laboratory' => array(
 				'hierarchical' => true,
 				'labels' => array(
-					'name' => _x( 'Laboratory', 'taxonomy general name' ),
-					'singular_name' => _x( 'lab_directory_staff-category', 'taxonomy singular name' ),
-					'search_items' => __( 'Search Staff Categories' ),
-					'all_items' => __( 'All Staff Categories' ),
-					'parent_item' => __( 'Parent Staff Category' ),
-					'parent_item_colon' => __( 'Parent Staff Category:' ),
-					'edit_item' => __( 'Edit Staff Category' ),
-					'update_item' => __( 'Update Staff Category' ),
-					'add_new_item' => __( 'Add New Staff Category' ),
-					'new_item_name' => __( 'New Staff Category Name' ),
-					'menu_name' => __( 'Staff laboratories' ) ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'name' => _x( 'Laboratory', '2nd taxonomy general name' , 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'singular_name' => _x( 'staff-category', '2nd taxonomy singular name', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'search_items' => __( 'Search Staff Categories', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'all_items' => __( 'All Staff Categories' , 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'parent_item' => __( 'Parent Staff Category', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'parent_item_colon' => __( 'Parent Staff Category :', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'edit_item' => __( 'Edit Staff Category', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'update_item' => __( 'Update Staff Category', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'add_new_item' => __( 'Add New Staff Category', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'new_item_name' => __( 'New Staff Category Name', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'menu_name' => __( 'Staff laboratories', 'lab-directory'  ) ),
 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-laboratories',
 					'with_front' => false,

@@ -632,13 +632,13 @@ class Lab_Directory_Shortcode {
 	    
     static function retrieve_template_info() {
 		return array(  	
-		    	'staff_grid' => __('This template is used to display staff directory as a grid', 'lab_directory'),
-		    	'staff_list' => __('This template is used to display staff directory as a list', 'lab_directory'),
-		    	'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab_directory'),
-		    	'defense_list' => __('This template is used to display a defenses list', 'lab_directory'),
-		    	'single_staff' => __('This template is used to display a single staff profile', 'lab_directory'),
-		    	'single_staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab_directory'),
-		    	'single_staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab_directory'),
+		    	'staff_grid' => __('This template is used to display staff directory as a grid', 'lab-directory'),
+		    	'staff_list' => __('This template is used to display staff directory as a list', 'lab-directory'),
+		    	'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab-directory'),
+		    	'defense_list' => __('This template is used to display a defenses list', 'lab-directory'),
+		    	'single_staff' => __('This template is used to display a single staff profile', 'lab-directory'),
+		    	'single_staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
+		    	'single_staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
     );
     }
     
