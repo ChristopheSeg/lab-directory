@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-26 15:22+0100\n"
+"POT-Creation-Date: 2018-01-26 16:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -297,6 +297,7 @@ msgstr ""
 msgid "Form saved"
 msgstr ""
 
+#. translators: HDR french acronym for "Habilitation a Diriger les Recherches"
 #: classes/lab-directory-shortcode.php:161
 #: classes/lab-directory-shortcode.php:169 classes/lab-directory.php:2375
 msgid "HDR"
@@ -535,6 +536,7 @@ msgstr ""
 msgid "Social link"
 msgstr ""
 
+#. translators: CV stands for Curriculum Vitae
 #: classes/lab-directory.php:2365
 msgid "CV"
 msgstr ""
@@ -555,10 +557,12 @@ msgstr ""
 msgid "Internship"
 msgstr ""
 
+#. translators: "invited" refers to some people (teacher or researcher) being invited but not permanent staff of the structure
 #: classes/lab-directory.php:2380
 msgid "Invited"
 msgstr ""
 
+#. translators: CDD in french or "Fixed term contract" in english. Please use a short string, preferably less then 20 characters
 #: classes/lab-directory.php:2382
 msgid "Fixed term contract"
 msgstr ""
@@ -567,6 +571,7 @@ msgstr ""
 msgid "custom_group"
 msgstr ""
 
+#. translators: CV Curriculum Vitae (no need to translate this)
 #: classes/lab-directory.php:2392
 msgid "Permanent staff"
 msgstr ""
@@ -902,42 +907,52 @@ msgstr ""
 msgid "Occupied position"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2540
 msgid "custom_field_1"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2542
 msgid "custom_field_2"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2544
 msgid "custom_field_3"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2546
 msgid "custom_field_4"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2548
 msgid "custom_field_5"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2550
 msgid "custom_field_6"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2552
 msgid "custom_field_7"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2554
 msgid "custom_field_8"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2556
 msgid "custom_field_9"
 msgstr ""
 
+#. translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage.
 #: classes/lab-directory.php:2558
 msgid "custom_field_10"
 msgstr ""
@@ -948,98 +963,121 @@ msgid ""
 "photo must be added or changed on LDAP directory"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2655
 msgctxt "1st taxonomy general name"
 msgid "Staff Teams"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2657
 msgctxt "1st taxonomy singular name"
 msgid "Staff Team"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2659
 msgid "Search Staff Teams"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2661
 msgid "All Staff Teams"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2663
 msgid "Parent Staff Team"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2665
 msgid "Parent Staff Team :"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2667
 msgid "Edit Staff Team"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2669
 msgid "Update Staff Team"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2671
 msgid "Add New Staff Team"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2673
 msgid "New Staff Team Name"
 msgstr ""
 
+#. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2675
 msgid "Staff Teams"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2685
 msgctxt "2nd taxonomy general name"
+msgid "Laboratories"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
+#: classes/lab-directory.php:2687
+msgctxt "2nd taxonomy singular name"
 msgid "Laboratory"
 msgstr ""
 
-#: classes/lab-directory.php:2687
-msgctxt "2nd taxonomy singular name"
-msgid "staff-category"
-msgstr ""
-
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2689
-msgid "Search Staff Categories"
+msgid "Search Laboratories"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2691
-msgid "All Staff Categories"
+msgid "All Laboratories"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2693
-msgid "Parent Staff Category"
+msgid "Parent Laboratory"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2695
-msgid "Parent Staff Category :"
+msgid "Parent Laboratory :"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2697
-msgid "Edit Staff Category"
+msgid "Edit Laboratory"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2699
-msgid "Update Staff Category"
+msgid "Update Laboratory"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2701
-msgid "Add New Staff Category"
+msgid "Add Laboratory"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2703
-msgid "New Staff Category Name"
+msgid "New Laboratory Name"
 msgstr ""
 
+#. translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..
 #: classes/lab-directory.php:2705
-msgid "Staff laboratories"
+msgid "Staff Laboratories"
 msgstr ""
 
+#. translators: This title should be short to stay on one line when appearing in sidebar widget.
 #: classes/ld_widget_defenses.php:23
 msgid "Future Defenses list"
 msgstr ""
@@ -1060,14 +1098,17 @@ msgstr ""
 msgid "List for time period :"
 msgstr ""
 
+#. translators: for all defenses
 #: classes/ld_widget_defenses.php:65
 msgid "all"
 msgstr ""
 
+#. translators: for future defenses
 #: classes/ld_widget_defenses.php:66
 msgid "future"
 msgstr ""
 
+#. translators: for past defenses
 #: classes/ld_widget_defenses.php:67
 msgid "past"
 msgstr ""

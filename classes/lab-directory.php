@@ -2682,27 +2682,27 @@ echo lab_directory_create_select(
 				'hierarchical' => true,
 				'labels' => array(
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'name' => _x( 'Laboratory', '2nd taxonomy general name' , 'lab-directory' ),
+					'name' => _x( 'Laboratories', '2nd taxonomy general name' , 'lab-directory' ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'singular_name' => _x( 'staff-category', '2nd taxonomy singular name', 'lab-directory'  ),
+					'singular_name' => _x( 'Laboratory', '2nd taxonomy singular name', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'search_items' => __( 'Search Staff Categories', 'lab-directory'  ),
+					'search_items' => __( 'Search Laboratories', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'all_items' => __( 'All Staff Categories' , 'lab-directory' ),
+					'all_items' => __( 'All Laboratories' , 'lab-directory' ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'parent_item' => __( 'Parent Staff Category', 'lab-directory'  ),
+					'parent_item' => __( 'Parent Laboratory', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'parent_item_colon' => __( 'Parent Staff Category :', 'lab-directory'  ),
+					'parent_item_colon' => __( 'Parent Laboratory :', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'edit_item' => __( 'Edit Staff Category', 'lab-directory'  ),
+					'edit_item' => __( 'Edit Laboratory', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'update_item' => __( 'Update Staff Category', 'lab-directory'  ),
+					'update_item' => __( 'Update Laboratory', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'add_new_item' => __( 'Add New Staff Category', 'lab-directory'  ),
+					'add_new_item' => __( 'Add Laboratory', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'new_item_name' => __( 'New Staff Category Name', 'lab-directory'  ),
+					'new_item_name' => __( 'New Laboratory Name', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'menu_name' => __( 'Staff laboratories', 'lab-directory'  ) ),
+					'menu_name' => __( 'Staff Laboratories', 'lab-directory'  ) ),
 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-laboratories',
 					'with_front' => false,
