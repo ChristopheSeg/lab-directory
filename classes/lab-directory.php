@@ -162,13 +162,13 @@ class Lab_Directory {
 					'search_items' => __( 'Search staff', 'lab-directory' ), 
 					'not_found' => __( 'No staff found.', 'lab-directory' ), 
 					'not_found_in_trash' => __( 'No staff in Trash.', 'lab-directory' ), 
-					'all_items' => __( 'Staffs list', 'lab-directory' ), 
+					'all_items' => __( 'Staff list', 'lab-directory' ), 
 					'featured_image' => __( 'Staff photo', 'lab-directory' ), 
 					'set_featured_image' => __( 'Set staff photo', 'lab-directory' ), 
 					'remove_featured_image' => __( 'Remove staff photo', 'lab-directory' ), 
 					'use_featured_image' => __( 'Use a staff photo', 'lab-directory' ), 
 					'filter_items_list' => __( 'Filter staff list', 'lab-directory' ), 
-					'items_list_navigation' => __( 'Staff list navigation', 'lab-directory' ), 
+					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ), 
 					'items_list' => __( 'Staff list', 'lab-directory' ) )
 
 				, 
@@ -407,7 +407,7 @@ class Lab_Directory {
 	}
 
 	/*
-	 *  A function to save statuss as a comma separated list of activated statuss
+	 *  A function to save statuss as a comma separated values list of activated statuss
 	 */
 	static function update_staff_statuss( $post_ID, $statuss ){
 		// Only keep activated status 
@@ -422,7 +422,7 @@ class Lab_Directory {
 	}
 
 	/*
-	 *  A function to retrieve statuss from a comma separated list of activated statuss
+	 *  A function to retrieve statuss from a comma separated values list of activated statuss
 	 */ 
 	static function get_staff_statuss( $post_ID){
 		// Initiate statuss to false for all status
@@ -2402,11 +2402,11 @@ echo lab_directory_create_select(
 			
 			'SV' => __( 'Single valued', 'lab-directory' ), 
 			'MV' => __( 'Multiple valued', 'lab-directory' ), 
-			',' => __( "(') separated list", 'lab-directory' ), 
-			';' => __( '(;) separated list', 'lab-directory' ), 
-			'|' => __( '(|) separated list', 'lab-directory' ), 
-			'/' => __( '(/) separated list', 'lab-directory' ), 
-			'CR' => __( 'CR separated list', 'lab-directory' ) )
+			',' => __( "(') separated values", 'lab-directory' ), 
+			';' => __( '(;) separated values', 'lab-directory' ), 
+			'|' => __( '(|) separated values', 'lab-directory' ), 
+			'/' => __( '(/) separated values', 'lab-directory' ), 
+			'CR' => __( 'CR separated values', 'lab-directory' ) )
 
 		;
 		return $default_multivalue;
@@ -2424,11 +2424,11 @@ echo lab_directory_create_select(
 				'Single valued (only first value will be extracted if LDAP attribute is multivalued and has multiple values)', 
 				'lab-directory' ), 
 			'MV' => __( 'Multiple valued (extract all values if LDAP attribute is multivalued)', 'lab-directory' ), 
-			',' => __( "Comma (') separated list", 'lab-directory' ) . $note1, 
-			';' => __( 'Semicolumn (;) separated list (', 'lab-directory' ) . $note1, 
-			'|' => __( 'Vertical bar (|) separated list', 'lab-directory' ) . $note1, 
-			'/' => __( 'Slash (/) separated list', 'lab-directory' ) . $note1, 
-			'CR' => __( 'Carriage return separated list', 'lab-directory' ) . $note1, 
+			',' => __( "Comma (,) separated values", 'lab-directory' ) . $note1, 
+			';' => __( 'Semicolumn (;) separated values (', 'lab-directory' ) . $note1, 
+			'|' => __( 'Vertical bar (|) separated values', 'lab-directory' ) . $note1, 
+			'/' => __( 'Slash (/) separated values', 'lab-directory' ) . $note1, 
+			'CR' => __( 'Carriage return separated values', 'lab-directory' ) . $note1, 
 );
 		return $default_multivalue_names;
 	}

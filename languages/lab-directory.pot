@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-26 16:10+0100\n"
+"POT-Creation-Date: 2018-01-29 23:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -12,10 +12,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
-"X-Poedit-KeywordsList: __;_e;esc_html_e;esc_html_x:1,2c;esc_html__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;"
-"_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,"
-"_nc:4c,1,2\n"
+"X-Poedit-KeywordsList: __;_e;esc_html_e;esc_html_x:1,2c;esc_html__;esc_attr_e;"
+"esc_attr_x:1,2c;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_x:1,2c;_n:1,2;"
+"_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,_nc:4c,1,2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 
@@ -23,21 +22,21 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: classes/lab-directory-admin.php:42 classes/lab-directory-admin.php:293
+#: classes/lab-directory-admin.php:42 classes/lab-directory-admin.php:329
 #: views/admin-settings-permissions.php:43
 msgid "Permissions"
 msgstr ""
 
-#: classes/lab-directory-admin.php:43 classes/lab-directory-admin.php:294
+#: classes/lab-directory-admin.php:43 classes/lab-directory-admin.php:330
 #: views/admin-settings-ldap.php:6
 msgid "LDAP server"
 msgstr ""
 
-#: classes/lab-directory-admin.php:44 classes/lab-directory-admin.php:295
+#: classes/lab-directory-admin.php:44 classes/lab-directory-admin.php:331
 msgid "Groups of fields"
 msgstr ""
 
-#: classes/lab-directory-admin.php:45 classes/lab-directory-admin.php:296
+#: classes/lab-directory-admin.php:45 classes/lab-directory-admin.php:332
 msgid "Meta fields"
 msgstr ""
 
@@ -45,24 +44,22 @@ msgstr ""
 msgid "LDAP sync"
 msgstr ""
 
-#: classes/lab-directory-admin.php:47 classes/lab-directory-admin.php:298
+#: classes/lab-directory-admin.php:47 classes/lab-directory-admin.php:334
 msgid "Templates"
 msgstr ""
 
 #: classes/lab-directory-admin.php:54
 msgid ""
-"This settings should be accessible only to authorized webmasters. It is "
-"used to activate/unactivate LDAP syncing, set taxonomies and social "
-"networks in use. "
+"This settings should be accessible only to authorized webmasters. It is used to "
+"activate/unactivate LDAP syncing, set taxonomies and social networks in use. "
 msgstr ""
 
 #: classes/lab-directory-admin.php:61
 msgid ""
-"Permission in lab-directory are given by checking first the wordpress "
-"group of a user (editor, author, ... subscriber)  and secondly the "
-"possibility for a user to pertain a lab-directory group of staff "
-"(permanent staff, doctorate...). At least one of these permission should "
-"be given to grant permission to the a user."
+"Permission in lab-directory are given by checking first the wordpress group of a "
+"user (editor, author, ... subscriber)  and secondly the possibility for a user to "
+"pertain a lab-directory group of staff (permanent staff, doctorate...). At least one "
+"of these permission should be given to grant permission to the a user."
 msgstr ""
 
 #: classes/lab-directory-admin.php:62
@@ -71,11 +68,11 @@ msgstr ""
 
 #: classes/lab-directory-admin.php:63
 msgid ""
-"Please note that when a user is selected, permissions are simulated with "
-"the user supposed to be connected. All granted permission are marked with "
-"a checked square in the first column. For one action ( for example "
-"Validate new staff entry), 2 permissions are calculated; and the "
-"permission would be granted if at least one is checked."
+"Please note that when a user is selected, permissions are simulated with the user "
+"supposed to be connected. All granted permission are marked with a checked square in "
+"the first column. For one action ( for example Validate new staff entry), 2 "
+"permissions are calculated; and the permission would be granted if at least one is "
+"checked."
 msgstr ""
 
 #: classes/lab-directory-admin.php:64 views/admin-settings-permissions.php:45
@@ -84,212 +81,327 @@ msgstr ""
 
 #: classes/lab-directory-admin.php:65
 msgid ""
-"These permission depend on Worpdress groups. They are granted by webmaster "
-"having access to Wordpress group management."
+"These permission depend on Worpdress groups. They are granted by webmaster having "
+"access to Wordpress group management."
 msgstr ""
 
 #: classes/lab-directory-admin.php:66
 msgid ""
-"(1). For a specific capability (for example \"Give PHd status\") If a user "
-"is granted several permissions (can cannot cannot..) the less restrictive "
-"applies (can in this case). You can create a specific user roles in "
-"WordPress to manage permissions. This require installing a users/roles "
-"manager plugin. Note that Administrators have all permissions."
+"(1). For a specific capability (for example \"Give PHd status\") If a user is "
+"granted several permissions (can cannot cannot..) the less restrictive applies (can "
+"in this case). You can create a specific user roles in WordPress to manage "
+"permissions. This require installing a users/roles manager plugin. Note that "
+"Administrators have all permissions."
 msgstr ""
 
-#: classes/lab-directory-admin.php:67
-#: views/admin-settings-permissions.php:121
+#: classes/lab-directory-admin.php:67 views/admin-settings-permissions.php:121
 msgid "Permissions settings based on  Lab Directory groups"
 msgstr ""
 
 #: classes/lab-directory-admin.php:68
 msgid ""
-"These permissions will only be effective if (first) the user is registered "
-"and (secondly) lab-directory is able to link wordpress profile and lad-"
-"directory profile."
+"These permissions will only be effective if (first) the user is registered and "
+"(secondly) lab-directory is able to link wordpress profile and lad-directory profile."
 msgstr ""
 
 #: classes/lab-directory-admin.php:69
 msgid ""
-"(2). This (owner) permission should apply to owner (current logged user) "
-"if and only if the current logged user wordpress profile can be linked to "
-"the lab-directory profile 4."
+"(2). This (owner) permission should apply to owner (current logged user) if and only "
+"if the current logged user wordpress profile can be linked to the lab-directory "
+"profile 4."
 msgstr ""
 
 #: classes/lab-directory-admin.php:70
 msgid ""
-"Scope limited permission should not be more restrictive than the same "
-"permission defined with a larger scope (all)."
+"Scope limited permission should not be more restrictive than the same permission "
+"defined with a larger scope (all)."
 msgstr ""
 
 #: classes/lab-directory-admin.php:71
 msgid ""
-"(3). Permissions settings based on Lab Directory groups only apply if the "
-"current logged user wordpress profile can be linked to the lab-directory "
-"profile 4"
+"(3). Permissions settings based on Lab Directory groups only apply if the current "
+"logged user wordpress profile can be linked to the lab-directory profile 4"
 msgstr ""
 
 #: classes/lab-directory-admin.php:72
 msgid ""
-"(4). This link is based on login or email comparison between Worpdress "
-"user profile and staff profile."
+"(4). This link is based on login or email comparison between Worpdress user profile "
+"and staff profile."
 msgstr ""
 
 #: classes/lab-directory-admin.php:79 classes/lab-directory-admin.php:86
-#: classes/lab-directory-admin.php:101 classes/lab-directory-admin.php:108
-#: classes/lab-directory-admin.php:120 classes/lab-directory-admin.php:130
-#: classes/lab-directory-admin.php:137 classes/lab-directory-admin.php:147
+#: classes/lab-directory-admin.php:101 classes/lab-directory-admin.php:156
+#: classes/lab-directory-admin.php:166 classes/lab-directory-admin.php:173
+#: classes/lab-directory-admin.php:183
 msgid "TODO help needed"
 msgstr ""
 
 #: classes/lab-directory-admin.php:93
 msgid ""
-"This page allows you to set details fields and to create custom details "
-"fields for each Staff member. In case a group of fields is disabled, "
-"settings of corresponding fields can be changed but this fielfd will never "
-"be displayed in the directory."
+"This page allows you to set details fields and to create custom details fields for "
+"each Staff member. In case a group of fields is disabled, settings of corresponding "
+"fields can be changed but this fielfd will never be displayed in the directory."
 msgstr ""
 
 #: classes/lab-directory-admin.php:94
 msgid ""
-"In order to display one meta field in the staff directory pages: the meta "
-"field must be enabled, and the corresponding group must also be activated."
+"In order to display one meta field in the staff directory pages: the meta field must "
+"be enabled, and the corresponding group must also be activated."
 msgstr ""
 
 #: classes/lab-directory-admin.php:97 views/admin-settings-fields.php:66
 msgid "Custom Fields"
 msgstr ""
 
-#: classes/lab-directory-admin.php:122 classes/lab-directory-admin.php:206
-#: classes/lab-directory-admin.php:215
+#: classes/lab-directory-admin.php:108
+msgid ""
+"In this window, you can browse each template, modify, empty or relaoad its defaults "
+"value. Saving will save all templates"
+msgstr ""
+
+#: classes/lab-directory-admin.php:109
+msgid ""
+"Important: Loop templates defined in the present page of Lab-Directory settings have "
+"highest priority on every others. Improper settings of a template can break lab-"
+"directory post and pages. In order to disable one template, simply empty its "
+"content. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:110
+msgid ""
+"Lab Directory templating is defined with Template (containing shortcode) and CSS "
+"Stylesheet containing aditionnal CSS code. Default templating can be overrided or "
+"modified."
+msgstr ""
+
+#: classes/lab-directory-admin.php:111
+msgid ""
+"Template and CSS Stylesheet are both overrided in a different way as explained in "
+"this help."
+msgstr ""
+
+#: classes/lab-directory-admin.php:114
+msgid "Overview"
+msgstr ""
+
+#: classes/lab-directory-admin.php:116
+msgid ""
+"When Lab-Directory search for a template, it uses the first found with respect to "
+"template priority definition (highest to lowest): "
+msgstr ""
+
+#: classes/lab-directory-admin.php:117
+msgid "first search for a template file saved in settings (highest priority )"
+msgstr ""
+
+#. translators: wp-content/themes/lab-directory/ (preferred folder for overriding templates
+#: classes/lab-directory-admin.php:119
+#, php-format
+msgid "%s (preferred folder for overriding templates)"
+msgstr ""
+
+#. translators: wp-content/themes/lab-directory/ (this folder exists if you created a child theme called "yourtheme")
+#: classes/lab-directory-admin.php:121 classes/lab-directory-admin.php:133
+#, php-format
+msgid "%s (this folder exists if you created a child theme called \"yourtheme\")"
+msgstr ""
+
+#. translators: wp-content/plugins/lab-directory/templates/ (default template if no other file found and template in settings is empty)
+#: classes/lab-directory-admin.php:123
+#, php-format
+msgid "%s (default template if no other file found and template in settings is empty)"
+msgstr ""
+
+#: classes/lab-directory-admin.php:124 classes/lab-directory-admin.php:138
+msgid ""
+"Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ "
+"your changes will be lost on the next update of Lab-Directory plugin."
+msgstr ""
+
+#: classes/lab-directory-admin.php:127 views/admin-settings-templates.php:94
+msgid "Template"
+msgstr ""
+
+#: classes/lab-directory-admin.php:129
+msgid ""
+"When Lab-Directory load a template, the following stylesheet are all added to CSS "
+"providing they exist: "
+msgstr ""
+
+#. translators: wp-content/plugins/lab-directory/templates/ (this default stylesheet is always loaded first, lowest priority)
+#: classes/lab-directory-admin.php:131
+#, php-format
+msgid "%s (this default stylesheet is always loaded first, lowest priority)"
+msgstr ""
+
+#. translators: wp-content/themes/lab-directory/ (preferred folder for overriding CSS stylesheet)
+#: classes/lab-directory-admin.php:135
+#, php-format
+msgid "%s (preferred folder for overriding CSS stylesheet)"
+msgstr ""
+
+#: classes/lab-directory-admin.php:136
+msgid "look for template saved in settings (last added, highest priority )"
+msgstr ""
+
+#: classes/lab-directory-admin.php:137 views/admin-settings-templates.php:110
+msgid ""
+"When loading default css (it can be used to see all default CSS rules used in a "
+"template) only keep in Lab-Directory settings the CSS Rules that you modified (no "
+"need to override one rule with itself). "
+msgstr ""
+
+#: classes/lab-directory-admin.php:139
+msgid "Class used in Lab-Directory template div ."
+msgstr ""
+
+#: classes/lab-directory-admin.php:141
+msgid "This wrapper (div) enclose the whole Lab-Directory content."
+msgstr ""
+
+#: classes/lab-directory-admin.php:142
+msgid ""
+"This div enclose each individual item found in the Lab-Directory loop. It is "
+"prefixed (ld_single_staff_list) by the name of the template used"
+msgstr ""
+
+#: classes/lab-directory-admin.php:143
+msgid ""
+"This div enclose each individual line of an item (name, photo, position). It has 2 "
+"classes \"ld-field\" (all fields have it) and a second class (ld_photo) equal to the "
+"Lab-Directory slug of that field"
+msgstr ""
+
+#: classes/lab-directory-admin.php:147
+msgid "Stylesheet"
+msgstr ""
+
+#: classes/lab-directory-admin.php:158 classes/lab-directory-admin.php:242
+#: classes/lab-directory-admin.php:251
 msgid "Taxonomies"
 msgstr ""
 
-#: classes/lab-directory-admin.php:123
+#: classes/lab-directory-admin.php:159
 msgid "Taxonomies translation"
 msgstr ""
 
-#: classes/lab-directory-admin.php:134
+#: classes/lab-directory-admin.php:170
 msgid "Acronyms"
 msgstr ""
 
-#: classes/lab-directory-admin.php:140
+#: classes/lab-directory-admin.php:176
 msgid "Translation"
 msgstr ""
 
-#: classes/lab-directory-admin.php:151
+#: classes/lab-directory-admin.php:187
 msgid "Import"
-msgstr ""
-
-#: classes/lab-directory-admin.php:167
-msgid ""
-"This page is used to edit staff profile. Some fields may be locked "
-"depending on LDAP Syncing and user permissions."
-msgstr ""
-
-#: classes/lab-directory-admin.php:170
-msgid "Edit staff profile"
-msgstr ""
-
-#: classes/lab-directory-admin.php:176
-msgid ""
-"This page is used to add a new staff in the staff directory. When LDAP "
-"syncing is used, do not add a staff that can be synced with your LDAP "
-"directory. "
-msgstr ""
-
-#: classes/lab-directory-admin.php:179 classes/lab-directory.php:156
-#: classes/lab-directory.php:159
-msgid "New staff"
-msgstr ""
-
-#: classes/lab-directory-admin.php:185
-msgid ""
-"Staff meta fields are grouped by group of meta fields (CV, Biography...). "
-"These groups are restricted to those groups defined in the staff status. "
-"For a new staff, first save name and fisrtsname, then adjust staff  "
-"statuts, then you will have access to the entire staff profile settings. "
-msgstr ""
-
-#: classes/lab-directory-admin.php:188 classes/lab-directory.php:395
-msgid "Staff Details"
-msgstr ""
-
-#: classes/lab-directory-admin.php:191
-msgid ""
-"Staff status define which group of mea filelds will be shown. Note that a "
-"staff access to certains pages is restricted/allowed on status base. Do "
-"not give some staff improper status which could lead to giving unwanted "
-"permissions to him. "
-msgstr ""
-
-#: classes/lab-directory-admin.php:193
-msgid "staff_status"
-msgstr ""
-
-#: classes/lab-directory-admin.php:194 classes/lab-directory.php:402
-msgid "Staff status"
-msgstr ""
-
-#: classes/lab-directory-admin.php:197
-msgid ""
-"When LDAP syncing is used and LDAP staff photo is synced, staff photo is "
-"disabled and replaced whith the LDAP Staff photo. In that case, you should "
-"add staff photo in the LDAP directory, it will appear in lab-directory at "
-"the next LDAP sync. "
-msgstr ""
-
-#: classes/lab-directory-admin.php:200 classes/lab-directory.php:166
-#: classes/lab-directory.php:287
-msgid "Staff photo"
 msgstr ""
 
 #: classes/lab-directory-admin.php:203
 msgid ""
-"If your webmaster allows using taxonomies, you can categorise staff "
-"depending on their team laboatory... Taxonomies will be used to filter "
-"staff list, by team for example. "
+"This page is used to edit staff profile. Some fields may be locked depending on LDAP "
+"Syncing and user permissions."
 msgstr ""
 
-#: classes/lab-directory-admin.php:205
+#: classes/lab-directory-admin.php:206
+msgid "Edit staff profile"
+msgstr ""
+
+#: classes/lab-directory-admin.php:212
+msgid ""
+"This page is used to add a new staff in the staff directory. When LDAP syncing is "
+"used, do not add a staff that can be synced with your LDAP directory. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:215 classes/lab-directory.php:156
+#: classes/lab-directory.php:159
+msgid "New staff"
+msgstr ""
+
+#: classes/lab-directory-admin.php:221
+msgid ""
+"Staff meta fields are grouped by group of meta fields (CV, Biography...). These "
+"groups are restricted to those groups defined in the staff status. For a new staff, "
+"first save name and fisrtsname, then adjust staff  statuts, then you will have "
+"access to the entire staff profile settings. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:224 classes/lab-directory.php:395
+msgid "Staff Details"
+msgstr ""
+
+#: classes/lab-directory-admin.php:227
+msgid ""
+"Staff status define which group of mea filelds will be shown. Note that a staff "
+"access to certains pages is restricted/allowed on status base. Do not give some "
+"staff improper status which could lead to giving unwanted permissions to him. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:229
+msgid "staff_status"
+msgstr ""
+
+#: classes/lab-directory-admin.php:230 classes/lab-directory.php:402
+msgid "Staff status"
+msgstr ""
+
+#: classes/lab-directory-admin.php:233
+msgid ""
+"When LDAP syncing is used and LDAP staff photo is synced, staff photo is disabled "
+"and replaced whith the LDAP Staff photo. In that case, you should add staff photo in "
+"the LDAP directory, it will appear in lab-directory at the next LDAP sync. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:236 classes/lab-directory.php:166
+#: classes/lab-directory.php:287
+msgid "Staff photo"
+msgstr ""
+
+#: classes/lab-directory-admin.php:239
+msgid ""
+"If your webmaster allows using taxonomies, you can categorise staff depending on "
+"their team laboatory... Taxonomies will be used to filter staff list, by team for "
+"example. "
+msgstr ""
+
+#: classes/lab-directory-admin.php:241
 msgid "taxonomies"
 msgstr ""
 
-#: classes/lab-directory-admin.php:213
+#: classes/lab-directory-admin.php:249
 msgid ""
-"Taxonomies are enabled on this staff directory. In order to categorise "
-"staff (by team for example), just add the correspoding teams one by one. "
-"You can also define nested categories (team and sub-team). Please note "
-"that the default taxonomies (Team and laboratory) can be overrided if you "
-"need using different taxonomies (see taxonomies menu in lab-directory "
-"admin menu)."
+"Taxonomies are enabled on this staff directory. In order to categorise staff (by "
+"team for example), just add the correspoding teams one by one. You can also define "
+"nested categories (team and sub-team). Please note that the default taxonomies (Team "
+"and laboratory) can be overrided if you need using different taxonomies (see "
+"taxonomies menu in lab-directory admin menu)."
 msgstr ""
 
-#: classes/lab-directory-admin.php:216
+#: classes/lab-directory-admin.php:252
 msgid "Edit Taxonomies"
 msgstr ""
 
-#: classes/lab-directory-admin.php:243
+#: classes/lab-directory-admin.php:279
 msgid "Acronym tooltips"
 msgstr ""
 
-#: classes/lab-directory-admin.php:292
+#: classes/lab-directory-admin.php:328
 msgid "General settings"
 msgstr ""
 
-#: classes/lab-directory-admin.php:297
+#: classes/lab-directory-admin.php:333
 msgid "LDAP tests"
 msgstr ""
 
-#: classes/lab-directory-admin.php:299
+#: classes/lab-directory-admin.php:335
 msgid "About"
 msgstr ""
 
-#: classes/lab-directory-admin.php:470 classes/lab-directory-admin.php:513
-#: classes/lab-directory-admin.php:549 classes/lab-directory-admin.php:581
-#: classes/lab-directory-admin.php:612 classes/lab-directory-admin.php:656
-#: classes/lab-directory-admin.php:694 classes/lab-directory-admin.php:753
-#: classes/lab-directory-admin.php:816
+#: classes/lab-directory-admin.php:481 classes/lab-directory-admin.php:524
+#: classes/lab-directory-admin.php:560 classes/lab-directory-admin.php:602
+#: classes/lab-directory-admin.php:633 classes/lab-directory-admin.php:677
+#: classes/lab-directory-admin.php:715 classes/lab-directory-admin.php:774
+#: classes/lab-directory-admin.php:837
 msgid "Security check fail : form not saved."
 msgstr ""
 
@@ -298,43 +410,41 @@ msgid "Form saved"
 msgstr ""
 
 #. translators: HDR french acronym for "Habilitation a Diriger les Recherches"
-#: classes/lab-directory-shortcode.php:161
-#: classes/lab-directory-shortcode.php:169 classes/lab-directory.php:2375
+#: classes/lab-directory-shortcode.php:161 classes/lab-directory-shortcode.php:171
+#: classes/lab-directory.php:2375
 msgid "HDR"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:179
+#: classes/lab-directory-shortcode.php:181
 msgid "PHD"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:635
+#: classes/lab-directory-shortcode.php:625
 msgid "This template is used to display staff directory as a grid"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:636
+#: classes/lab-directory-shortcode.php:626
 msgid "This template is used to display staff directory as a list"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:637
+#: classes/lab-directory-shortcode.php:627
 msgid "This template is used to display staff directory as a photo gallery"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:638
+#: classes/lab-directory-shortcode.php:628
 msgid "This template is used to display a defenses list"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:639
+#: classes/lab-directory-shortcode.php:629
 msgid "This template is used to display a single staff profile"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:640
-msgid ""
-"This template is used to display HDR defense information for a single staff"
+#: classes/lab-directory-shortcode.php:630
+msgid "This template is used to display HDR defense information for a single staff"
 msgstr ""
 
-#: classes/lab-directory-shortcode.php:641
-msgid ""
-"This template is used to display PHD defense information for a single staff"
+#: classes/lab-directory-shortcode.php:631
+msgid "This template is used to display PHD defense information for a single staff"
 msgstr ""
 
 #: classes/lab-directory.php:154
@@ -375,8 +485,8 @@ msgstr ""
 msgid "No staff in Trash."
 msgstr ""
 
-#: classes/lab-directory.php:165
-msgid "Staffs list"
+#: classes/lab-directory.php:165 classes/lab-directory.php:172
+msgid "Staff list"
 msgstr ""
 
 #: classes/lab-directory.php:167
@@ -396,11 +506,7 @@ msgid "Filter staff list"
 msgstr ""
 
 #: classes/lab-directory.php:171
-msgid "Staff list navigation"
-msgstr ""
-
-#: classes/lab-directory.php:172
-msgid "Staff list"
+msgid "Navigation in staff list"
 msgstr ""
 
 #: classes/lab-directory.php:284 classes/lab-directory.php:2500
@@ -437,8 +543,8 @@ msgstr ""
 
 #: classes/lab-directory.php:456
 msgid ""
-"You must first save staff name and firstname before being able to change "
-"his/her status"
+"You must first save staff name and firstname before being able to change his/her "
+"status"
 msgstr ""
 
 #: classes/lab-directory.php:504
@@ -458,7 +564,7 @@ msgstr ""
 msgid "This entry accept multiple values"
 msgstr ""
 
-#: classes/lab-directory.php:712
+#: classes/lab-directory.php:712 classes/lab-directory.php:2427
 msgid "Comma (,) separated values"
 msgstr ""
 
@@ -466,18 +572,18 @@ msgstr ""
 msgid "Semicolumn (;) separated values"
 msgstr ""
 
-#: classes/lab-directory.php:720
+#: classes/lab-directory.php:720 classes/lab-directory.php:2429
 msgid "Vertical bar (|) separated values"
 msgstr ""
 
-#: classes/lab-directory.php:724
+#: classes/lab-directory.php:724 classes/lab-directory.php:2430
 msgid "Slash (/) separated values"
 msgstr ""
 
 #: classes/lab-directory.php:730
 msgid ""
-"This entry accept multiple values (one value per line, values separated by "
-"a carriage return)"
+"This entry accept multiple values (one value per line, values separated by a "
+"carriage return)"
 msgstr ""
 
 #: classes/lab-directory.php:821
@@ -589,59 +695,46 @@ msgid "Multiple valued"
 msgstr ""
 
 #: classes/lab-directory.php:2405
-msgid "(') separated list"
+msgid "(') separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2406
-msgid "(;) separated list"
+msgid "(;) separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2407
-msgid "(|) separated list"
+msgid "(|) separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2408
-msgid "(/) separated list"
+msgid "(/) separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2409
-msgid "CR separated list"
+msgid "CR separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2419
 msgid ""
-"Only first value of attribute will be extracted if LDAP attribute is "
-"multivalued"
+"Only first value of attribute will be extracted if LDAP attribute is multivalued"
 msgstr ""
 
 #: classes/lab-directory.php:2424
 msgid ""
-"Single valued (only first value will be extracted if LDAP attribute is "
-"multivalued and has multiple values)"
+"Single valued (only first value will be extracted if LDAP attribute is multivalued "
+"and has multiple values)"
 msgstr ""
 
 #: classes/lab-directory.php:2426
 msgid "Multiple valued (extract all values if LDAP attribute is multivalued)"
 msgstr ""
 
-#: classes/lab-directory.php:2427
-msgid "Comma (') separated list"
-msgstr ""
-
 #: classes/lab-directory.php:2428
-msgid "Semicolumn (;) separated list ("
-msgstr ""
-
-#: classes/lab-directory.php:2429
-msgid "Vertical bar (|) separated list"
-msgstr ""
-
-#: classes/lab-directory.php:2430
-msgid "Slash (/) separated list"
+msgid "Semicolumn (;) separated values ("
 msgstr ""
 
 #: classes/lab-directory.php:2431
-msgid "Carriage return separated list"
+msgid "Carriage return separated values"
 msgstr ""
 
 #: classes/lab-directory.php:2441
@@ -959,8 +1052,8 @@ msgstr ""
 
 #: classes/lab-directory.php:2631
 msgid ""
-"This staff profile (including photo) is synchronised with LDAP. Staff "
-"photo must be added or changed on LDAP directory"
+"This staff profile (including photo) is synchronised with LDAP. Staff photo must be "
+"added or changed on LDAP directory"
 msgstr ""
 
 #. translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..
@@ -1119,20 +1212,16 @@ msgstr ""
 
 #: views/admin-settings-fields.php:66 views/admin-settings-groups.php:10
 #: views/admin-settings-ldap.php:6 views/admin-settings-permissions.php:43
-#: views/admin-settings-taxonomies.php:44
-#: views/admin-settings-templates.php:54 views/admin-settings-test-sync.php:4
+#: views/admin-settings-templates.php:69 views/admin-settings-test-sync.php:4
 #: views/admin-settings-translations.php:41
-#: views/admin-settings-translations.php:109
 msgid "Lab Directory Settings"
 msgstr ""
 
 #: views/admin-settings-fields.php:68 views/admin-settings-fields.php:211
 #: views/admin-settings-general.php:103 views/admin-settings-groups.php:40
 #: views/admin-settings-ldap.php:52 views/admin-settings-permissions.php:47
-#: views/admin-settings-permissions.php:123
-#: views/admin-settings-permissions.php:181
-#: views/admin-settings-taxonomies.php:49
-#: views/admin-settings-taxonomies.php:130
+#: views/admin-settings-permissions.php:123 views/admin-settings-permissions.php:181
+#: views/admin-settings-taxonomies.php:52 views/admin-settings-taxonomies.php:133
 #: views/admin-settings-translations.php:176
 msgid "Save"
 msgstr ""
@@ -1147,8 +1236,8 @@ msgstr ""
 
 #: views/admin-settings-fields.php:79
 msgid ""
-"Do you really want to reset all meta fields?  (all previously saved meta "
-"fields setting will be lost) ."
+"Do you really want to reset all meta fields?  (all previously saved meta fields "
+"setting will be lost) ."
 msgstr ""
 
 #: views/admin-settings-fields.php:79
@@ -1175,8 +1264,7 @@ msgstr ""
 msgid "Meta fields group's"
 msgstr ""
 
-#: views/admin-settings-permissions.php:27
-#: views/admin-settings-taxonomies.php:59
+#: views/admin-settings-permissions.php:27 views/admin-settings-taxonomies.php:62
 msgid "All"
 msgstr ""
 
@@ -1185,13 +1273,13 @@ msgid "Owner"
 msgstr ""
 
 #: views/admin-settings-permissions.php:49
-msgid "Show or Hide Wordpress groups permissions"
+msgid "Show or Hide Permissions defined for Wordpress groups"
 msgstr ""
 
 #: views/admin-settings-permissions.php:54
 msgid ""
-"Do you really want to reset all permisions?  (all previously saved "
-"permissions will be lost) ."
+"Do you really want to reset all permisions?  (all previously saved permissions will "
+"be lost) ."
 msgstr ""
 
 #: views/admin-settings-permissions.php:55
@@ -1206,67 +1294,42 @@ msgstr ""
 msgid "none"
 msgstr ""
 
-#: views/admin-settings-permissions.php:76
-#: views/admin-settings-permissions.php:88
-#: views/admin-settings-permissions.php:135
-#: views/admin-settings-permissions.php:147
+#: views/admin-settings-permissions.php:76 views/admin-settings-permissions.php:88
+#: views/admin-settings-permissions.php:135 views/admin-settings-permissions.php:147
 msgid "Scope"
 msgstr ""
 
 #: views/admin-settings-permissions.php:125
-msgid "Show or Hide Lab Directory groups permissions"
+msgid "Show or Hide Permissions defined for Lab-Directory status"
 msgstr ""
 
 #: views/admin-settings-permissions.php:185
 #, php-format
 msgid ""
-"Current permissions for user %s (checked when permission is granted to "
-"this user)"
+"Current permissions for user %s (checked when permission is granted to this user)"
 msgstr ""
 
-#: views/admin-settings-taxonomies.php:44
-msgid "Taxonomies translation/customization for"
+#: views/admin-settings-taxonomies.php:47
+#, php-format
+msgid "Lab Directory Setting: Taxonomies translation/customization for %s"
 msgstr ""
 
-#: views/admin-settings-taxonomies.php:73
-#: views/admin-settings-taxonomies.php:75
-#: views/admin-settings-taxonomies.php:84
-#: views/admin-settings-taxonomies.php:86
-#: views/admin-settings-translations.php:116
-#: views/admin-settings-translations.php:118
-#: views/admin-settings-translations.php:125
-#: views/admin-settings-translations.php:127
-msgid "translation"
+#: views/admin-settings-taxonomies.php:76 views/admin-settings-taxonomies.php:78
+#: views/admin-settings-taxonomies.php:87 views/admin-settings-taxonomies.php:89
+#, php-format
+msgid "Translation for %s"
 msgstr ""
 
-#: views/admin-settings-templates.php:54
+#: views/admin-settings-templates.php:69
 msgid "Templates used in Lab-Directory loops"
 msgstr ""
 
-#: views/admin-settings-templates.php:55
-msgid ""
-"In this window, you can browse each template, modify, empty or relaoad its "
-"defaults value. Saving will save all templates"
-msgstr ""
-
-#: views/admin-settings-templates.php:58
+#: views/admin-settings-templates.php:71
 msgid "Browse template:"
 msgstr ""
 
-#: views/admin-settings-templates.php:75
-msgid "Template"
-msgstr ""
-
-#: views/admin-settings-templates.php:93
-msgid "Save all templates"
-msgstr ""
-
-#: views/admin-settings-templates.php:95
-msgid ""
-"Important: These loop templates defined in Lab-Directory settings have "
-"highest priority on every others. Improper settings of a template can "
-"break lab-directory post and pages. In order to disable one template, "
-"simply empty its content. "
+#: views/admin-settings-templates.php:102
+msgid "Save all templates and stylesheet"
 msgstr ""
 
 #: views/admin-settings-test-sync.php:4
@@ -1293,11 +1356,17 @@ msgstr ""
 msgid "Acronyms tooltip's settings"
 msgstr ""
 
-#: views/admin-settings-translations.php:47
-#: views/admin-settings-translations.php:55
+#: views/admin-settings-translations.php:47 views/admin-settings-translations.php:55
 msgid "Acronym"
 msgstr ""
 
+#. translators: example, Lab Directory Settings : Translation for English (UK) / (en_GB)
 #: views/admin-settings-translations.php:109
-msgid "Translations for"
+#, php-format
+msgid "Lab Directory Setting: Translation for %s"
+msgstr ""
+
+#: views/admin-settings-translations.php:116 views/admin-settings-translations.php:118
+#: views/admin-settings-translations.php:125 views/admin-settings-translations.php:127
+msgid "translation"
 msgstr ""

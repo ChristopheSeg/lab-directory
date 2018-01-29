@@ -105,10 +105,46 @@ class Lab_Directory_Admin {
 					'content' => $content));
 				break;
 			case 'templates':
-				$content = '<p>' . __('TODO help needed','lab-directory') . '</p>'; 
+        		$content = '<p>' . __('In this window, you can browse each template, modify, empty or relaoad its defaults value. Saving will save all templates', 'lab-directory') . '</p>';
+				$content .= '<p>' . __('Important: Loop templates defined in the present page of Lab-Directory settings have highest priority on every others. Improper settings of a template can break lab-directory post and pages. In order to disable one template, simply empty its content. ', 'lab-directory') . '</p>';
+				$content .= '<p>' . __('Lab Directory templating is defined with Template (containing shortcode) and CSS Stylesheet containing aditionnal CSS code. Default templating can be overrided or modified.', 'lab-directory') . '</p>';
+				$content .= '<p><b>' . __('Template and CSS Stylesheet are both overrided in a different way as explained in this help.', 'lab-directory') . '</b></p>';
 				$screen->add_help_tab( array(
-					'id'	=> $current_tab,
-					'title'	=> $tabs[$current_tab],
+					'id'	=> 'general',
+					'title'	=> __('Overview'),
+					'content' => $content));
+				$content =  '<p>' . __('When Lab-Directory search for a template, it uses the first found with respect to template priority definition (highest to lowest): ', 'lab-directory'). '</p>';
+				$content .=  '<ol><li>' . __('first search for a template file saved in settings (highest priority )', 'lab-directory'). '</li>';
+				/* translators: wp-content/themes/lab-directory/ (preferred folder for overriding templates */
+				$content .=  '<li>' . sprintf( __('%s (preferred folder for overriding templates)', 'lab-directory'), 'wp-content/themes/lab-directory/') . '</li>';
+				/* translators: wp-content/themes/lab-directory/ (this folder exists if you created a child theme called "yourtheme") */
+				$content .=  '<li>' . sprintf( __('%s (this folder exists if you created a child theme called "yourtheme")', 'lab-directory'), 'wp-content/themes/yourtheme/') . '</li>';
+				/* translators: wp-content/plugins/lab-directory/templates/ (default template if no other file found and template in settings is empty) */
+				$content .=  '<li>' . sprintf( __('%s (default template if no other file found and template in settings is empty)', 'lab-directory'), 'wp-content/plugins/lab-directory/templates/') . '</li></ol></p>';
+				$content .=  '<p><b>' . __('Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ your changes will be lost on the next update of Lab-Directory plugin.', 'lab-directory') . '</b></p>';
+				$screen->add_help_tab( array(
+					'id'	=> 'templates',
+					'title'	=>  __('Template'),
+					'content' => $content));
+				$content =  '<p>' . __('When Lab-Directory load a template, the following stylesheet are all added to CSS providing they exist: ', 'lab-directory'). '</li>';
+				/* translators: wp-content/plugins/lab-directory/templates/ (this default stylesheet is always loaded first, lowest priority) */
+				$content .=  '<ol><li>' . sprintf( __('%s (this default stylesheet is always loaded first, lowest priority)', 'lab-directory'), 'wp-content/plugins/lab-directory/templates/') . '</li>';
+				/* translators: wp-content/themes/lab-directory/ (this folder exists if you created a child theme called "yourtheme") */
+				$content .=  '<li>' . sprintf( __('%s (this folder exists if you created a child theme called "yourtheme")', 'lab-directory'), 'wp-content/themes/yourtheme/') . '</li>';
+				/* translators: wp-content/themes/lab-directory/ (preferred folder for overriding CSS stylesheet) */
+				$content .=  '<li>' . sprintf( __('%s (preferred folder for overriding CSS stylesheet)', 'lab-directory'), 'wp-content/themes/lab-directory/') . '</li>';
+				$content .=  '<li>' . __('look for template saved in settings (last added, highest priority )', 'lab-directory'). '</li></ol></p>';
+				$content .=  '<p>' . __('When loading default css (it can be used to see all default CSS rules used in a template) only keep in Lab-Directory settings the CSS Rules that you modified (no need to override one rule with itself). ', 'lab-directory'). '</p>';
+				$content .=  '<p><b>' . __('Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ your changes will be lost on the next update of Lab-Directory plugin.', 'lab-directory'). '</b></p>';
+				$content .=  '<p>' . __('Class used in Lab-Directory template div .', 'lab-directory'). '</p>';
+				
+				$content .=  '<p><ol><li><i>&lt;div id="lab-directory-wrapper"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory content.', 'lab-directory'). '</li>';
+				$content .=  '<li><i>&lt;div class="ld_single_staff_list_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed (ld_single_staff_list) by the name of the template used', 'lab-directory'). '</li>';
+				$content .=  '<li><i>&lt;div class="ld_field ld_photo"&gt;</i> : ' . __('This div enclose each individual line of an item (name, photo, position). It has 2 classes "ld-field" (all fields have it) and a second class (ld_photo) equal to the Lab-Directory slug of that field', 'lab-directory'). '</li></ol>';
+				
+					$screen->add_help_tab( array(
+					'id'	=> 'css',
+					'title'	=> __('Stylesheet'),
 					'content' => $content));
 				break;
 		}
@@ -136,7 +172,7 @@ class Lab_Directory_Admin {
 			) );
 		$content = '<p>' . __('TODO help needed','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
-			'id'	=> 'translations',
+			'id'	=> 'translation',
 			'title'	=> __('Translation'),
 			'content' => $content,
 			) );
@@ -367,32 +403,7 @@ class Lab_Directory_Admin {
 			<li>- </li>
 			</ul>
 			
-				<p> 
-				  <br>TOBEDONE install metafields vides !!  
-				  liste social vide: proposed/prefered en 1ère colonne + PAS DE SENES !!!!
-				  acronym sans link -----
-				  TITRE/RESUME hdr phd SINTERNSHIP AJOUTER ANGLAIS+LOCALE? 
-				  <br>TOBEDONE T1 T2 remplacer par un seul array partout + ajouter test non différents (en vue d'en avoir plus que 2
-			      <br>TOBEDONE  avant photo!! créer un champ photo_modified avec date modification: comment?
-			      <br>TOBEDONE OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
-			      <br>TOBEDONE 
-			      <br>TOBEDONE CSS: ajouter div dans loop_shortcode, les supprimer des loop.php
-			      <br>TOBEDONE CSS: ajouter des css par défault (list, grid, ...) et les supprimer des loop.php
-			      
-			      <br>TOBEDONE CSS: ajourer sur chaque field une classe spécifique + class ld pour CSS
-			      <br>TOBEDONE 
-			      <br>TOBEDONE voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
-			      <br>TOBEDONE ajouter slug calculés firstname_name....
-			      <br>TOBEDONE shortcode: programmmer tous les slugs ET ajouter MV aux anciens 
-			      <br>TOBEDONE 
-			      <br>TOBEDONE permissions : 
-			      <br>TOBEDONE permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
-			      <br>TOBEDONE ajouter les droits accès edit ou admin sur lab-directory posts
-			      <br>TOBEDONE 
-			      <br>TOBEDONE   
-			      <br>TOBEDONE ajouter cando (who,action) groupes lab-directory [administrator,staff ]
-			      <br>TOBEDONE code php: séparer admin et frontend
-			    </p>
+
 	<p> 
 	<ul>
 	
@@ -564,13 +575,23 @@ class Lab_Directory_Admin {
 			if ( !empty($_POST['admin-settings-templates']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-templates' )){
 	
 				if ( isset( $_POST['custom_lab_directory_staff_templates'] ) ) {
-					foreach ($_POST['custom_lab_directory_staff_templates'] as $template_slug => $template_content) {
-						$template_content = trim ($template_content);
+					foreach ($_POST['custom_lab_directory_staff_templates'] as $template_slug =>$template_and_css) {
+						$template_file =  'ld_' . $template_slug . '.php';
+						$css_file =  'ld_' . $template_slug . '.css';
+						
+						$template_content = trim ($template_and_css['html']);
 						if ($template_content) {
-							update_option( 'ld_template_'.$template_slug, $template_content);
+							update_option( $template_file, $template_content);
 						}
 						else {
-							delete_option( 'ld_template_'.$template_slug);
+							delete_option($template_file);
+						}
+						$css_content = trim ($template_and_css['css']);
+						if ($css_content) {
+							update_option( $css_file, $css_content);
+						}
+						else {
+							delete_option( $css_file);
 						}
 						
 					}

@@ -30,13 +30,13 @@
     <h2>Lab Directory Single Profile Template</h2>
     <aside>Note: The difference between the Single Profile Template and the Listing Templates - Listing Templates are used to display the list of lab_directory_staff members, while the Single Profile Template is the file used to format the single profile page (i.e. the page you see after clicking on a lab_directory_staff member).</aside>
     <p>
-        By default, Lab Directory uses the single-lab_directory_staff.php file, located in the plugin's templates folder, to display individual profile data. But you may create your own templates if you wish.
+        By default, Lab Directory uses the ld_single_staff.php file, located in the plugin's templates folder, to display individual profile data. But you may create your own templates if you wish.
     </p>
     <p>
-        Warning: Do not edit the single-lab_directory_staff.php file directly. If you do, your changes will be overwritten when Lab Directory updates.
+        Warning: Do not edit the ld_single_staff.php file directly. If you do, your changes will be overwritten when Lab Directory updates.
     </p>
     <p>
-        To create a custom profile template, the easiest way would be to either copy your single.php file, or to copy the single-lab_directory_staff.php file. Once copied, place the file in your theme's template directory (for most themes this is simply your themes main folder), and then give the file any name you choose, making sure to prefix the name with 'single-lab_directory_staff-' ( i.e. single-lab_directory_staff-myCustomTemplate.php ). If you do not use the prefix 'single-lab_directory_staff-', Lab Directory will not recognize your template.
+        To create a custom profile template, the easiest way would be to either copy your single.php file, or to copy the ld_single_staff.php file. Once copied, place the file in your theme's template directory (for most themes this is simply your themes main folder), and then give the file any name you choose, making sure to prefix the name with 'ld_single_staff-' ( i.e. ld_single_staff-myCustomTemplate.php ). If you do not use the prefix 'ld_single_staff-', Lab Directory will not recognize your template.
     </p>
 </div>
 
@@ -74,7 +74,7 @@
     <li><code>[ld_bio]</code> - the lab_directory_staff member's bio</li>
     <li><code>[ld_bio_paragraph]</code> - the lab_directory_staff member's bio with &lt;p&gt; tags</li>
     <li><code>[ld_category]</code> - the lab_directory_staff member's category (first category only)</li>
-    <li><code>[ld_category all=true]</code> - all of the lab_directory_staff member's categories in a comma-separated list</li>
+    <li><code>[ld_category all=true]</code> - all of the lab_directory_staff member's categories in a comma separated values list</li>
 
     <li><code>[ld_email_link]</code> Staff Email </li>
     <li><code>[ld_website_link]</code> Staff Website</li>

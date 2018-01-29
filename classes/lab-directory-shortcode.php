@@ -76,7 +76,7 @@ class Lab_Directory_Shortcode {
    	// rewind_post() because have_posts() has already been called in the main (single.php) template
    	rewind_posts(); 
         if ( have_posts() ) {
-        	// do not loop postshere it's always a single staff
+        	// do not loop posts here it's always a single staff
             the_post();
             $output .= do_shortcode($content);
         }
@@ -163,6 +163,8 @@ class Lab_Directory_Shortcode {
     		' : ' . self::ld_name_firstname_shortcode();
     	$output = self::ld_profile_link_shortcode(array('phd' => true, 'inner_text' => $text));
         return $output;
+    	
+    	//TODOTODO Obsolete !!
     	
     	$output = 
             self::ld_profile_link_shortcode(array('hdr' => true)) .
@@ -619,18 +621,6 @@ class Lab_Directory_Shortcode {
     }
 
     static function retrieve_template_list() {
-       	return array(
-		    	'staff_grid' => 'ld_staff_grid.php',
-		    	'staff_list' => 'ld_staff_list.php',
-		    	'staff_trombi' => 'ld_staff_trombi.php',
-		    	'defense_list' => 'ld_defense_list.php',
-		    	'single_staff' => 'ld_single_staff.php',
-		    	'single_staff_hdr' => 'ld_single_staff_hdr.php',
-		    	'single_staff_phd' => 'ld_single_staff_phd.php',
-	    );
-	    }
-	    
-    static function retrieve_template_info() {
 		return array(  	
 		    	'staff_grid' => __('This template is used to display staff directory as a grid', 'lab-directory'),
 		    	'staff_list' => __('This template is used to display staff directory as a list', 'lab-directory'),
@@ -651,11 +641,16 @@ class Lab_Directory_Shortcode {
         // Check if template slug exists 
         $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;
         
+        // TODOTODO  si slug inexistant !! error!! 
+        
+        // TODOTODO  HTML + CSS !!! 
         // Check if template is overrided 
 		$cur_template = self::ld_locate_template($cur_template); 
 
         if ($cur_template) {
+        	//TODOTODO ajouter CSS aussi!!
             $template_contents = file_get_contents( $cur_template);
+            // TODOTODO add div 
             return do_shortcode($template_contents);
         } else {
             $lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -669,6 +664,7 @@ class Lab_Directory_Shortcode {
             $template_html  = self::custom_pre_shortcode_escaping($template_html);
 
             $output .= "<style type='text/css'>$template_css</style>";
+            // TODOTODO add div 
             $output .= do_shortcode($template_html);
 
             //Now that we've run all the shortcodes, lets un-trick wordpress

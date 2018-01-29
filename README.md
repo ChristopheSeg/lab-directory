@@ -36,28 +36,28 @@ Lab-Directory is ready to be translated in your language. Default language are F
   .clearfix {
     clear: both;
   }
-  .single-lab_directory_staff {
+  .ld_single_staff {
     margin-bottom: 50px;
   }
-  .single-lab_directory_staff .ld_photo {
+  .ld_single_staff .ld_photo {
     float: left;
     margin-right: 15px;
   }
-  .single-lab_directory_staff .ld_photo img {
+  .ld_single_staff .ld_photo img {
     max-width: 100px;
     height: auto;
   }
-  .single-lab_directory_staff .ld_name {
+  .ld_single_staff .ld_name {
     font-size: 1em;
     line-height: 1em;
     margin-bottom: 4px;
   }
-  .single-lab_directory_staff .ld_position {
+  .ld_single_staff .ld_position {
     font-size: .9em;
     line-height: .9em;
     margin-bottom: 10px;
   }
-  .single-lab_directory_staff .ld_bio {
+  .ld_single_staff .ld_bio {
     margin-bottom: 8px;
   }
 
@@ -65,7 +65,7 @@ Lab-Directory is ready to be translated in your language. Default language are F
 <div id="lab-directory-wrapper">
     SINGLE_STAFF.PHP
     [lab_directory_single_staff_loop]
-        <div class="single-lab_directory_staff">
+        <div class="ld_single_staff">
                 <div class="ld_photo">[ld_photo]</div>
             	<div class="ld_name" >[ld_name]</div> 
             	<div class="ld_name" >[ld_position]</div>

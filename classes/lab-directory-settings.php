@@ -421,10 +421,10 @@ class Lab_Directory_Settings {
 								 */
 						    	$champ_valeurs[$active_meta_field['slug']] = implode( "\n", $valeurs );
 								break;
-							case ',' : // 'Comma separated list' ,
+							case ',' : // 'Comma separated values' ,
 								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode(',',$valeurs[0]);
 								break;
-							case ';' : // 'Semicolumn separated list' ,
+							case ';' : // 'Semicolumn separated values' ,
 								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode(';',$valeurs[0]);
 								break;
 							case '|' : // '| separated values' ,
