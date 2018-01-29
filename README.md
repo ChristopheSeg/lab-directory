@@ -4,6 +4,8 @@ a Future laboratory Directory plugin for Wordpress
 ### Do not use this plugin it is in development 
 
 I started this plugin in october 2017. At present time, this repro is only used as backup. 
+At present, no permission is tested so that some backend page may be accessible to registered user 
+Don't use this plugin on a production website. 
 
 ### Features overview
 Lab-directory is a directory plugins that can :
