@@ -3,7 +3,8 @@
 class Lab_Directory_Shortcode {
 
     public static $lab_directory_staff_query;
-    public static $hdr_loop;
+    public static $current_template;
+    public static $hdr_loop = false; 
 	static function register_shortcode() {
 
         //Main shortcode to initiate plugin
@@ -55,18 +56,24 @@ class Lab_Directory_Shortcode {
 	
 	// TODO ALL Shortcode: test display frontend, activated (frontend...), MV, tooltips
 
-    static function ld_meta_shortcode( $atts, $content = NULL, $tag) {
-        $meta_key             = substr($tag,3);
+    static function ld_meta_shortcode( $atts, $content = NULL, $tag = '' ) {
+	    $atts = shortcode_atts( array(
+	    	'add_div'     => true,
+	    ), $atts);
+	    $meta_key             = substr($tag,3);
         $meta_value           = get_post_meta( get_the_ID(), $meta_key, true );
         
         if($meta_value) {
-            return $meta_value;
+            $output = $meta_value;
         } else {
-            return ''; // Print nothing and remove tag if no value
+            $output = ''; // Print nothing and remove tag if no value
         }
-
+        if ( $atts['add_div'] === true) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;
     }
-
+    
     static function lab_directory_single_staff_loop_shortcode( $atts, $content = NULL ) {
  
     global $post; 
@@ -78,7 +85,7 @@ class Lab_Directory_Shortcode {
         if ( have_posts() ) {
         	// do not loop posts here it's always a single staff
             the_post();
-            $output .= do_shortcode($content);
+    		$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
         }
         return $output;
     }
@@ -87,13 +94,29 @@ class Lab_Directory_Shortcode {
 
         $query = Lab_Directory_Shortcode::lab_directory_staff_query($atts);
         $output = "";
+        if ( ($atts['staff_filter'] == true ) OR ($atts['staff_filter'] = 'true' ) ) {
+        	// Add a text filter on this list 
+        	$output .= ' 
+				<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
+				<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/text_filter.js"></script>
+				
+				<script type="text/javascript">
+				</script>
+				
+				<form id="filtre_dynamique">
+				  <input type="reset" id="filtre_dynamique_effacer" value="Sans filtre" />
+				  <input type="text" id="filtre_dynamique_saisie" />
+				  <label for="filtre_dynamique_saisie">Filtrer sur ce texte</label>
+				</form> '; 
+        	
+    }
 
         if ( $query->have_posts() ) {
 
             while ( $query->have_posts() ) {
                 $query->the_post();
-                $output .= do_shortcode($content);
-
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
+                
             }
         }
         wp_reset_query();
@@ -109,8 +132,8 @@ class Lab_Directory_Shortcode {
 
             while ( $query->have_posts() ) {
                 $query->the_post();
-                $output .= do_shortcode($content);
-
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
+                
             }
         }
         wp_reset_query();
@@ -126,81 +149,94 @@ class Lab_Directory_Shortcode {
     
     		while ( $query->have_posts() ) {
     			$query->the_post();
-    			$output .= do_shortcode($content);
-    
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
     		}
     	}
     	wp_reset_query();
     
     	return $output;
     }
-    static function ld_name_shortcode(){
-        return get_post_meta( get_the_ID(), 'name', true );
-    }
 
-    static function ld_name_firstname_shortcode(){
-        return get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
-    }
-
-    static function ld_name_header_shortcode(){
-        return "<h3>" . self::ld_name_shortcode() . "</h3>";
-    }
-
-    static function ld_photo_url_shortcode(){
-        if ( has_post_thumbnail() ) {
-            $attachment_array = wp_get_attachment_image_src( get_post_thumbnail_id() );
-            return $attachment_array[0];   
-        } else {
-            return '';
+    static function ld_name_firstname_shortcode($atts, $content = NULL, $tag = '' ){
+    	$atts = shortcode_atts( array(
+    		'add_div'     => true,
+    	), $atts);
+    	$output = get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
+        if ( $atts['add_div'] === true) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
+        return $output;
     }
 
-    static function ld_widget_hdr_link_shortcode($atts){
-    	
+    static function ld_photo_url_shortcode($atts, $content = NULL, $tag = '' ){
+     	$atts = shortcode_atts( array(
+    		'add_div'     => true,
+    	), $atts);
+    	if ( has_post_thumbnail() ) {
+            $attachment_array = wp_get_attachment_image_src( get_post_thumbnail_id() );
+            $output = $attachment_array[0];   
+        } else {
+            $output = '';
+        }
+        if ( $atts['add_div'] === true) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;        
+    }
+
+    static function ld_widget_hdr_link_shortcode($atts, $content = NULL, $tag = '' ){
+    	$atts = shortcode_atts( array(
+    		'add_div'     => true,
+    	), $atts);    	
     	$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
     	$text = __('HDR', 'lab-directory') . ' ' .
     		date ($format, strtotime(get_post_meta( get_the_ID(), 'hdr_date', true ))) .
-    		' : ' . self::ld_name_firstname_shortcode();
+    		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false));
     	$output = self::ld_profile_link_shortcode(array('phd' => true, 'inner_text' => $text));
+    	if ( $atts['add_div'] === true) {
+    		$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+    	}
         return $output;
-    	
-    	//TODOTODO Obsolete !!
-    	
-    	$output = 
-            self::ld_profile_link_shortcode(array('hdr' => true)) .
-         	'">' . __('HDR', 'lab-directory') . ' ' .
-        	date ($format, strtotime(get_post_meta( get_the_ID(), 'hdr_date', true ))) . 
-        	' : ' . 
-        	self::ld_name_firstname_shortcode() .
-        	'</a>'; 
-        return $output; 
-    }
-    static function ld_widget_phd_link_shortcode($atts){
-    	 
+	}
+    
+    static function ld_widget_phd_link_shortcode($atts, $content = NULL, $tag = '' ){
+    	$atts = shortcode_atts( array(
+    		'add_div'     => true,
+    	), $atts);
     	$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
     	$text = __('PHD', 'lab-directory') . ' ' .
     		date ($format, strtotime(get_post_meta( get_the_ID(), 'phd_date', true ))) .
-    		' : ' . self::ld_name_firstname_shortcode();
+    		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false)) . '</a>';
     	$output = self::ld_profile_link_shortcode(array('phd' => true, 'inner_text' => $text));
-        return $output;
-    }    
-    static function ld_photo_shortcode($atts){
+        if ( $atts['add_div'] === true) {
+    		$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+    	}
+    	return $output;
+    }
+    
+    static function ld_photo_shortcode($atts, $content = NULL, $tag = '' ){
     	$atts = shortcode_atts( array(
-            'replace_empty'     => false,
+            'add_div'     => true,
+    		'replace_empty'     => false,
         ), $atts);
-        $photo_url = self::ld_photo_url_shortcode();
+        $photo_url = self::ld_photo_url_shortcode(array('add_div' => false) );
         if(!empty($photo_url)){
-            return '<img src="' . $photo_url . '" />';
+            $output = '<img src="' . $photo_url . '" />';
         } else {
         	if ($atts['replace_empty']) {
-            return '<img src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
+            $output = '<img src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
         	} else {
         		return ""; 
         	}
         }
+        if ( $output AND $atts['add_div'] === true) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;
+        
     }
 
-    static function ld_bio_shortcode( $atts, $content = NULL, $tag){
+    static function ld_bio_shortcode( $atts, $content = NULL, $tag = '' ){
         $bio = get_post_meta( get_the_ID(), $tag, true );
     	
         /* 
@@ -213,7 +249,7 @@ class Lab_Directory_Shortcode {
         return $bio;
     }
 
-    static function ld_bio_paragraph_shortcode( $atts, $content = NULL, $tag){
+    static function ld_bio_paragraph_shortcode( $atts, $content = NULL, $tag = '' ){
         return "<p>" . self::ld_bio_shortcode( $atts, $content , $tag) . "</p>";
     }
 
@@ -294,7 +330,6 @@ class Lab_Directory_Shortcode {
 
     	global $wp_query;
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-    	 
        	if (  isset($wp_query->query_vars['hdr']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_hdr';
        	}
@@ -303,7 +338,8 @@ class Lab_Directory_Shortcode {
        	} else {
        		$template = isset($params['template'])? $params['template'] : 'single_staff'; 
        	}
-       	
+       	// Save template name for use in loop
+       	self::$current_template = $template;  
         return self::retrieve_template_html($template); 
 	}
 
@@ -633,28 +669,29 @@ class Lab_Directory_Shortcode {
     }
     
     static function retrieve_template_html($slug) {
-        // $slug => 'File Name'
-	    global $wp_query;
 	    
-	    $template_slugs = self::retrieve_template_list();
-
-        // Check if template slug exists 
-        $cur_template = isset($template_slugs[$slug]) ? $template_slugs[$slug] : false;
+	    // TODOTODO  si slug inexistant !! error!! 
         
-        // TODOTODO  si slug inexistant !! error!! 
-        
-        // TODOTODO  HTML + CSS !!! 
-        // Check if template is overrided 
-		$cur_template = self::ld_locate_template($cur_template); 
-
+        // Load template (HTML and CSS)
+		$template = self::ld_load_template($slug);
+		$output = '';
+		if ($template['css']) {
+			$output .= '<style type="text/css">' . $template['css'] .'</style>';
+		}
+		
+		//TODO single ID ???
+		$output .= '<div class="ld_' . $slug . '_loop" id="lab-directory-wrapper">' . do_shortcode($template['html']) . '</div>';
+		return $output;
+		
+		/* TODO OLD CODE Search utility of the escaping utility 
+		 * 
         if ($cur_template) {
-        	//TODOTODO ajouter CSS aussi!!
-            $template_contents = file_get_contents( $cur_template);
             // TODOTODO add div 
-            return do_shortcode($template_contents);
+            
         } else {
             $lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
             $output         = "";
+            // TODO Fatal error: Call to undefined method Lab_Directory_Settings::get_custom_lab_directory_staff_template_for_slug() in /home/seguinot/Documents/www/wp_ircica/wp-content/plugins/lab-directory/classes/lab-directory-shortcode.php on line 658
             $template       = $lab_directory_staff_settings->get_custom_lab_directory_staff_template_for_slug( $slug );
             $template_html  = html_entity_decode(stripslashes( $template['html'] ));
             $template_css   = html_entity_decode(stripslashes( $template['css'] ));
@@ -672,36 +709,73 @@ class Lab_Directory_Shortcode {
 
             return $output;
         }
+        */ 
     }
 
     /**
-     * Function forked from Wordpress core 
-     * Retrieve the name of the highest priority template file ($template_names) that exists in: 
-     *  0- first look for template saved in settings
-     *  1- wp-content/themes/lab-directory/ (highest priority )
-     *  2- wp-content/themes/yourtheme/ (create a child theme before)
-     *  3- wp-content/plugins/lab-directory/templates/ (default location)
+     * Retrieve the highest priority template file ($template_names.css /.php) that exists in: 
+     * for php (Lab-Directory loop part)
+     * 
+     *      first search for a template file saved in settings (highest priority )
+     *      wp-content/themes/lab-directory/ (preferred folder for overriding templates)
+     *      wp-content/themes/yourtheme/ (this folder exists if you created a child theme called "yourtheme")
+     *      wp-content/plugins/lab-directory/templates/ (default template if no other file found and template in settings is empty)
      *
-     *
-     * @param string$template_names Template file(s) to search for, in order.
+     * For the css stylesheet, sequentially add if they exists: 
+     * 	    wp-content/plugins/lab-directory/templates/ (this default stylesheet is always loaded first, lowest priority)
+     *      wp-content/themes/yourtheme/ (this folder exists if you created a child theme called "yourtheme")
+     *      wp-content/themes/lab-directory/ (preferred folder for overriding CSS stylesheet)
+     *      look for template saved in settings (last added, highest priority )
+     *      
+     * @param string $template_names Template file(s) to search for, in order.
      * @return string The template filename if one is located.
      */
-    static function ld_locate_template($template_name, $load = false, $require_once = true ) {
+
+	static function ld_load_template($template_name) {
     	
-    	// TODO First check if a template has been set in settings
-    	if ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_name ) )
+     	$template =array(
+    		'html' =>'',
+    		'css' => '',
+    	);
+    	
+    	// Search for the HTML (Loop) template part
+    	$template_file = 'ld_' . $template_name . '.php';
+    	
+    	//TODO add settings
+    	if ($template['html'] = get_option( $template_file)) {
+    		// Nothing to do
+    	}
+    	elseif ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file) )
     	{
-    		return WP_CONTENT_DIR . '/themes/lab-directory/' . $template_name;
+    		$template['html'] = file_get_contents( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file);
     	} 
-    	elseif ( file_exists(get_template_directory() . '/' . $template_name) ) 
+    	elseif ( file_exists(get_template_directory() . '/' . $template_file) ) 
     	{
-    		return get_template_directory() . '/' . $template_name;
+    		$template['html'] = file_get_contents( get_template_directory() . '/' . $template_file);
     	} 
-    	elseif ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $template_name)) 
+    	elseif ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $template_file)) 
     	{
-    		return LAB_DIRECTORY_TEMPLATES . '/' . $template_name;
+    		$template['html'] = file_get_contents( LAB_DIRECTORY_TEMPLATES . '/' . $template_file);
     	}   		
-    	return '';
+    	
+    	// Search for CSS
+        $css_file = 'ld_' . $template_name . '.css';
+ 
+    	if ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $css_file)) 
+    	{
+    		$template['css'] .= file_get_contents( LAB_DIRECTORY_TEMPLATES . '/' . $css_file);
+    	}
+    	if ( file_exists(get_template_directory() . '/' . $css_file) ) 
+    	{
+    		$template['css'] .= file_get_contents( get_template_directory() . '/' . $css_file);
+    	} 
+    	if ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $css_file) )
+    	{
+    		$template['css'] .= file_get_contents( WP_CONTENT_DIR . '/themes/lab-directory/' . $css_file);
+    	}
+    	$template['css'] .= get_option( $css_file); 
+    	return $template;
+    	
     }
     
     

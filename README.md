@@ -64,8 +64,8 @@ Lab-Directory is ready to be translated in your language. Default language are F
   }
 
 </style>
-<div id="lab-directory-wrapper">
-    SINGLE_STAFF.PHP
+
+
     [lab_directory_single_staff_loop]
         <div class="ld_single_staff">
                 <div class="ld_photo">[ld_photo]</div>
@@ -79,6 +79,6 @@ Lab-Directory is ready to be translated in your language. Default language are F
             <div class="clearfix"></div>
         </div>
     [/lab_directory_single_staff_loop]
-</div>
+
 ```
 

@@ -228,18 +228,21 @@ class Lab_Directory {
 			    	
 			    	if (isset($wp_query->query_vars['hdr'] ) ) {
 			    		Lab_directory_shortcode::$hdr_loop=true;
-			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+			    		Lab_Directory_Shortcode::$current_template = 'single_staff_hdr'; 
+            			// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 			    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
 			            //TODOTODO  filter called but modified content not displayed by siteorigin !!
 			    		
 			    	}  	
 			    	elseif (isset($wp_query->query_vars['phd'] ) ) {
 			    		Lab_directory_shortcode::$hdr_loop=true;
-			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+			    		Lab_Directory_Shortcode::$current_template = 'single_staff_phd'; 
+            			// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 						$content .= lab_directory_shortcode::retrieve_template_html('single_staff_phd');
 			    	} else {
 			    		Lab_directory_shortcode::$hdr_loop=true;
-			    		// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+			    		Lab_Directory_Shortcode::$current_template = 'single_staff'; 
+            			// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
 						$content .= lab_directory_shortcode::retrieve_template_html('single_staff');
 			    	}
 		    	}

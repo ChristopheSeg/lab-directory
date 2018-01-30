@@ -136,10 +136,10 @@ class Lab_Directory_Admin {
 				$content .=  '<li>' . __('look for template saved in settings (last added, highest priority )', 'lab-directory'). '</li></ol></p>';
 				$content .=  '<p>' . __('When loading default css (it can be used to see all default CSS rules used in a template) only keep in Lab-Directory settings the CSS Rules that you modified (no need to override one rule with itself). ', 'lab-directory'). '</p>';
 				$content .=  '<p><b>' . __('Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ your changes will be lost on the next update of Lab-Directory plugin.', 'lab-directory'). '</b></p>';
-				$content .=  '<p>' . __('Class used in Lab-Directory template div .', 'lab-directory'). '</p>';
+				$content .=  '<p>' . __('Class used in Lab-Directory template div (example given for single_staff template).', 'lab-directory'). '</p>';
 				
-				$content .=  '<p><ol><li><i>&lt;div id="lab-directory-wrapper"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory content.', 'lab-directory'). '</li>';
-				$content .=  '<li><i>&lt;div class="ld_single_staff_list_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed (ld_single_staff_list) by the name of the template used', 'lab-directory'). '</li>';
+				$content .=  '<p><ol><li><i>&lt;div class="ld_single_staff_loop" id="lab-directory-wrapper"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory loop content.', 'lab-directory'). '</li>';
+				$content .=  '<li><i>&lt;div class="ld_single_staff_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed by the name of the template used ( here single_staff) ', 'lab-directory'). '</li>';
 				$content .=  '<li><i>&lt;div class="ld_field ld_photo"&gt;</i> : ' . __('This div enclose each individual line of an item (name, photo, position). It has 2 classes "ld-field" (all fields have it) and a second class (ld_photo) equal to the Lab-Directory slug of that field', 'lab-directory'). '</li></ol>';
 				
 					$screen->add_help_tab( array(
@@ -197,7 +197,7 @@ class Lab_Directory_Admin {
 		/*
 		 * Edit != false used to generate edit staff help (use same translation)
 		 */
-		static function ld_admin_help_add_new_staff($edit=false) {
+	static function ld_admin_help_add_new_staff($edit=false) {
 		$screen = get_current_screen();
 		if ($edit) { 
 		 	$content = '<p>' . __('This page is used to edit staff profile. Some fields may be locked depending on LDAP Syncing and user permissions.','lab-directory') . '</p>';

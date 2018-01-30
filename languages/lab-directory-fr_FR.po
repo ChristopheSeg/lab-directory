@@ -194,7 +194,7 @@ msgid ""
 msgstr ""
 
 #: classes/lab-directory-admin.php:139
-msgid "Class used in Lab-Directory template div ."
+msgid "Class used in Lab-Directory template div (example given for single_staff template)."
 msgstr ""
 
 #: classes/lab-directory-admin.php:141
@@ -204,7 +204,7 @@ msgstr ""
 #: classes/lab-directory-admin.php:142
 msgid ""
 "This div enclose each individual item found in the Lab-Directory loop. It is "
-"prefixed (ld_single_staff_list) by the name of the template used"
+"prefixed by the name of the template used ( here single_staff) "
 msgstr ""
 
 #: classes/lab-directory-admin.php:143

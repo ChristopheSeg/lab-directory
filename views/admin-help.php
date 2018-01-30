@@ -70,7 +70,6 @@
         <ul style="text-indent:25px;">
             <li>if replace_empty is given and non empty add a nobody photo for non existant photo</li>
         </ul>    <li><code>[ld_name]</code> - the lab_directory_staff member's name</li>
-    <li><code>[ld_name_header]</code> - the lab_directory_staff member's name with &lt;h3&gt; tags</li>
     <li><code>[ld_bio]</code> - the lab_directory_staff member's bio</li>
     <li><code>[ld_bio_paragraph]</code> - the lab_directory_staff member's bio with &lt;p&gt; tags</li>
     <li><code>[ld_category]</code> - the lab_directory_staff member's category (first category only)</li>
