@@ -6,7 +6,7 @@
 	[ld_phone_number]
 	[ld_webpage]
 	[ld_bio]
-	[ld_category]
+	[ld_team]
 	<div class="clearfix"></div>
 [/lab_directory_staff_loop]
 

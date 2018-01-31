@@ -20,11 +20,15 @@ class Lab_Directory_Shortcode {
         $other_shortcodes = array(
             'ld_name_header',
         	'ld_name_firstname',
+        	'ld_firstname_name',
         	'ld_position',
             'ld_photo',
             'ld_bio_paragraph',
             'ld_profile_link',
-            'ld_category', 
+            'ld_team', 
+        	'ld_teams',
+        	'ld_laboratory',
+        	'ld_laboratories',
         	'ld_categories_nav',
         	'ld_widget_hdr_link', 
         	'ld_widget_phd_link', 
@@ -56,10 +60,15 @@ class Lab_Directory_Shortcode {
 	
 	// TODO ALL Shortcode: test display frontend, activated (frontend...), MV, tooltips
 
+    /* 
+     * ld_meta_shortcode function is the default shortcode function 
+     * used when no specific function has been written for a shortcode
+     */
     static function ld_meta_shortcode( $atts, $content = NULL, $tag = '' ) {
 	    $atts = shortcode_atts( array(
 	    	'add_div'     => true,
 	    ), $atts);
+	    // remove 'ld_' prefix to get meta_key 
 	    $meta_key             = substr($tag,3);
         $meta_value           = get_post_meta( get_the_ID(), $meta_key, true );
         
@@ -68,7 +77,7 @@ class Lab_Directory_Shortcode {
         } else {
             $output = ''; // Print nothing and remove tag if no value
         }
-        if ( $atts['add_div'] === true) {
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
         	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
         return $output;
@@ -91,23 +100,45 @@ class Lab_Directory_Shortcode {
     }
     
     static function lab_directory_staff_loop_shortcode( $atts, $content = NULL ) {
-
+ 
+    	$atts = shortcode_atts( array(
+    		'staff_filter'     => false,
+    	), $atts);
         $query = Lab_Directory_Shortcode::lab_directory_staff_query($atts);
         $output = "";
-        if ( ($atts['staff_filter'] == true ) OR ($atts['staff_filter'] = 'true' ) ) {
+        if ( ($atts['staff_filter'] === true ) OR ($atts['staff_filter'] == 'true' ) ) {
         	// Add a text filter on this list 
         	$output .= ' 
-				<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
-				<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/text_filter.js"></script>
+<style type="text/css">
+#filtre_dynamique_saisie {
+    float: right;
+    width: 160px;
+
+}
+.text_surligne {
+  color: #000;
+  background-color: #fff59b;
+}
+  label, input {
+   float: right;
+   width: auto;
+   height: auto;
+   padding: 3px;
+   margin: 2px 5px;
+   font-size: 1em;
+   line-height: 1em;
+}
+</style>
+<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/text_filter.js"></script>
 				
-				<script type="text/javascript">
-				</script>
-				
-				<form id="filtre_dynamique">
-				  <input type="reset" id="filtre_dynamique_effacer" value="Sans filtre" />
-				  <input type="text" id="filtre_dynamique_saisie" />
-				  <label for="filtre_dynamique_saisie">Filtrer sur ce texte</label>
-				</form> '; 
+<form id="filtre_dynamique">
+  <input type="reset" id="filtre_dynamique_effacer" value="'. __('Clear filter','lab-directory'). '" />
+  <input type="text" id="filtre_dynamique_saisie" />
+  <label for="filtre_dynamique_saisie">'. __('Filter by name  or firstname','lab-directory') . '</label>
+</form> 
+<div class="clearfix"></div>
+        		'; 
         	
     }
 
@@ -157,12 +188,22 @@ class Lab_Directory_Shortcode {
     	return $output;
     }
 
+    static function ld_firstname_name_shortcode($atts, $content = NULL, $tag = '' ){
+    	$atts = shortcode_atts( array(
+    		'add_div'     => true,
+    	), $atts);
+    	$output = get_post_meta( get_the_ID(), 'firstname', true ) . ' ' . get_post_meta( get_the_ID(), 'name', true );
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;
+    }
     static function ld_name_firstname_shortcode($atts, $content = NULL, $tag = '' ){
     	$atts = shortcode_atts( array(
     		'add_div'     => true,
     	), $atts);
     	$output = get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
-        if ( $atts['add_div'] === true) {
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
         	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
         return $output;
@@ -178,7 +219,7 @@ class Lab_Directory_Shortcode {
         } else {
             $output = '';
         }
-        if ( $atts['add_div'] === true) {
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
         	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
         return $output;        
@@ -192,8 +233,9 @@ class Lab_Directory_Shortcode {
     	$text = __('HDR', 'lab-directory') . ' ' .
     		date ($format, strtotime(get_post_meta( get_the_ID(), 'hdr_date', true ))) .
     		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false));
-    	$output = self::ld_profile_link_shortcode(array('phd' => true, 'inner_text' => $text));
-    	if ( $atts['add_div'] === true) {
+    	$output = self::ld_profile_link_shortcode(
+    		array('add_div' => false, 'phd' => true, 'inner_text' => $text));
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
     		$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
     	}
         return $output;
@@ -207,8 +249,9 @@ class Lab_Directory_Shortcode {
     	$text = __('PHD', 'lab-directory') . ' ' .
     		date ($format, strtotime(get_post_meta( get_the_ID(), 'phd_date', true ))) .
     		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false)) . '</a>';
-    	$output = self::ld_profile_link_shortcode(array('phd' => true, 'inner_text' => $text));
-        if ( $atts['add_div'] === true) {
+    	$output = self::ld_profile_link_shortcode(
+    		array('add_div' => false, 'phd' => true, 'inner_text' => $text));
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
     		$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
     	}
     	return $output;
@@ -220,16 +263,14 @@ class Lab_Directory_Shortcode {
     		'replace_empty'     => false,
         ), $atts);
         $photo_url = self::ld_photo_url_shortcode(array('add_div' => false) );
+        $output = ''; 
         if(!empty($photo_url)){
             $output = '<img src="' . $photo_url . '" />';
-        } else {
-        	if ($atts['replace_empty']) {
+        } elseif ($atts['replace_empty']) {
             $output = '<img src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
-        	} else {
-        		return ""; 
-        	}
         }
-        if ( $output AND $atts['add_div'] === true) {
+        
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
         	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
         return $output;
@@ -237,7 +278,7 @@ class Lab_Directory_Shortcode {
     }
 
     static function ld_bio_shortcode( $atts, $content = NULL, $tag = '' ){
-        $bio = get_post_meta( get_the_ID(), $tag, true );
+        $output = get_post_meta( get_the_ID(), $tag, true );
     	
         /* 
          * old code used the_content, no filter needed
@@ -246,17 +287,17 @@ class Lab_Directory_Shortcode {
          * $bio = str_replace( ']]>', ']]&gt;', $bio );
          * 
          */
-        return $bio;
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;
     }
 
-    static function ld_bio_paragraph_shortcode( $atts, $content = NULL, $tag = '' ){
-        return "<p>" . self::ld_bio_shortcode( $atts, $content , $tag) . "</p>";
-    }
-
-    static function ld_profile_link_shortcode($atts, $content = NULL){
+    static function ld_profile_link_shortcode($atts, $content = NULL, $tag = '' ){
 
         $atts = shortcode_atts( array(
-            'target'     => "_self",
+            'add_div'     => true,
+        	'target'     => "_self",
             'inner_text' => "Profile", 
         	'hdr' => false, 
         	'phd' => false,	 
@@ -272,38 +313,79 @@ class Lab_Directory_Shortcode {
         
         
         if(!empty($content)) {
-            return "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . do_shortcode($content) . "</a>";
+            $output = "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . do_shortcode($content) . '</a>';
         } else {
-            return "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . $atts['inner_text'] . "</a>";
+            $output = "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . $atts['inner_text'] . '</a>';
         }
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+        }
+        return $output;
     }
 
-   static function ld_category_shortcode($atts){
+	static function ld_teams_shortcode($atts, $content = NULL, $tag = '' ){
+		// TODOTODO not working !!
+		$ouput = ' ld_teams_shortcode NO YET IMPLEMENTED !!'; 
+		return $output;
+   	
+	}
+	
+	static function ld_team_shortcode($atts, $content = NULL, $tag = '' ){
+
         $atts = shortcode_atts( array(
-            'all' => false,
+            'add_div' => true,
         ), $atts);
-        $lab_directory_staff_categories = wp_get_post_terms( get_the_ID(), 'lab_category' );
-    	$all_lab_directory_staff_categories = "";
-
-        if ( ! is_a($lab_directory_staff_categories, 'WP_error')) {
-            $lab_category = $lab_directory_staff_categories[0]->name;
-            foreach ( $lab_directory_staff_categories as $category ) {
-                $all_lab_directory_staff_categories .= $category->name . ", ";
-            }
-            $all_lab_directory_staff_categories = substr( $all_lab_directory_staff_categories, 0, strlen( $all_lab_directory_staff_categories ) - 2 );
-        } else {
-            $lab_category = "";
+        
+        $_categories = get_the_terms(get_the_ID(), 'ld_taxonomy_team');   	 
+    	
+        $categories= array(); 
+    	
+        if ($staff_categories ) {
+	        foreach ( $staff_categories as $category ) {
+	    		$categories[] = $category->name;
+	        }
+    	}
+        
+        $output = implode(', ',$categories); 
+        
+        if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
+        	$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
         }
+        return $output;
+    }
 
-        if( $atts['all'] === "true" || $atts['all'] === true ) {
-            return $all_lab_directory_staff_categories;
-        } else {
-            return $lab_category;
-        }
-
+    static function ld_laboratories_shortcode($atts, $content = NULL, $tag = '' ){
+    	// TODOTODO not working !!
+    
+    	$ouput = ' ld_laboratories_shortcode NO YET IMPLEMENTED !!';
+    	return $output;
+    
+    }
+    static function ld_laboratory_shortcode($atts, $content = NULL, $tag = '' ){
+    
+    	$atts = shortcode_atts( array(
+    		'add_div' => true,
+    	), $atts);
+    
+    	$_categories = get_the_terms(get_the_ID(), 'ld_taxonomy_laboratory');
+    	 
+    	$categories= array();
+    	 
+    	if ($staff_categories ) {
+    		foreach ( $staff_categories as $category ) {
+    			$categories[] = $category->name;
+    		}
+    	}
+    
+    	$output = implode(', ',$categories);
+    
+    	if ( $output AND ( $atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
+    		$output = '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+    	}
+    	return $output;
     }
     
-    static function ld_categories_nav_shortcode($atts){
+    static function ld_categories_nav_shortcode($atts, $content = NULL, $tag = '' ){
         
         $lab_directory_staff_categories = get_terms( array(
 		    'taxonomy' => 'lab_category',
@@ -326,7 +408,10 @@ class Lab_Directory_Shortcode {
     }
 
 	 
-	 static function shortcode( $params ) {
+	 /* 
+	  * [lab-directory] main shortcode
+	  */
+	  static function shortcode( $params ) {
 
     	global $wp_query;
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -336,7 +421,13 @@ class Lab_Directory_Shortcode {
        	elseif (  isset($wp_query->query_vars['phd']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_phd';
        	} else {
-       		$template = isset($params['template'])? $params['template'] : 'single_staff'; 
+       		if (isset($params['id'])) {
+       			// Search for a single staff profile 
+       			// TODOTODO revoir query si $params['id']
+       			$template = isset($params['template'])? $params['template'] : 'single_staff'; 
+       		} else {
+       			$template = isset($params['template'])? $params['template'] : 'staff_grid';
+       		}
        	}
        	// Save template name for use in loop
        	self::$current_template = $template;  

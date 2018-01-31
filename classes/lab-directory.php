@@ -2643,15 +2643,19 @@ echo lab_directory_create_select(
 		remove_meta_box( 'submitdiv', 'lab_directory_staff', 'side' );
 	}
 	
-	static function lab_directory_get_taxonomies()  {
-		/* 
-		 * IMPORTANT: do not change__('string') in this function. This would break custom translation
-		 * registered before the change
-		 */ 
+	/* 
+	 * $all = true retrieve all taxonomies
+	 * $all = false retrieve only used ones
+	 */
+	static function lab_directory_get_taxonomies($all=false)  {
 		
-		// TODO translations ? 
-		return array(
-			'ld_taxonomy_team' => array(
+		$taxonomies = array(); 
+		
+		$t1 = get_option( 'lab_directory_use_taxonomy1' );
+        $t2 = get_option( 'lab_directory_use_taxonomy2' );
+        if ($t1 OR $all) {
+        	// Taxonomy 1
+        	$taxonomies['ld_taxonomy_team'] = array(
 				'hierarchical' => true,
 				'labels' => array(
 					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
@@ -2679,9 +2683,11 @@ echo lab_directory_create_select(
 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-teams',
 					'with_front' => false,
-					'hierarchical' => true ) ), 
-
-			'ld_taxonomy_laboratory' => array(
+					'hierarchical' => true ) ); 
+        }
+        if ($t2 OR $all) {
+        	// Taxonomy 2
+        	$taxonomies['ld_taxonomy_laboratory'] = array(
 				'hierarchical' => true,
 				'labels' => array(
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
@@ -2709,10 +2715,10 @@ echo lab_directory_create_select(
 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-laboratories',
 					'with_front' => false,
-					'hierarchical' => true ) ),
-		);
-		}
-
+					'hierarchical' => true ) );
+        }
+        return $taxonomies;    
+	}	
 
 	static function hide_permalink( $content ) {
 		return $content;

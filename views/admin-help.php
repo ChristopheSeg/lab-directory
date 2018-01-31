@@ -12,15 +12,17 @@
   </p>
 
   <p>
-    The following parameters are accepted:
+    The following parameters are accepted: (TODO only template working at present)
     <ul>
       <li><code>id</code> - the ID for a single lab_directory_staff member. (Ex: [lab-directory id=4])</li>
       <li><code>cat</code> - possibly category IDs or slugs. (Ex: [lab-directory cat=1,4] or [lab-directory cat="administration"])</li>
       <li><code>cat_field</code> - used with cat. (Ex: [lab-directory cat="administration" cat_field="slug"])</li>
       <li><code>cat_relation</code> - used with cat and cat_field. Possible values are "OR" and "AND". (Ex: [lab-directory cat="administration,corporate" cat_relation="OR"])</li>
       <li><code>orderby</code> - the attribute to use for ordering. Supported values are 'name' and 'ID'. (Ex: [lab-directory orderby=name])</li>
-      <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory orbder=asc])</li>
-      <li><code>template</code> - the slug for the lab_directory_staff template to use. (Ex: [lab-directory template=custom_1])</li>
+      <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory order=asc])</li>
+      <li><code>template</code> - the slug for the lab_directory_staff template to use.</li>
+      <li><code>staff_filter</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_filter=true])</li>
+      
     </ul>
     Note - Ordering options can be viewed here - <a href="https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters">https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters</a>
   </p>
@@ -28,7 +30,6 @@
 
 <div class="help-topic" id="lab_directory_staff-templates">
     <h2>Lab Directory Single Profile Template</h2>
-    <aside>Note: The difference between the Single Profile Template and the Listing Templates - Listing Templates are used to display the list of lab_directory_staff members, while the Single Profile Template is the file used to format the single profile page (i.e. the page you see after clicking on a lab_directory_staff member).</aside>
     <p>
         By default, Lab Directory uses the ld_single_staff.php file, located in the plugin's templates folder, to display individual profile data. But you may create your own templates if you wish.
     </p>
@@ -36,17 +37,22 @@
         Warning: Do not edit the ld_single_staff.php file directly. If you do, your changes will be overwritten when Lab Directory updates.
     </p>
     <p>
-        To create a custom profile template, the easiest way would be to either copy your single.php file, or to copy the ld_single_staff.php file. Once copied, place the file in your theme's template directory (for most themes this is simply your themes main folder), and then give the file any name you choose, making sure to prefix the name with 'ld_single_staff-' ( i.e. ld_single_staff-myCustomTemplate.php ). If you do not use the prefix 'ld_single_staff-', Lab Directory will not recognize your template.
+        Instruction for creating a custom single profile template can be found in the help section of <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=templates">Staff Settings page</a>
     </p>
 </div>
 
 <div class="help-topic" id="lab_directory_staff-templates">
-  <h2>Lab Directory Listing Templates</h2>
+  <h2>Lab Directory Staff Listing Templates</h2>
 
   <p>
-    The the <code>[lab-directory]</code> shortcode supports a default template (set in <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings">Staff Settings</a>) or custom templates per use.
+    The <code>[lab-directory]</code> shortcode supports staff_grid as a default template or custom templates: 
   </p>
-
+  <ul>
+  <li><code>[lab-directory template=staff_grid]</code> or <code> [lab-directory]</code> - used to display a compact grid of staff</li>
+  <li><code>[lab-directory template=staff_list]</code> - used to display a list (several lines for each staff, full width)</li>
+  <li><code>[lab-directory template=staff_trombi]</code> - used to display a grid of staff photos</li>
+  <li><code>[lab-directory template=defense_list]</code> - used to display a list of HDR and PHD defenses</li>
+  </ul>
   <p>
     Each template is identified by a slug. The provided templates are "List" and "Grid", with their slugs being "list" and "grid" respectively. Each custom template uses the slug format "custom_[n]" where [n] is the custom template ID.
     So to use "Custom Template 1" you would use the shortcode like so: <code>[lab-directory template=custom_1]</code>.
@@ -71,9 +77,8 @@
             <li>if replace_empty is given and non empty add a nobody photo for non existant photo</li>
         </ul>    <li><code>[ld_name]</code> - the lab_directory_staff member's name</li>
     <li><code>[ld_bio]</code> - the lab_directory_staff member's bio</li>
-    <li><code>[ld_bio_paragraph]</code> - the lab_directory_staff member's bio with &lt;p&gt; tags</li>
-    <li><code>[ld_category]</code> - the lab_directory_staff member's category (first category only)</li>
-    <li><code>[ld_category all=true]</code> - all of the lab_directory_staff member's categories in a comma separated values list</li>
+    <li><code>[ld_team]</code> - the lab_directory_staff member's team (taxonomy 1) category (first category only)</li>
+    <li><code>[ld_teams]</code> - all of the lab_directory_staff member's categories in a comma separated values list</li>
 
     <li><code>[ld_email_link]</code> Staff Email </li>
     <li><code>[ld_website_link]</code> Staff Website</li>
@@ -89,14 +94,4 @@
   </ul>
 </div>
 
-<div class="help-topic" id="lab_directory_staff-theme-tags">
-  <h2>WordPress Theme Template Tag</h2>
 
-  <p>
-    This plugin previsouly supported a custom template function, but it's now
-    recommended to use the following if you need to hardcode a lab_directory_staff directory
-    into a template:
-    <br />
-    <code>&lt;?php echo do_shortcode( '[lab-directory]' ); ?&gt;</code>
-  </p>
-</div>
