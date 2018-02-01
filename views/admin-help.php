@@ -9,7 +9,7 @@
   <h2>Shortcodes</h2>
 
   <p>
-    <code>[lab-directory]</code> shortcode can be used in a post or page to display your lab_directory_staff.
+    The simple  shortcode <code>[lab-directory]</code>can be used in a post or page to display your lab_directory_staff.
   </p>
 
   <p>
@@ -38,7 +38,7 @@
     Note - Ordering options can be viewed here - <a href="https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters">https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters</a>
   </p>
   <p>
-  [lab-directory]</code> shortcode load a template which call one secondary loop (or two secondary loops in case of defense list) to filter staff. 
+  [lab-directory]</code> shortcode load a template (each template define a list of field to display and corresponding CSS rules) which call one secondary loop (or two secondary loops in case of defense list) to filter staff. 
   </p>
   <ul>
       <li><code>[lab_directory_single_staff_loop]</code> - this loop is called when a single staff id is provided [lab-directory id=122]</li>
@@ -46,7 +46,7 @@
       <li><code>[lab_directory_hdr_loop period=??]</code> (1) - this loop extract staff having a HDR profiles (used in defense list template)</li>
       <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
 		  <ul style ="padding-left:15px;">
-		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=all</code>(all) <code>period=futur</code> filter for defense date in the futur</li>
+		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=PAST</code> <code>period=futur</code> <code>period=all</code> filter for defense date in the past futur or all (default = all).</li>
 		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_filter</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
 		  </ul>    
   </ul>  
@@ -57,7 +57,8 @@
   <p>
   However, in such case no template is loaded so that you can provide css for styling and the list of shortcode to display in your post or page as in the example below. Each item of the list is enclosed in a div having classes <code>ld_single_item</code> <code>ld__item</code> . 
   </p>
-  <pre><code><?php echo  htmlentities(
+  <pre style="width: 55%; float:left;">
+  Example of page content with CSS<br><code style="white-space:pre-wrap;"><?php echo  htmlentities(
   '<style type ="text/css"> 
 hr {margin-top: 5px; margin-bottom: 5px;}
 .clearfix { clear: both;}
@@ -71,9 +72,20 @@ hr {margin-top: 5px; margin-bottom: 5px;}
 	[ld_hdr_subject]
 	<div class="clearfix"></div><hr>
 [/lab_directory_hdr_loop]');
+?></code></pre>
+
+  <pre style="width: 40%; float:right;">
+  Page content without CSS<br><code style="white-space:pre-wrap;"><?php echo  htmlentities(
+  '[lab_directory_hdr_loop period=futur css=defense_list]
+	[ld_photo]
+	[ld_profile_link content="HDR defense" hdr=true]
+	[ld_hdr_subject]
+	<div class="clearfix"></div><hr>
+[/lab_directory_hdr_loop]');
 ?></code></pre></div>
+<div class="clear"></div>
 <p>
-<code>[lab_directory_xxx_loop]</code> loops can also load one template css using parameter <code>css=slug</code> where slug is one template slug (staff_list, staff_trombi...). In that case, each item of the list enclosing div hav the additionnal classes <code>ld_slug_item</code> .
+<code>[lab_directory_xxx_loop css=slug]</code> loops can also load one template css using parameter <code>css=slug</code> where slug is one template slug (staff_list, staff_trombi...). In that case, each item of the list enclosing div have the additionnal classes <code>ld_slug_item</code> .
 </p>
 
 
@@ -81,9 +93,35 @@ hr {margin-top: 5px; margin-bottom: 5px;}
   <h2>Lab Directory Loops shortcodes</h2>
 
   <p>
-    Custom Shortcodes are listed in the Custom Details Fields table on the <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings">Staff Settings page</a>. All template shortcodes must be contained within one <code>[lab_directory_xxx_loop]</code> shortcode.
+    Most shortcodes must be contained within one <code>[lab_directory_xxx_loop]</code> shortcode. LAb-Directory  provide a wide list of shotcode : 
   </p>
-
+  <ol>
+    <li>Each field, including custom fields have its shortcode (<code>[ld_firstname]</code>) which is given in  <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=fields">Settings page</a>)</li>
+    <li>Some shortcodes agreggate multiple fields content or information (<code>[ld_photo_url]</code> <code>[ld_website_link]</code>) </li>
+    <li>Some shortcodes are related to taxonomies used in Lab Directory (<code>[ld_team]</code> <code>[ld_laboratory]</code> ) .</li>
+    <li>Some shortcodes can be used outside loops (<code>[ld_teams]</code> <code>[ld_laboratorys]</code> ) .</li>
+    <li>Parameter common to all shortcode are presented after this shortcode list.</li>
+    <li>Parameter restricted to one shortcode are list under their shortcode.</li>
+  </ol>
+   
+  <h4>1 - Field's shortcodes</h4>
+    <ul>
+    </ul>
+  <h4>2 - Complex shortcodes</h4>
+    <ul>
+    </ul>
+  <h4>3 - Taxonomies shortcodes</h4>
+    <ul>
+    </ul>
+  <h4>4 - Outside loops shortcodes</h4>
+    <ul>
+    </ul>
+  <h4>5 - Shortcode's common parameters</h4>
+    <ul>
+    </ul>
+  <p> 
+  Custom Shortcodes are listed in the Custom Details Fields table on the <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings">Staff Settings page</a>. 
+  </p>  
   <p>
     Preformatted shortcodes are listed below. There were more options in this list previously, but due to the addition of the Custom Details Fields above some of them were removed from the suggestions. They will still work for now, but deprecated shortcodes are marked below and will no longer work at some point in the future.
   </p>
@@ -92,7 +130,7 @@ hr {margin-top: 5px; margin-bottom: 5px;}
     <li><code>[ld_photo_url]</code> - the url to the featured image for the lab_directory_staff member</li>
     <li><code>[ld_photo replace_empty=true]</code> - an &lt;img&gt; tag with the featured image for the lab_directory_staff member</li>
         <ul style="text-indent:25px;">
-            <li>if replace_empty is given and non empty add a nobody photo for non existant photo</li>
+            <li>if replace_empty is given equal true add a nobody photo for non existant photo</li>
         </ul>    <li><code>[ld_name]</code> - the lab_directory_staff member's name</li>
     <li><code>[ld_bio]</code> - the lab_directory_staff member's bio</li>
     <li><code>[ld_team]</code> - the lab_directory_staff member's team (taxonomy 1) category (first category only)</li>

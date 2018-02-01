@@ -143,7 +143,10 @@ class Lab_Directory {
 		// Rewrite rules modification for additionnal hdr/phd endpoints
 		add_action( 'init',  array( 'Lab_Directory','lab_directory_rewrite_add_rewrites' ) );
 		
-		
+		// Delay wpautop after shortcode are loaded http://sww.co.nz/solution-to-wordpress-adding-br-and-p-tags-around-shortcodes/
+		remove_filter( 'the_content', 'wpautop' );
+		//TODO Delayinf is not enough !! IS removing wpautop breaking some page/post ???
+		//add_filter( 'the_content', 'wpautop' , 220);
 	}
 
 	static function create_post_types() {

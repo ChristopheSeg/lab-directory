@@ -90,6 +90,7 @@ class Lab_Directory_Shortcode {
 	    // Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
 	    $atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
 	
+	   	// If no id is given $post already contains the staff profile
 	    // If an id is given (example [lab-directory id=766]) $post do not contains the staff profile 
 	   	if (isset($atts['id'])) {
 	   		// Query single post from ID
@@ -97,13 +98,24 @@ class Lab_Directory_Shortcode {
 			    'p' => $atts['id'],
 			    'post_type' => 'lab_directory_staff'));
 	   	}
-	   	// Else if no id is given $post already contains the staff profile
 	    
+	   	// add template CSS part if atts['css'] is given
+	   	if (isset ($atts['css']) ) { 
+	   		$template= self::ld_load_template($atts['css'], true );
+	   		// Save template to add to div in loop 
+	   		self::$current_template = $atts['css'];
+	   		if ($template['css']) {
+	   			
+	   			$output .= '<style type="text/css">' . $template['css'] .'</style>';
+	   		}
+	   	}
+	   	
 	    // Rewind_post() because have_posts() has already been called in the main (single.php) template
 		rewind_posts(); 
         if ( have_posts() ) {
         	// do not loop posts here it's always a single staff
             the_post();
+    		$content = str_replace('<br />', '', $content);
     		$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
         }
         return $output;
@@ -153,6 +165,15 @@ class Lab_Directory_Shortcode {
     }
 
         if ( $query->have_posts() ) {
+        	// add template CSS part if atts['css'] is given
+        	if (isset ($atts['css']) ) {
+        		$template= self::ld_load_template($atts['css'], true );
+        		// Save template to add to div in loop 
+        		self::$current_template = $atts['css'];
+        		if ($template['css']) {
+        			$output .= '<style type="text/css">' . $template['css'] .'</style>';
+        		}
+        	}
 
             while ( $query->have_posts() ) {
                 $query->the_post();
@@ -169,11 +190,22 @@ class Lab_Directory_Shortcode {
     }
 
     static function lab_directory_hdr_loop_shortcode( $atts, $content = NULL ) {
-        $query = Lab_Directory_Shortcode::lab_directory_hdr_query($atts);
+        
+$query = Lab_Directory_Shortcode::lab_directory_hdr_query($atts);
         $output = "";
 
-        if ( $query->have_posts() ) {
+	   	if ( $query->have_posts() ) {
 
+	   		// add template CSS part if atts['css'] is given
+	   		if (isset ($atts['css']) ) {
+	   			$template= self::ld_load_template($atts['css'], true );
+	   			// Save template to add to div in loop 
+	   			self::$current_template = $atts['css'];
+	   			if ($template['css']) {
+	   				$output .= '<style type="text/css">' . $template['css'] .'</style>';
+	   			}
+	   		}
+	   		
             while ( $query->have_posts() ) {
                 $query->the_post();
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
@@ -190,9 +222,19 @@ class Lab_Directory_Shortcode {
     	$output = "";
     
     	if ( $query->have_posts() ) {
+    		// add template CSS part if atts['css'] is given
+    		if (isset ($atts['css']) ) {
+    			$template= self::ld_load_template($atts['css'], true );
+    			// Save template to add to div in loop 
+    			self::$current_template = $atts['css'];
+    			if ($template['css']) {
+    				$output .= '<style type="text/css">' . $template['css'] .'</style>';
+    			}
+    		}
     
     		while ( $query->have_posts() ) {
     			$query->the_post();
+    			$content = str_replace('<br />', '', $content);
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
     		}
     	}
@@ -539,9 +581,7 @@ class Lab_Directory_Shortcode {
 			'cat'      => '',
 			'cat_field' => 'ID',
 			'cat_relation' => 'OR',
-			'orderby'  => 'ID',
-			'order'    => 'DESC',
-			'meta_key' => '',
+			'period' => 'all',
 		);
 		
 		$params = shortcode_atts( $default_params, $params );
@@ -607,7 +647,7 @@ class Lab_Directory_Shortcode {
 		);
 		
 		// restrict to past or futur period
-		if (isset($params['period'] ) ) {
+		if (isset($params['period'] ) AND ($params['period']!='all' )) {
 			if ($params['period']== 'futur') {
 				$query_args['meta_query'][] = array(
 					'key'     => 'hdr_date',
@@ -646,9 +686,7 @@ class Lab_Directory_Shortcode {
 			'cat'      => '',
 			'cat_field' => 'ID',
 			'cat_relation' => 'OR',
-			'orderby'  => 'ID',
-			'order'    => 'DESC',
-			'meta_key' => '',
+			'period' => 'all',			
 		);
 		
 		$params = shortcode_atts( $default_params, $params );
@@ -714,8 +752,8 @@ class Lab_Directory_Shortcode {
 		);
 	
 			// restrict to past or futur period
-		if (isset($params['period'] ) ) {
-			if ($params['period']== 'futur') {
+		if (isset($params['period'] ) AND ($params['period']!='all' )) {
+		if ($params['period']== 'futur') {
 				$query_args['meta_query'][] = array(
 					'key'     => 'phd_date',
 					'value'   => date( "Y-m-d" ),
@@ -861,32 +899,33 @@ class Lab_Directory_Shortcode {
      * @return string The template filename if one is located.
      */
 
-    static function ld_load_template($template_name) {
+    static function ld_load_template($template_name, $only_css=false) {
     	
      	$template =array(
     		'html' =>'',
     		'css' => '',
     	);
-    	
-    	// Search for the HTML (Loop) template part
-    	$template_file = 'ld_' . $template_name . '.php';
-    	
-    	//TODO add settings
-    	if ($template['html'] = get_option( $template_file)) {
-    		// Nothing to do
+    	if ($only_css==false) {
+    		// Search for the HTML (Loop) template part
+	    	$template_file = 'ld_' . $template_name . '.php';
+	    	
+	    	//TODO add settings
+	    	if ($template['html'] = get_option( $template_file)) {
+	    		// Nothing to do
+	    	}
+	    	elseif ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file) )
+	    	{
+	    		$template['html'] = file_get_contents( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file);
+	    	} 
+	    	elseif ( file_exists(get_template_directory() . '/' . $template_file) ) 
+	    	{
+	    		$template['html'] = file_get_contents( get_template_directory() . '/' . $template_file);
+	    	} 
+	    	elseif ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $template_file)) 
+	    	{
+	    		$template['html'] = file_get_contents( LAB_DIRECTORY_TEMPLATES . '/' . $template_file);
+	    	}
     	}
-    	elseif ( file_exists( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file) )
-    	{
-    		$template['html'] = file_get_contents( WP_CONTENT_DIR . '/themes/lab-directory/' . $template_file);
-    	} 
-    	elseif ( file_exists(get_template_directory() . '/' . $template_file) ) 
-    	{
-    		$template['html'] = file_get_contents( get_template_directory() . '/' . $template_file);
-    	} 
-    	elseif ( file_exists(LAB_DIRECTORY_TEMPLATES . '/' . $template_file)) 
-    	{
-    		$template['html'] = file_get_contents( LAB_DIRECTORY_TEMPLATES . '/' . $template_file);
-    	}   		
     	
     	// Search for CSS
         $css_file = 'ld_' . $template_name . '.css';
