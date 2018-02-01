@@ -225,7 +225,7 @@ class Lab_Directory {
 		    		
 					// TODO singular si defense list avec 1 seul post !! 
 		    	if (!Lab_directory_shortcode::$hdr_loop ){
-			    	
+
 			    	if (isset($wp_query->query_vars['hdr'] ) ) {
 			    		Lab_directory_shortcode::$hdr_loop=true;
 			    		Lab_Directory_Shortcode::$current_template = 'single_staff_hdr'; 

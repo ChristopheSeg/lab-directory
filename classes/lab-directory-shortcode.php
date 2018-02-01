@@ -4,11 +4,12 @@ class Lab_Directory_Shortcode {
 
     public static $lab_directory_staff_query;
     public static $current_template;
+    static $lab_directory_main_shortcode_params = array(); 
     public static $hdr_loop = false; 
 	static function register_shortcode() {
 
         //Main shortcode to initiate plugin
-        add_shortcode( 'lab-directory', array( 'Lab_Directory_Shortcode', 'shortcode' ) );
+        add_shortcode( 'lab-directory', array( 'Lab_Directory_Shortcode', 'lab_directory_main_shortcode' ) );
 
         //Shortcode to initiate Lab Directory loops
         add_shortcode( 'lab_directory_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_staff_loop_shortcode' ) );
@@ -84,13 +85,22 @@ class Lab_Directory_Shortcode {
     }
     
     static function lab_directory_single_staff_loop_shortcode( $atts, $content = NULL ) {
- 
-    global $post; 
-    $output = "";
-   	
-   	// have_posts() must be called twice to work!!
-   	// rewind_post() because have_posts() has already been called in the main (single.php) template
-   	rewind_posts(); 
+	    global $post; 
+	    $output = "";
+	    // Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
+	    $atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
+	
+	    // If an id is given (example [lab-directory id=766]) $post do not contains the staff profile 
+	   	if (isset($atts['id'])) {
+	   		// Query single post from ID
+	   		query_posts(array(
+			    'p' => $atts['id'],
+			    'post_type' => 'lab_directory_staff'));
+	   	}
+	   	// Else if no id is given $post already contains the staff profile
+	    
+	    // Rewind_post() because have_posts() has already been called in the main (single.php) template
+		rewind_posts(); 
         if ( have_posts() ) {
         	// do not loop posts here it's always a single staff
             the_post();
@@ -151,7 +161,10 @@ class Lab_Directory_Shortcode {
             }
         }
         wp_reset_query();
-        
+        // Add a wrapper for the text filter 
+        if ( ($atts['staff_filter'] === true ) OR ($atts['staff_filter'] == 'true' ) ) {
+        	$output = '<div id="lab-directory-wrapper">' . $output . '</div>';
+        }
         return $output;
     }
 
@@ -411,25 +424,28 @@ class Lab_Directory_Shortcode {
 	 /* 
 	  * [lab-directory] main shortcode
 	  */
-	  static function shortcode( $params ) {
-
+	  static function lab_directory_main_shortcode( $params ) {
     	global $wp_query;
+    	// Save params for potential reuse in other staff_loops 
+    	self::$lab_directory_main_shortcode_params = $params; 
+    	
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-       	if (  isset($wp_query->query_vars['hdr']) ) {
+
+		if (isset($params['id'])) {
+       		// Search for a single staff profile 
+       		// TODOTODO revoir query si $params['id']
+   			$template = isset($params['template'])? $params['template'] : 'single_staff'; 
+       	} elseif (  isset($wp_query->query_vars['hdr']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_hdr';
        	}
        	elseif (  isset($wp_query->query_vars['phd']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_phd';
        	} else {
-       		if (isset($params['id'])) {
-       			// Search for a single staff profile 
-       			// TODOTODO revoir query si $params['id']
-       			$template = isset($params['template'])? $params['template'] : 'single_staff'; 
-       		} else {
+       		 {
        			$template = isset($params['template'])? $params['template'] : 'staff_grid';
        		}
        	}
-       	// Save template name for use in loop
+       	// Save template name for use in loop's div
        	self::$current_template = $template;  
         return self::retrieve_template_html($template); 
 	}
@@ -515,9 +531,21 @@ class Lab_Directory_Shortcode {
 	
 	static function lab_directory_hdr_query( $params = null ) {
 		global $wpdb;
-		
-		//Query to retrieve defense list filter with loop attributes
+
+		//Query to retrieve defense list filtered with loop attributes
 	
+		$default_params = array(
+			'id'       => '',
+			'cat'      => '',
+			'cat_field' => 'ID',
+			'cat_relation' => 'OR',
+			'orderby'  => 'ID',
+			'order'    => 'DESC',
+			'meta_key' => '',
+		);
+		
+		$params = shortcode_atts( $default_params, $params );
+		
 		// make sure we aren't calling both id and cat at the same time
 		if ( isset( $params['id'] ) && $params['id'] != '' && isset( $params['cat'] ) && $params['cat'] != '' ) {
 			return "<strong>ERROR: You cannot set both a single ID and a category ID for your Lab Directory</strong>";
@@ -612,8 +640,19 @@ class Lab_Directory_Shortcode {
 	static function lab_directory_phd_query( $params = null ) {
 		global $wpdb;
 	
-		//Query to retrieve defense list filter with loop attributes
-	
+		//Query to retrieve defense list filtered with loop attributes
+		$default_params = array(
+			'id'       => '',
+			'cat'      => '',
+			'cat_field' => 'ID',
+			'cat_relation' => 'OR',
+			'orderby'  => 'ID',
+			'order'    => 'DESC',
+			'meta_key' => '',
+		);
+		
+		$params = shortcode_atts( $default_params, $params );
+		
 		// make sure we aren't calling both id and cat at the same time
 		if ( isset( $params['id'] ) && $params['id'] != '' && isset( $params['cat'] ) && $params['cat'] != '' ) {
 			return "<strong>ERROR: You cannot set both a single ID and a category ID for your Lab Directory</strong>";
@@ -771,7 +810,7 @@ class Lab_Directory_Shortcode {
 		}
 		
 		//TODO single ID ???
-		$output .= '<div class="ld_' . $slug . '_loop" id="lab-directory-wrapper">' . do_shortcode($template['html']) . '</div>';
+		$output .= '<div class="ld_' . $slug . '_loop" >' . do_shortcode($template['html']) . '</div>';
 		return $output;
 		
 		/* TODO OLD CODE Search utility of the escaping utility 
@@ -822,7 +861,7 @@ class Lab_Directory_Shortcode {
      * @return string The template filename if one is located.
      */
 
-	static function ld_load_template($template_name) {
+    static function ld_load_template($template_name) {
     	
      	$template =array(
     		'html' =>'',

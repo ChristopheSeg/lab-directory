@@ -2,17 +2,18 @@
   div.help-topic {
     margin-bottom: 40px;
   }
+  
 </style>
 
 <div class="help-topic" id="lab_directory_staff-shortcodes">
   <h2>Shortcodes</h2>
 
   <p>
-    Use the <code>[lab-directory]</code> shortcode in a post or page to display your lab_directory_staff.
+    <code>[lab-directory]</code> shortcode can be used in a post or page to display your lab_directory_staff.
   </p>
 
   <p>
-    The following parameters are accepted: (TODO only template working at present)
+    The following parameters are accepted for filtering and templating: 
     <ul>
       <li><code>id</code> - the ID for a single lab_directory_staff member. (Ex: [lab-directory id=4])</li>
       <li><code>cat</code> - possibly category IDs or slugs. (Ex: [lab-directory cat=1,4] or [lab-directory cat="administration"])</li>
@@ -20,50 +21,67 @@
       <li><code>cat_relation</code> - used with cat and cat_field. Possible values are "OR" and "AND". (Ex: [lab-directory cat="administration,corporate" cat_relation="OR"])</li>
       <li><code>orderby</code> - the attribute to use for ordering. Supported values are 'name' and 'ID'. (Ex: [lab-directory orderby=name])</li>
       <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory order=asc])</li>
-      <li><code>template</code> - the slug for the lab_directory_staff template to use.</li>
       <li><code>staff_filter</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_filter=true])</li>
-      
+      <li><code>template</code> - the slug for the lab_directory_staff template to use:</li>
+		  <ul style ="padding-left:15px;">
+		  <li><code>[lab-directory id=122 template=single_staff]</code> - used to display one single staff profile (id should be given)</li>
+		  <li><code>[lab-directory id=122 template=single_staff_phd]</code> - used to display PHD Information for one staff (id should be given)</li>
+		  <li><code>[lab-directory id=122 template=single_staff_hdr]</code> - used to display HDR Information for one staff (id should be given)</li>
+		  <li><code>[lab-directory template=staff_grid]</code> or <code> [lab-directory]</code> - used to display a compact grid of staff (default template)</li>
+		  <li><code>[lab-directory template=staff_list]</code> - used to display a list (several lines for each staff, full width)</li>
+		  <li><code>[lab-directory template=staff_trombi]</code> - used to display a grid of staff photos</li>
+		  <li><code>[lab-directory template=defense_list]</code> (1) - used to display a list of HDR and PHD defenses</li>
+		  <li>The real name of the template files and style sheet are ld_slug.php and ld_slug.css .</li>
+		  <li>Instruction for template's location and customisation can be found in the help section of <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=templates">Staff Settings</a>.</li>
+		  </ul>    
     </ul>
     Note - Ordering options can be viewed here - <a href="https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters">https://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters</a>
   </p>
-</div>
-
-<div class="help-topic" id="lab_directory_staff-templates">
-    <h2>Lab Directory Single Profile Template</h2>
-    <p>
-        By default, Lab Directory uses the ld_single_staff.php file, located in the plugin's templates folder, to display individual profile data. But you may create your own templates if you wish.
-    </p>
-    <p>
-        Warning: Do not edit the ld_single_staff.php file directly. If you do, your changes will be overwritten when Lab Directory updates.
-    </p>
-    <p>
-        Instruction for creating a custom single profile template can be found in the help section of <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=templates">Staff Settings page</a>
-    </p>
-</div>
-
-<div class="help-topic" id="lab_directory_staff-templates">
-  <h2>Lab Directory Staff Listing Templates</h2>
-
   <p>
-    The <code>[lab-directory]</code> shortcode supports staff_grid as a default template or custom templates: 
+  [lab-directory]</code> shortcode load a template which call one secondary loop (or two secondary loops in case of defense list) to filter staff. 
   </p>
   <ul>
-  <li><code>[lab-directory template=staff_grid]</code> or <code> [lab-directory]</code> - used to display a compact grid of staff</li>
-  <li><code>[lab-directory template=staff_list]</code> - used to display a list (several lines for each staff, full width)</li>
-  <li><code>[lab-directory template=staff_trombi]</code> - used to display a grid of staff photos</li>
-  <li><code>[lab-directory template=defense_list]</code> - used to display a list of HDR and PHD defenses</li>
-  </ul>
+      <li><code>[lab_directory_single_staff_loop]</code> - this loop is called when a single staff id is provided [lab-directory id=122]</li>
+      <li><code>[lab_directory_staff_loop]</code> - this loop extract all staff profile (used by staff_list staff_trmombi staff_grid templates)</li>
+      <li><code>[lab_directory_hdr_loop period=??]</code> (1) - this loop extract staff having a HDR profiles (used in defense list template)</li>
+      <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
+		  <ul style ="padding-left:15px;">
+		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=all</code>(all) <code>period=futur</code> filter for defense date in the futur</li>
+		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_filter</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
+		  </ul>    
+  </ul>  
+ 
   <p>
-    Each template is identified by a slug. The provided templates are "List" and "Grid", with their slugs being "list" and "grid" respectively. Each custom template uses the slug format "custom_[n]" where [n] is the custom template ID.
-    So to use "Custom Template 1" you would use the shortcode like so: <code>[lab-directory template=custom_1]</code>.
+  These secondary loops <code>[lab_directory_xxx_loop]</code> can be used as standalone shortcode in a post or page to display your lab_directory_staff. They use the same parameters as <code>[lab-directory]</code> shortcode. This method allow for a customisation of list of fields to display which be different on page. 
   </p>
-</div>
+  <p>
+  However, in such case no template is loaded so that you can provide css for styling and the list of shortcode to display in your post or page as in the example below. Each item of the list is enclosed in a div having classes <code>ld_single_item</code> <code>ld__item</code> . 
+  </p>
+  <pre><code><?php echo  htmlentities(
+  '<style type ="text/css"> 
+hr {margin-top: 5px; margin-bottom: 5px;}
+.clearfix { clear: both;}
+.ld__item .ld_photo {float: right; margin-right: 15px;}
+.ld__item .ld_photo img {max-width: 100px; height: auto;}
+.ld__item .ld_name {font-size: 1em; line-height: 1em; margin-bottom: 4px;}
+</style>
+[lab_directory_hdr_loop period=all]
+	[ld_photo]
+	[ld_profile_link hdr=true] [ld_hdr_date add_div=false] : [ld_name_firstname add_div=false] [/ld_profile_link]
+	[ld_hdr_subject]
+	<div class="clearfix"></div><hr>
+[/lab_directory_hdr_loop]');
+?></code></pre></div>
+<p>
+<code>[lab_directory_xxx_loop]</code> loops can also load one template css using parameter <code>css=slug</code> where slug is one template slug (staff_list, staff_trombi...). In that case, each item of the list enclosing div hav the additionnal classes <code>ld_slug_item</code> .
+</p>
+
 
 <div class="help-topic" id="lab_directory_staff-template-tags">
-  <h2>Lab Directory Template Tags</h2>
+  <h2>Lab Directory Loops shortcodes</h2>
 
   <p>
-    Custom Shortcodes are listed in the Custom Details Fields table on the <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings">Staff Settings page</a>. All template shortcodes must be contained within the <code>[lab_directory_staff_loop]</code> shortcodes.
+    Custom Shortcodes are listed in the Custom Details Fields table on the <a href="<?php echo get_admin_url(); ?>edit.php?post_type=lab_directory_staff&page=lab-directory-settings">Staff Settings page</a>. All template shortcodes must be contained within one <code>[lab_directory_xxx_loop]</code> shortcode.
   </p>
 
   <p>

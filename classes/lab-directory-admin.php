@@ -138,7 +138,7 @@ class Lab_Directory_Admin {
 				$content .=  '<p><b>' . __('Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ your changes will be lost on the next update of Lab-Directory plugin.', 'lab-directory'). '</b></p>';
 				$content .=  '<p>' . __('Class used in Lab-Directory template div (example given for single_staff template).', 'lab-directory'). '</p>';
 				
-				$content .=  '<p><ol><li><i>&lt;div class="ld_single_staff_loop" id="lab-directory-wrapper"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory loop content.', 'lab-directory'). '</li>';
+				$content .=  '<p><ol><li><i>&lt;div class="ld_single_staff_loop"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory loop content.', 'lab-directory'). '</li>';
 				$content .=  '<li><i>&lt;div class="ld_single_staff_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed by the name of the template used ( here single_staff) ', 'lab-directory'). '</li>';
 				$content .=  '<li><i>&lt;div class="ld_field ld_photo"&gt;</i> : ' . __('This div enclose each individual line of an item (name, photo, position). It has 2 classes "ld-field" (all fields have it) and a second class (ld_photo) equal to the Lab-Directory slug of that field', 'lab-directory'). '</li></ol>';
 				
