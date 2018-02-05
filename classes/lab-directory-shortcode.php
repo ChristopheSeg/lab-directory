@@ -5,7 +5,7 @@ class Lab_Directory_Shortcode {
     public static $lab_directory_staff_query;
     public static $current_template;
     
-		static $lab_directory_main_shortcode_default_params = array(
+	static $lab_directory_main_shortcode_default_params = array(
 			'id'       => '',
 			'cat'      => '',
 			'cat_field' => 'ID',
@@ -88,7 +88,7 @@ class Lab_Directory_Shortcode {
         	self::$lab_directory_main_shortcode_params['label'] =='true') AND
         (  $atts['label'] !== false AND $atts['label'] != 'false'  ) )
         {
-    		$output ='<span class="label_champ">Equipe</span> ' .$output; 
+    		$output ='<span class="label_champ">' . lab_directory::$default_meta_field_names[substr($tag,3)] . '</span> ' .$output; 
     	}
     	if ( isset($atts['add_div']) AND ($atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
     		return '<div class=" '. $tag . ' ld_field">' . $output . '</div>';

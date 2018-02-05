@@ -121,7 +121,6 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
         <?php
         	$index = 0;
         	$lab_directory_meta_field_types = Lab_Directory::get_lab_directory_meta_field_types();
-        	$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
         	$lab_directory_multivalues = Lab_Directory::get_lab_directory_multivalues();
         	$lab_directory_ldap_attributes = Lab_Directory::get_lab_directory_ldap_attributes();
         	$lab_directory_fixed_types = Lab_Directory_Settings::get_lab_directory_fixed_types();
@@ -142,7 +141,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
               <input name="lab_directory_staff_meta_fields_orders[<?php echo $index; ?>]" value="<?php echo $index; ?>" style="width: 40px;" />
             </td>
             <td>
-              <?php echo $lab_directory_meta_field_names[$field['slug']]; ?>
+              <?php echo lab_directory::$default_meta_field_names[$field['slug']]; ?>
             </td>
             <td>
               [ld_<?php echo $field['slug']; ?>]

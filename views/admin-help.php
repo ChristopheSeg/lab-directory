@@ -22,6 +22,7 @@
       <li><code>orderby</code> - the attribute to use for ordering. Supported values are 'name' and 'ID'. (Ex: [lab-directory orderby=name])</li>
       <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory order=asc])</li>
       <li><code>staff_filter</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_filter=true])</li>
+      <li><code>label</code> - set this parameter to true to display a label on each metafield (excepted staff photo)</li>
       <li><code>template</code> - the slug for the lab_directory_staff template to use:</li>
 		  <ul style ="padding-left:15px;">
 		  <li><code>[lab-directory id=122 template=single_staff]</code> - used to display one single staff profile (id should be given)</li>

@@ -1,7 +1,6 @@
 <script type="text/javascript">
   jQuery(document).ready(function($){
 
-
     $(document).on('click', '.custom-template-dropdown-arrow', function(ev){
       ev.preventDefault();
       $(this).toggleClass('fa-angle-down');
@@ -41,11 +40,11 @@
 </style>
 
 <?php echo_form_messages($form_messages); 
-$use_lang1= get_option( 'lab_directory_use_lang1',true);
-$use_lang2= get_option( 'lab_directory_use_lang2',true);
-$lang1= get_option( 'lab_directory_lang1',true);
-$lang2= get_option( 'lab_directory_lang2',true);
-
+$use_lang1 = get_option( 'lab_directory_use_lang1',true);
+$use_lang2 = get_option( 'lab_directory_use_lang2',true);
+$lab_directory_locale_first =  get_option( 'lab_directory_locale_first',true);
+$lang1 = get_option( 'lab_directory_lang1',true);
+$lang2 = get_option( 'lab_directory_lang2',true);
 ?>
 
 <form method="post">
@@ -61,51 +60,62 @@ $lang2= get_option( 'lab_directory_lang2',true);
 
 
  
-<h2>Languages for subject, resume and goal metafields</h2>
+<h2>Languages for subject, resume and goal metafields NOT YET IMPLEMENTED</h2>
 <p>All metafields are single language without any reliable possibility to translate their content. In order to internationalise your staff directory, Lab-Directory propose 2 other languages for field corresponding to: subject, resume, and goal. They can be used for example to show an english version of a PHD subject on staff pages when using multiple language website. </p>
-<p>The idea is to define 3 languages "locale" the main language of your website and two other laguages "lang1" and "lang2" (_lang1 and _lang2 suffix are added to fields proposed in multiple languages). As an example, PHD_subject, PHD_subject_lang1 and PHD_subject_lang2 represent a PHD subject given in 3 possible languages.</p>
+<p>The idea is to define 3 languages "locale" the main language of your website and two other laguages "language 1" and "language 2" (_lang1 and _lang2 suffix are added to multiple languages fields). As an example, PHD_subject, PHD_subject_lang1 and PHD_subject_lang2 represent a PHD subject given in 3 possible languages.</p>
 <p></p>As most webmaster knows, when using several languages content on a website, most of the time people give you this content in one (or zero!) language. In order to be as efficient as possible, priority rules are defined for these content. <p>
 <table>
 <tr>
 	<th>page language</th>
-	<th>use</th>
+	<th colspan="2">use language</th>
 	<th>Replacement priority (use first available)</th>
 </tr>
 <tr>
 	<td>locale</td>
 	<td></td>
-	<td><?php echo $locale; ?></td>
+	<td><?php echo $language_list[$locale]['native_name']; ?>, <?php echo $language_list[$locale]['english_name']; ?></td>
 	<td>locale lang1 lang2</td>
 </tr>
 <tr>
-	<td>lang1</td>
+	<td>Language 1</td>
 	<td><input name="lab_directory_use_lang1" type="checkbox" value="1" <?php 
 		checked( '1', get_option( 'lab_directory_use_lang1' ) );
-		echo count($language_list)>1? ' ' : 'disabled'; ?> /></td>
-	<td><?php if (count($language_list)>1){ wp_dropdown_languages(array('name' =>'lab_directory_lang1','show_available_translations' => false)); } else {_e('Please install other language before using lang1 and lang2','lab-directory');} ?></td>
-	<td>lang1 locale lang2</td>
+		echo count($languages)>0? ' ' : 'disabled'; ?> /></td>
+	<td><?php if (count($languages)>0) {	echo lab_directory_create_select('lab_directory_lang1', 
+		$languages, $lang1, null, true, false);} ?>
+	</td>
+	<td>Language 1, locale, Language 2</td>
 </tr><tr>
-	<td>lang2</td>
+	<td>Language 2</td>
 	<td><input name="lab_directory_use_lang2" type="checkbox" value="1" <?php 
 		checked( '1', get_option( 'lab_directory_use_lang2' ) );
-		echo count($language_list)>2? ' ' : 'disabled'; ?> /></td>
-	<td><?php if (count($language_list)>2){ wp_dropdown_languages(array('name' =>'lab_directory_lang2','show_available_translations' => false)); } else {_e('Please install other language before using lang1 and lang2','lab-directory');} ?></td>
-	<td>lang2 locale lang1</td>
+		echo count($languages)>1? ' ' : 'disabled'; ?> /></td>
+	<td><?php if (count($languages)>1) {	echo lab_directory_create_select('lab_directory_lang1', 
+		$languages, $lang2, null, true, false);} else { _e('disabled');} ?>
+	</td>	<td>Language 2, locale, Language 1</td>
 	<td></td>
 </tr>
 <tr>
 	<td>others languages</td>
-	<td> </td>
-	<td> </td>
-	<td>choose between: lang1 locale lang2 or locale lang1 lang2</td>
+	<td><input type="radio" name="lab_directory_locale_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> /></td>
+	<td>Locale first:</td>
+	<td>locale, Language 1, Language 2</td>
+</tr><tr>
+	<td>others languages</td>
+	<td><input type="radio" name="lab_directory_locale_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> /></td>
+	<td>Language 1 first:</td>
+	<td>Language 1, locale, Language 2</td>
 </tr>
 </table> 
-<p>In order to let the possibility to not "translate" these fields use the parameter <code>translate=false</code> in shortcode</p>
-<p>For example <code>PHD_subject</code> will be rendered as one of the 3 possible existing values depending on lang1 and lang2 usage and browsed page language.</p>
-<p>Whilst <code>PHD_subject translate=false</code> will be rendered as PHD_subject content (*) and <code>PHD_subject_lang2 translate=false</code> as PHD_subject_lang2 content (*) . (*) only if they exist!)</p>
 
-<p>TODO description / implementation to come soon!!</p>
-    
+<p>All metafield with lang1 and lang2 suffix have a <code>translate</code> parameter</p>
+<ul style ="padding-left:15px;">
+<li>Without this parameter (or <code>translate=true</code>) give one translation using the preceeding rule: <code>[PHD_subject]</code> will be rendered as one of the 3 possible existing values depending on lang1 and lang2 usage and browsed page language.</li>
+<li>Use the parameter <code>[translate=false]</code> in shortcode to force language<code>[PHD_subject translate=false]</code> will be rendered as PHD_subject content (*) and <code>[PHD_subject_lang2 translate=false]</code> as PHD_subject_lang2 content (*) . (*) only if they exist!)</li>
+<li>Use <code>[translate=all]</code> to display 1 to 3 translations of a field when they exist (they will appear according to the ordering rules defined above)</li>
+<li>Please note that <code>[PHD_subject  translate=yyy]</code> and <code>[PHD_subject_xxx  translate=yyy]</code> are equivalent if yyy is not equal to false</li>
+</ul>
+
 <h2>Social network used in metafields</h2>
 <p>Select whose social networks can be enabled for displaying links in LAB directory. </p>
 	<?php 

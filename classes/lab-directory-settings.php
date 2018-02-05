@@ -830,7 +830,7 @@ class Lab_Directory_Settings {
 
 	static function get_lab_directory_custom_fields() {
 		$custom_fields = array();
-		foreach ( Lab_Directory::get_lab_directory_default_meta_field_names() as $key => $key_name ) {
+		foreach ( Lab_Directory::$default_meta_field_names as $key => $key_name ) {
 			if ( strpos( $key, 'custom' ) !== false ) {
 				$custom_fields[$key] = $key_name;
 			}

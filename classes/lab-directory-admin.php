@@ -294,7 +294,7 @@ class Lab_Directory_Admin {
 	static function taxonomies() {
 	
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
-		$language_list = wp_get_available_translations();
+		$language_list = wp_get_available_translations('core');
 	
 		$locale = get_locale(); //string(5) "fr_FR"
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : $locale;
@@ -539,8 +539,16 @@ class Lab_Directory_Admin {
 		$form_messages = array('form_saved' => false); 
 		$locale = get_locale(); //string(5) "fr_FR"
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
-		$language_list = wp_get_installed_translations('core');
-		$language_list = $language_list['admin'];
+		$language_list = wp_get_available_translations('core');
+		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }
+		$languages=array(); 
+		
+		foreach ($available_languages as $available_language){
+			if ($locale != $available_language) {
+				$languages[$available_language] = $language_list[$available_language]['native_name'];
+			}
+		}
+		
 		$taxonomies = Lab_Directory::lab_directory_get_taxonomies(true);
 			
 		// Check $_POST and _wpnonce
@@ -553,6 +561,7 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_lang1', isset( $_POST['lab_directory_use_lang1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_lang2', isset( $_POST['lab_directory_use_lang2'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_locale_first', $_POST['lab_directory_locale_first']);
 				update_option( 'lab_directory_lang1', $_POST['lab_directory_lang1']);
 				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
 				

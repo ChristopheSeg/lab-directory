@@ -73,6 +73,9 @@ class Lab_Directory {
 
 	static $acronyms = null;
 	
+	// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database	
+	static $default_meta_field_names = array(); 
+	
 	//
 	// Init custom post types
 	//
@@ -87,6 +90,7 @@ class Lab_Directory {
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_translations' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_acronyms' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_default_meta_field_names' ) );
 		
 		add_filter( 'get_sample_permalink_html', array( 'Lab_Directory', 'hide_permalink' ) );
 		add_filter( 'admin_post_thumbnail_html', array( 'Lab_Directory', 'lab_directory_staff_photo_meta_box' ), 10, 3 );
@@ -522,7 +526,6 @@ class Lab_Directory {
 	 */
 	static function lab_directory_staff_meta_box_output( $post ) {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-		$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
@@ -652,7 +655,7 @@ div.lab_directory_staff_meta {
 					Lab_Directory::lab_directory_staff_meta_box_render_input( 
 						$post, 
 						$field, 
-						$lab_directory_meta_field_names[$field['slug']], 
+						lab_directory::$default_meta_field_names[$field['slug']], 
 						$studying_levels, 
 						$jury_functions, 
 						$ldap_synced );
@@ -1008,7 +1011,6 @@ echo lab_directory_create_select(
 		if ( $_POST['save'] == 'Update' ) {
 			
 			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-			$lab_directory_meta_field_names = Lab_Directory::get_lab_directory_default_meta_field_names();
 			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 			$staff_statuss = Lab_Directory::get_staff_statuss( $post_id);
 			
@@ -1049,7 +1051,7 @@ echo lab_directory_create_select(
 							Lab_Directory::lab_directory_save_meta_boxes_save_meta( 
 								$post_id, 
 								$field, 
-								$lab_directory_meta_field_names[$field['slug']] );
+								lab_directory::$default_meta_field_names[$field['slug']] );
 						}
 					}
 				}
@@ -2645,103 +2647,6 @@ echo lab_directory_create_select(
 		return $ldap_attributes;
 	}
 
-	static function get_lab_directory_default_meta_field_names() {
-		
-		// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database		
-
-		 $default_meta_field_names = array( 
-				'firstname' => __( 'Firstname', 'lab-directory' ), 
-				'name' => __( 'Name', 'lab-directory' ), 
-				'position' => __( 'Position', 'lab-directory' ), 
-				'login' => __( 'Login', 'lab-directory' ), 
-				'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ), 
-				'mails' => __( 'Mail', 'lab-directory' ), 
-				'bio' => __( 'Biography', 'lab-directory' ), 
-				'other_mails' => __( 'Other mails', 'lab-directory' ), 
-				'idhal' => __( 'ID HAL', 'lab-directory' ), 
-				'photo_url' => __( 'Photo URL', 'lab-directory' ), 
-				'webpage' => __( 'Professionnal webpage', 'lab-directory' ), 
-				'social_network' => __( 'Social Network', 'lab-directory' ), 
-				'function' => __( 'Function', 'lab-directory' ), 
-				'title' => __( 'Title', 'lab-directory' ), 
-				'phone_number' => __( 'Phone number', 'lab-directory' ), 
-				'fax_number' => __( 'Fax number', 'lab-directory' ), 
-				'office' => __( 'Office', 'lab-directory' ), 
-				'team' => __( 'Team', 'lab-directory' ), 
-				'exit_date' => __( 'End activity date', 'lab-directory' ), 
-				'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
-				'ld_hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ), 	
-				'ld_hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ), 
-		 		'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
-				'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
-				'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
-				'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
-				'ld_hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ), 
-				'ld_hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ), 
-		 		'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
-				'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
-				'ld_phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ), 
-				'ld_phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ), 
-		 		'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
-				'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
-				'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
-				'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
-				'ld_phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ), 	
-				'ld_phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ), 
-		 		'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
-				'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
-				'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
-				'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ), 
-				'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ), 
-		 		'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
-				'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
-				'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
-				'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ), 
-				'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ), 
-		 		'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
-				'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ),  	
-				'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ), 
-		 		'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
-				'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
-				'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
-				'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
-				'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
-				'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ), 
-				'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ), 
-		 		'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
-				'invited_origin' => __( 'Invited origin', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
-				'cdd_goal_lang1' =>	__( 'Contract goal', 'lab-directory' ),
-				'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ),
-		 		/* translators Fixed term contract information */
-				'cdd_position' => __( 'Occupied position', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_2' => __( 'custom_field_2', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_3' => __( 'custom_field_3', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_4' => __( 'custom_field_4', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_5' => __( 'custom_field_5', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_6' => __( 'custom_field_6', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_7' => __( 'custom_field_7', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_8' => __( 'custom_field_8', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ) );
-		return $default_meta_field_names;
-	}
 
 	/*
 	 * This function is runned once at init to calculate almost every permissions one time
@@ -2904,7 +2809,106 @@ echo lab_directory_create_select(
 	static function hide_permalink( $content ) {
 		return $content;
 	}
-}
+	
+	static function initiate_default_meta_field_names (){
+	
+		$lang1= ' (' . get_option( 'lab_directory_lang1',true) . ')';
+		$lang2= ' (' . get_option( 'lab_directory_lang2',true) . ')';
+		
+		self::$default_meta_field_names = array(
+				'firstname' => __( 'Firstname', 'lab-directory' ), 
+				'name' => __( 'Name', 'lab-directory' ), 
+				'position' => __( 'Position', 'lab-directory' ), 
+				'login' => __( 'Login', 'lab-directory' ), 
+				'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ), 
+				'mails' => __( 'Mail', 'lab-directory' ), 
+				'bio' => __( 'Biography', 'lab-directory' ), 
+				'other_mails' => __( 'Other mails', 'lab-directory' ), 
+				'idhal' => __( 'ID HAL', 'lab-directory' ), 
+				'photo_url' => __( 'Photo URL', 'lab-directory' ), 
+				'webpage' => __( 'Professionnal webpage', 'lab-directory' ), 
+				'social_network' => __( 'Social Network', 'lab-directory' ), 
+				'function' => __( 'Function', 'lab-directory' ), 
+				'title' => __( 'Title', 'lab-directory' ), 
+				'phone_number' => __( 'Phone number', 'lab-directory' ), 
+				'fax_number' => __( 'Fax number', 'lab-directory' ), 
+				'office' => __( 'Office', 'lab-directory' ), 
+				'team' => __( 'Team', 'lab-directory' ), 
+				'exit_date' => __( 'End activity date', 'lab-directory' ), 
+				'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
+				'hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ) . $lang1, 	
+				'hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ) . $lang2, 
+		 		'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
+				'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
+				'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
+				'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
+				'hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ) . $lang1, 
+				'hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ) . $lang2, 
+		 		'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
+				'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
+				'phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ) . $lang1, 
+				'phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ) . $lang2, 
+		 		'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
+				'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
+				'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
+				'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
+				'phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ) . $lang1,  	
+				'phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ) . $lang2, 
+		 		'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
+				'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
+				'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
+				'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ) . $lang1, 
+				'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ) . $lang2, 
+		 		'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
+				'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
+				'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
+				'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ) . $lang1, 
+				'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ) . $lang2, 
+		 		'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
+				'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ) . $lang1,   	
+				'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ) . $lang2, 
+		 		'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
+				'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
+				'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
+				'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
+				'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
+				'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ) . $lang1, 
+				'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ) . $lang2, 
+		 		'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
+				'invited_origin' => __( 'Invited origin', 'lab-directory' ),
+				/* translators Fixed term contract information */
+				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
+				/* translators Fixed term contract information */
+				'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
+				/* translators Fixed term contract information */
+				'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
+				'cdd_goal_lang1' =>	__( 'Contract goal', 'lab-directory' ) . $lang1, 
+				'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ) . $lang2, 
+		 		/* translators Fixed term contract information */
+				'cdd_position' => __( 'Occupied position', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_2' => __( 'custom_field_2', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_3' => __( 'custom_field_3', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_4' => __( 'custom_field_4', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_5' => __( 'custom_field_5', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_6' => __( 'custom_field_6', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_7' => __( 'custom_field_7', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_8' => __( 'custom_field_8', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
+				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
+				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ) );
+	}
+	
+}  // End of class
 
 function lab_directory_strtotime( $time, $format = "Y-m-d" ) {
 	$out = '';

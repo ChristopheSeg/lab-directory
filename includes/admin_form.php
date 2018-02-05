@@ -33,14 +33,13 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
    		}
     }
 	// $select = '<select ' . ($multiple? 'multiple ': ''). ($size? 'size="'. $size . '"': ''). 'class="' . $class . '"name="' . $name . '">';
-	
+    
 	
 	$select = '<select ' . ($disabled? 'hidden ':'') .' class="' . $class . '"name="' . $name . '">';
 	if ($allow_none!== false) {
 		$select .='<option value="none" ' . ($current_value=='none'? 'selected':'') . '>'. $no_selection . '</option>';
 	}
 	$select .= $select_options . '</select>';
-	
 	if ($disabled){
 		// select is hidden, only current value displayed
 		$select .= $values[$current_value];
