@@ -145,7 +145,7 @@ class Lab_Directory {
 		
 		// Delay wpautop after shortcode are loaded http://sww.co.nz/solution-to-wordpress-adding-br-and-p-tags-around-shortcodes/
 		remove_filter( 'the_content', 'wpautop' );
-		//TODO Delayinf is not enough !! IS removing wpautop breaking some page/post ???
+		//TODO Delaying is not enough !! Question: Does removing wpautop breaking some page/post ???
 		//add_filter( 'the_content', 'wpautop' , 220);
 	}
 
@@ -233,9 +233,7 @@ class Lab_Directory {
 			    		Lab_directory_shortcode::$hdr_loop=true;
 			    		Lab_Directory_Shortcode::$current_template = 'single_staff_hdr'; 
             			// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-			    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');
-			            //TODOTODO  filter called but modified content not displayed by siteorigin !!
-			    		
+			    		$content .= lab_directory_shortcode::retrieve_template_html('single_staff_hdr');			    		
 			    	}  	
 			    	elseif (isset($wp_query->query_vars['phd'] ) ) {
 			    		Lab_directory_shortcode::$hdr_loop=true;
@@ -264,7 +262,6 @@ class Lab_Directory {
 			$original = get_page_template();
 			return $original; 
 			
-			//TODOTODO  add possibility to change template in settings BUT suppress old single
 			// $single_template_option = get_option( 'lab_directory_staff_single_template' );
 			if ( strtolower( $single_template_option ) != 'default' ) {
 				$template = locate_template( $single_template_option );
@@ -1447,6 +1444,24 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 17, 
+				'type' => 'longtext', 
+				'slug' => 'hdr_subject_lang1', 
+				'group' => 'HDR', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 17, 
+				'type' => 'longtext', 
+				'slug' => 'hdr_subject_lang2', 
+				'group' => 'HDR', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
 				'order' => 18, 
 				'type' => 'datetime', 
 				'slug' => 'hdr_date', 
@@ -1483,6 +1498,24 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 21, 
+				'type' => 'editor', 
+				'slug' => 'hdr_resume_lang1', 
+				'group' => 'HDR', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 21, 
+				'type' => 'editor', 
+				'slug' => 'hdr_resume_lang2', 
+				'group' => 'HDR', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
 				'order' => 22, 
 				'type' => 'date', 
 				'slug' => 'phd_start_date', 
@@ -1495,6 +1528,24 @@ echo lab_directory_create_select(
 				'order' => 23, 
 				'type' => 'longtext', 
 				'slug' => 'phd_subject', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 23, 
+				'type' => 'longtext', 
+				'slug' => 'phd_subject_lang1', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 23, 
+				'type' => 'longtext', 
+				'slug' => 'phd_subject_lang2', 
 				'group' => 'doctorate', 
 				'ldap_attribute' => '', 
 				'multivalue' => 'SV', 
@@ -1537,6 +1588,24 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 27, 
+				'type' => 'editor', 
+				'slug' => 'phd_resume_lang1', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 27, 
+				'type' => 'editor', 
+				'slug' => 'phd_resume_lang2', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
 				'order' => 28, 
 				'type' => 'date', 
 				'slug' => 'post_doc_start_date', 
@@ -1558,6 +1627,24 @@ echo lab_directory_create_select(
 				'order' => 30, 
 				'type' => 'longtext', 
 				'slug' => 'post_doc_subject', 
+				'group' => 'post-doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 30, 
+				'type' => 'longtext', 
+				'slug' => 'post_doc_subject_lang1', 
+				'group' => 'post-doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 30, 
+				'type' => 'longtext', 
+				'slug' => 'post_doc_subject_lang2', 
 				'group' => 'post-doctorate', 
 				'ldap_attribute' => '', 
 				'multivalue' => 'SV', 
@@ -1591,9 +1678,45 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 32.1, 
+				'type' => 'longtext', 
+				'slug' => 'internship_subject_lang1', 
+				'group' => 'internship', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 32.1, 
+				'type' => 'longtext', 
+				'slug' => 'internship_subject_lang2', 
+				'group' => 'internship', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
 				'order' => 32.2, 
 				'type' => 'editor', 
 				'slug' => 'internship_resume', 
+				'group' => 'internship', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 32.2, 
+				'type' => 'editor', 
+				'slug' => 'internship_resume_lang1', 
+				'group' => 'internship', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 32.2, 
+				'type' => 'editor', 
+				'slug' => 'internship_resume_lang2', 
 				'group' => 'internship', 
 				'ldap_attribute' => '', 
 				'multivalue' => 'SV', 
@@ -1645,6 +1768,24 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 37, 
+				'type' => 'longtext', 
+				'slug' => 'invitation_goal_lang1', 
+				'group' => 'invited', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 37, 
+				'type' => 'longtext', 
+				'slug' => 'invitation_goal_lang2', 
+				'group' => 'invited', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
 				'order' => 38, 
 				'type' => 'longtext', 
 				'slug' => 'invited_position', 
@@ -1684,6 +1825,24 @@ echo lab_directory_create_select(
 				'order' => 42, 
 				'type' => 'longtext', 
 				'slug' => 'cdd_goal', 
+				'group' => 'CDD', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 42, 
+				'type' => 'longtext', 
+				'slug' => 'cdd_goal_lang1', 
+				'group' => 'CDD', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array( 
+				'order' => 42, 
+				'type' => 'longtext', 
+				'slug' => 'cdd_goal_lang2', 
 				'group' => 'CDD', 
 				'ldap_attribute' => '', 
 				'multivalue' => 'SV', 
@@ -2488,8 +2647,9 @@ echo lab_directory_create_select(
 
 	static function get_lab_directory_default_meta_field_names() {
 		
-		// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
-		$default_meta_field_names = array( 
+		// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database		
+
+		 $default_meta_field_names = array( 
 				'firstname' => __( 'Firstname', 'lab-directory' ), 
 				'name' => __( 'Name', 'lab-directory' ), 
 				'position' => __( 'Position', 'lab-directory' ), 
@@ -2510,29 +2670,45 @@ echo lab_directory_create_select(
 				'team' => __( 'Team', 'lab-directory' ), 
 				'exit_date' => __( 'End activity date', 'lab-directory' ), 
 				'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
-				'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
+				'ld_hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ), 	
+				'ld_hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ), 
+		 		'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
 				'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
 				'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
 				'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
-				'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
+				'ld_hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ), 
+				'ld_hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ), 
+		 		'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
 				'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
-				'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
+				'ld_phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ), 
+				'ld_phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ), 
+		 		'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
 				'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
 				'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
 				'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
-				'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
+				'ld_phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ), 	
+				'ld_phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ), 
+		 		'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
 				'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
 				'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
-				'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
+				'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ), 
+				'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ), 
+		 		'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
 				'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
 				'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
-				'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
-				'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
+				'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ), 
+				'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ), 
+		 		'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
+				'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ),  	
+				'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ), 
+		 		'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
 				'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
 				'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
 				'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
 				'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
-				'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
+				'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ), 
+				'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ), 
+		 		'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
 				'invited_origin' => __( 'Invited origin', 'lab-directory' ),
 				/* translators Fixed term contract information */
 				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
@@ -2540,7 +2716,9 @@ echo lab_directory_create_select(
 				'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
 				/* translators Fixed term contract information */
 				'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
-				/* translators Fixed term contract information */
+				'cdd_goal_lang1' =>	__( 'Contract goal', 'lab-directory' ),
+				'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ),
+		 		/* translators Fixed term contract information */
 				'cdd_position' => __( 'Occupied position', 'lab-directory' ),
 				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),

@@ -537,7 +537,12 @@ class Lab_Directory_Admin {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
-	
+		$locale = get_locale(); //string(5) "fr_FR"
+		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		$language_list = wp_get_installed_translations('core');
+		$language_list = $language_list['admin'];
+		$taxonomies = Lab_Directory::lab_directory_get_taxonomies(true);
+			
 		// Check $_POST and _wpnonce
 		if(isset($_POST['admin-settings-general'])) {
 			if ( !empty($_POST['admin-settings-general']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-general' )){
@@ -546,7 +551,11 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy1', isset( $_POST['lab_directory_use_taxonomy1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
-										
+				update_option( 'lab_directory_use_lang1', isset( $_POST['lab_directory_use_lang1'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_lang2', isset( $_POST['lab_directory_use_lang2'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_lang1', $_POST['lab_directory_lang1']);
+				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
+				
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
 					foreach($_POST['lab_directory_used_social_networks'] as $key =>$value) {
