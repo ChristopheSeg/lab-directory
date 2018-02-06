@@ -60,7 +60,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 
 
  
-<h2>Languages for subject, resume and goal metafields NOT YET IMPLEMENTED</h2>
+<h2>Languages for subject, resume and goal metafields (partially implemented)</h2>
 <p>All metafields are single language without any reliable possibility to translate their content. In order to internationalise your staff directory, Lab-Directory propose 2 other languages for field corresponding to: subject, resume, and goal. They can be used for example to show an english version of a PHD subject on staff pages when using multiple language website. </p>
 <p>The idea is to define 3 languages "locale" the main language of your website and two other laguages "language 1" and "language 2" (_lang1 and _lang2 suffix are added to multiple languages fields). As an example, PHD_subject, PHD_subject_lang1 and PHD_subject_lang2 represent a PHD subject given in 3 possible languages.</p>
 <p></p>As most webmaster knows, when using several languages content on a website, most of the time people give you this content in one (or zero!) language. In order to be as efficient as possible, priority rules are defined for these content. <p>
