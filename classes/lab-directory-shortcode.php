@@ -144,12 +144,15 @@ class Lab_Directory_Shortcode {
 	    } else {
         	$meta_key = 'ld_' . $field['slug'];
 	    	$meta_value = get_post_meta( get_the_ID(), $slug, true );
-	    	// $meta_value = get_post_custom_values($slug, get_the_ID());
-	    	// $wpdb->get_var( 'SELECT meta_value FROM ' . $wpdb->postmeta . ' WHERE post_id = ' . get_the_ID() . " AND  meta_key = '" . $slug . "'" );
-    	
-    	$meta_value = Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);
-    	
+	        	
 	    }
+	    
+	    // a:2:{s:10:"wp_user_id";a:1:{s:4:"test";a:2:{s:11:"translation";s:6:"TEST%3";s:4:"link";s:5:"TEST4";}}s:9:"photo_url";a:1:{s:4:"test";a:2:{s:11:"translation";s:4:"TEST";s:4:"link";s:6:"TEST45";}}}
+	    	  
+	    $meta_value = Lab_Directory::add_tooltips($meta_value, Lab_Directory::$staff_meta_fields[$slug]);
+	    $meta_value = Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);
+	    
+	    
  
         // Add enclosing div 
         return self::div_it($meta_value, $tag, $atts);

@@ -449,13 +449,15 @@ class Lab_Directory_Admin {
 							$index++;
 							$metafields_slug = sanitize_text_field($metafields_slugs[$index]);
 							if ($metafields_slug AND ($post_translations[$index] OR $links[index])) {
-								$translations[$metafields_slug][$slug] = array();
+								$translations[$index] = array(); 
+								$translations[$index]['slug'] = $metafields_slug;
+								$translations[$index]['acronym'] = $slug;
 								if ($post_translations[$index]) {
-									$translations[$metafields_slug][$slug]['translation'] = 
+									$translations[$index]['translation'] = 
 									sanitize_text_field($post_translations[$index]) ;
 								}
 								if ($links[$index]) {
-									$translations[$metafields_slug][$slug]['link'] = 
+									$translations[$index]['link'] = 
 									sanitize_text_field($links[$index]);
 								}
 							}

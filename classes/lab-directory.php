@@ -86,10 +86,10 @@ class Lab_Directory {
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_capabilities' ) );
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
-		// add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_staff_meta_fields' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_ld_acronyms' ) );
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_translations' ) );
-		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_acronyms' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_default_meta_field_names' ) );
 		
 		add_filter( 'get_sample_permalink_html', array( 'Lab_Directory', 'hide_permalink' ) );
@@ -2658,6 +2658,16 @@ echo lab_directory_create_select(
 
 	static function initiate_staff_meta_fields() {
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
+		
+		// Add acronym tooltip in each metafield parameters 
+		self::load_ld_acronyms();
+		foreach (self::$acronyms as $acronym) {
+			self::$staff_meta_fields[$acronym['slug']]['acronyms'][] = $acronym;
+		}
+	}
+	
+	static function load_ld_acronyms() {
+		self::$acronyms = get_option( 'lab_directory_translations_acronyms' );
 	}
 
 	static function initiate_translations() {
@@ -2674,7 +2684,7 @@ echo lab_directory_create_select(
 	
 	}
 
-	static function initiate_acronyms() {
+	static function load_acronyms() {
 		self::$acronyms = get_option( 'lab_directory_translations_acronyms' );
 	}
 
@@ -2916,6 +2926,33 @@ echo lab_directory_create_select(
 		
 		
 	}
+	
+	/*
+	 * 
+	 */
+	
+	function add_tooltips($meta_value, $field){
+		if (! $meta_value) { return '';} 
+		if (! isset($field['acronyms'])) { return $meta_value;} 
+		
+			foreach ($field['acronyms'] as $acronym) {
+			if (strpos($acronym['acronym'], $meta_value)) {
+				$link = ''; 
+				if ($acronym['link'] ) {
+					$replace = $acronym['acronym'] . '<a href="' . $acronym['link'] .'">' .$acronym['translation'] . '</a>';
+				} else {
+					$replace =  '<acronym title="' .$acronym['translation'] . '">' . $acronym['acronym'] . '</acronym>';
+				}
+				
+				$replace = $acronym['acronym'] . '<a href="' . $link .'">' .$acronym['translation'] . '</a>';
+				$meta_value = str_replace($field['acronyms'], $replace, $meta_value);
+				
+			}
+		}
+		
+	}
+	
+	
 	/*
 	 * This function convert a value depending on its multivalue type
 	 */
