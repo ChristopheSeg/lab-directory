@@ -93,14 +93,16 @@ class Lab_Directory_Shortcode {
     	
     	if ( ! $output)  {return '';}
 
+    	$label = '';
     	if ( ( self::$lab_directory_main_shortcode_params['label'] ===true OR 
         	self::$lab_directory_main_shortcode_params['label'] =='true') AND
         (  ! isset($atts['label']) OR ($atts['label'] !== false AND $atts['label'] != 'false'  ) ) )
         {
-    		$output ='<span class="label_champ">' . lab_directory::$default_meta_field_names[substr($tag,3)] . '</span> ' .$output; 
+    		$label = ' with_label';
+    		$output ='<span class="label_field">' . lab_directory::$default_meta_field_names[substr($tag,3)] . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
     	}
     	if ( isset($atts['add_div']) AND ($atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
-    		return '<div class=" '. $tag . ' ld_field">' . $output . '</div>';
+    		return '<div class=" '. $tag . $label . ' ld_field">' . $output . '</div>';
     	}
     	return $output;
     }
@@ -110,7 +112,8 @@ class Lab_Directory_Shortcode {
      */
     static function ld_meta_shortcode( $atts, $content = NULL, $tag = '' ) {
 	    // Add all possible parameter + default value pairs in this array 
-	    
+    	global $wpdb;
+    	 
 	    $atts = shortcode_atts( array(
 	    	'add_div'     => true,
 	    	'translate' => false,
@@ -141,6 +144,11 @@ class Lab_Directory_Shortcode {
 	    } else {
         	$meta_key = 'ld_' . $field['slug'];
 	    	$meta_value = get_post_meta( get_the_ID(), $slug, true );
+	    	// $meta_value = get_post_custom_values($slug, get_the_ID());
+	    	// $wpdb->get_var( 'SELECT meta_value FROM ' . $wpdb->postmeta . ' WHERE post_id = ' . get_the_ID() . " AND  meta_key = '" . $slug . "'" );
+    	
+    	$meta_value = Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);
+    	
 	    }
  
         // Add enclosing div 
@@ -449,14 +457,14 @@ class Lab_Directory_Shortcode {
     
     static function ld_photo_shortcode($atts, $content = NULL, $tag = '' ){
     	$atts = shortcode_atts( array(
-            'add_div'     => true,
+            'add_div'     => false, // default no div for photo
     		'replace_empty'     => false,
     		'label' => 'false',
         ), $atts);
         $photo_url = self::ld_photo_url_shortcode(array('add_div' => false, 'label' => 'false',) );
         $output = ''; 
         if(!empty($photo_url)){
-            $output = '<img src="' . $photo_url . '" />';
+            $output = '<img class="ld_photo" src="' . $photo_url . '" />';
         } elseif ($atts['replace_empty']) {
             $output = '<img src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
         }
@@ -600,15 +608,9 @@ class Lab_Directory_Shortcode {
     		$column_t = $column_t || ($jury_member['title']!='');
     	}
     	
-    	if ( ( self::$lab_directory_main_shortcode_params['label'] ===true OR
-    		self::$lab_directory_main_shortcode_params['label'] =='true') AND
-    		(  ! isset($atts['label']) OR ($atts['label'] !== false AND $atts['label'] != 'false'  ) ) )
-    	{
-    		$style='style="margin-left:110px;" ';
-    	}
+
     	$output='
-    	<table class="widefat fixed striped" cellspacing="0" '. $style . 
-    		' id="lab_directory_staff-meta-fields">
+    	<table class="widefat fixed striped" cellspacing="0" id="lab_directory_staff-meta-fields">
     		<thead>
     		<tr>'; 
     	if ($column_f) { $output .= '	<th id="columnname" scope="col" style="width: 15%;">Function</th>';}

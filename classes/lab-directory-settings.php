@@ -21,7 +21,7 @@ class Lab_Directory_Settings {
 	public function reset_custom_lab_directory_staff_meta_fields() {
 		$meta_fields_array = Lab_Directory::get_default_meta_fields();
 		// Sort by activated, then by order
-		usort( $meta_fields_array, __NAMESPACE__ . '\compare_order' );
+		uasort( $meta_fields_array, __NAMESPACE__ . '\compare_order' );
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
 		return;
 	}
@@ -45,7 +45,7 @@ class Lab_Directory_Settings {
 				
 				// Add a new unactivated meta field with its default values to $meta_fields
 				$default_meta_field['activated'] = '0';
-				$meta_fields[] = $default_meta_field;
+				$meta_fields[$default_meta_field['slug']] = $default_meta_field;
 			}
 		}
 		
@@ -104,7 +104,7 @@ class Lab_Directory_Settings {
 				$calculated_ldap_attribute = '';
 			}
 			
-			$meta_fields_array[] = array( 
+			$meta_fields_array[$slug] = array( 
 				'slug' => $slug, 
 				'order' => $orders[$index], 
 				'type' => $types[$index], // Hidden field for $fixed_type
@@ -117,8 +117,9 @@ class Lab_Directory_Settings {
 		}
 		
 		// sort by activated, then by order
-		usort( $meta_fields_array, __NAMESPACE__ . '\compare_order' );
+		uasort( $meta_fields_array, __NAMESPACE__ . '\compare_order' );
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
+
 		// Update static variable
 		Lab_Directory::$staff_meta_fields = $meta_fields_array;
 	}
@@ -130,6 +131,7 @@ class Lab_Directory_Settings {
 	public function get_lab_directory_staff_meta_fields() {
 		return get_option( 'lab_directory_staff_meta_fields', array() );
 	}
+
 	
 	//
 	// delete functions
@@ -444,7 +446,7 @@ class Lab_Directory_Settings {
 					}
 				}
 				
-				$mails = ld_value_to_something( 
+				$mails = Lab_Directory::ld_value_to_something( 
 					$champ_valeurs['mails'], 
 					$synced_meta_fields['mails']['multivalue'], 
 					'array' );

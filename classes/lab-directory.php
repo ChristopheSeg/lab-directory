@@ -958,7 +958,7 @@ echo lab_directory_create_select(
 			default : // We should never arrive to default !!
 			          
 				echo $label; 
-				echo '<span class="value">' . ld_value_to_something( $value, $field['multivalue'], 'display' ) . '</span>'; // echo $field['slug'];var_dump($value);
+				echo '<span class="value">' . Lab_Directory::ld_value_to_something( $value, $field['multivalue'], 'display' ) . '</span>'; // echo $field['slug'];var_dump($value);
 				break;
 		}
 		?>
@@ -2905,8 +2905,84 @@ echo lab_directory_create_select(
 				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
 				'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
 				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ) );
+				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ), 
+
+				// Others shortcodes requiring translation
+				'name_firstname' => __( 'Name Firstname', 'lab-directory' ),
+				'firstname_name' => __( 'Firstname Name', 'lab-directory' ),
+				
+			
+		);
+		
+		
 	}
+	/*
+	 * This function convert a value depending on its multivalue type
+	 */
+	function ld_value_to_something( $value = false, $multivalue = false, $to = 'display' ) {
+		//TODO common function for admin/frontend
+		switch ( $to ) {
+			case 'display' :
+				// prepare metafield value for displaying ( with <br> instead fo line breaks)
+				if ( ! $value ) {
+					return '';
+				}
+				switch ( $multivalue ) {
+					case 'SV' :
+						// nothing to do
+						break;
+					case 'CR' :
+					case 'MV' :
+						$value = nl2br($value);
+						break;
+					case ',' :
+						$value = str_replace(',' , '<br />', ($value));
+						break;
+					case ';' :
+						$value = str_replace(';' , '<br />', ($value));
+						break;
+					case '|' :
+						$value = str_replace('|' , '<br />', ($value));
+						break;
+					case '/' :
+						$value = str_replace('/' , '<br />', ($value));
+						break;
+				}
+				return $value;
+				break;
+			case 'array' :
+				if ( ! $value ) {
+					$value = array();
+					return $value;
+				}
+				switch ( $multivalue ) {
+					case 'special' :
+					case 'SV' :
+						$value = array( $value );
+						break;
+					case 'MV' :
+					case ';' :
+						$value = explode( ';', $value );
+						break;
+					case ',' :
+						$value = explode( ',', $value );
+						break;
+					case '|' :
+						$value = explode( '|', $value );
+						break;
+					case '/' :
+						$value = explode( '/', $value );
+						break;
+					case 'CR' :
+						$value = explode( "\n", $value );
+						break;
+				}
+				return $value;
+				break;
+		}
+		return;
+	}
+	
 	
 }  // End of class
 
@@ -2989,72 +3065,6 @@ function ld_user_can_by_user( $capability, $user ) {
 	return false;
 }
 
-/*
- * This function convert a value depending on its multivalue type
- */
-function ld_value_to_something( $value = false, $multivalue = false, $to = 'display' ) {
-	//TODO common function for admin/frontend
-	switch ( $to ) {
-		case 'display' :
-			// prepare metafield value for displaying ( with <br> instead fo line breaks)
-			if ( ! $value ) {
-				return '';
-			}
-			switch ( $multivalue ) {
-				case 'SV' :
-					// nothing to do
-					break;
-				case 'CR' :
-				case 'MV' :
-					$value = nl2br($value);
-					break;
-				case ',' :
-					$value = str_replace(',' , '<br />', ($value));
-					break;
-				case ';' :
-					$value = str_replace(';' , '<br />', ($value));
-					break;
-				case '|' :
-					$value = str_replace('|' , '<br />', ($value));
-					break;
-				case '/' :
-					$value = str_replace('/' , '<br />', ($value));
-					break;
-			}
-			return $value;
-			break;
-		case 'array' :
-			if ( ! $value ) {
-				$value = array();
-				return $value;
-			}
-			switch ( $multivalue ) {
-				case 'special' :
-				case 'SV' :
-					$value = array( $value );
-					break;
-				case 'MV' :
-				case ';' :
-					$value = explode( ';', $value );
-					break;
-				case ',' :
-					$value = explode( ',', $value );
-					break;
-				case '|' :
-					$value = explode( '|', $value );
-					break;
-				case '/' :
-					$value = explode( '/', $value );
-					break;
-				case 'CR' :
-					$value = explode( "\n", $value );
-					break;
-			}
-			return $value;
-			break;
-	}
-	return; 
-}
 
 function ld_network_icon( $key ) {
 	switch ( $key ) {
