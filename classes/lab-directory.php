@@ -958,7 +958,8 @@ echo lab_directory_create_select(
 			default : // We should never arrive to default !!
 			          
 				echo $label; 
-				echo '<span class="value">' . Lab_Directory::ld_value_to_something( $value, $field['multivalue'], 'display' ) . '</span>'; // echo $field['slug'];var_dump($value);
+				Lab_Directory::ld_value_to_something( $value, $field['multivalue'], 'display' );
+				echo '<span class="value">' . $value . '</span>'; // echo $field['slug'];var_dump($value);
 				break;
 		}
 		?>
@@ -2931,38 +2932,38 @@ echo lab_directory_create_select(
 	 * 
 	 */
 	
-	function add_tooltips($meta_value, $field){
-		if (! $meta_value) { return '';} 
-		if (! isset($field['acronyms'])) { return $meta_value;} 
+	function add_tooltips(&$meta_value, $field){
+		if (! $meta_value) { return ;} 
+		if (! isset($field['acronyms'])) { return ;} 
 		
 			foreach ($field['acronyms'] as $acronym) {
-			if (strpos($acronym['acronym'], $meta_value)) {
+				
+			if (strpos($meta_value, $acronym['acronym']) !== false) {
+				
 				$link = ''; 
 				if ($acronym['link'] ) {
-					$replace = $acronym['acronym'] . '<a href="' . $acronym['link'] .'">' .$acronym['translation'] . '</a>';
+					$replace = '<a  title="' .$acronym['translation'] . '" href="' . $acronym['link'] .'">' .$acronym['translation'] . '</a>';
 				} else {
 					$replace =  '<acronym title="' .$acronym['translation'] . '">' . $acronym['acronym'] . '</acronym>';
 				}
 				
-				$replace = $acronym['acronym'] . '<a href="' . $link .'">' .$acronym['translation'] . '</a>';
-				$meta_value = str_replace($field['acronyms'], $replace, $meta_value);
-				
+				$meta_value = str_replace($acronym['acronym'], $replace, $meta_value);	
 			}
 		}
-		
+		return;
 	}
 	
 	
 	/*
 	 * This function convert a value depending on its multivalue type
 	 */
-	function ld_value_to_something( $value = false, $multivalue = false, $to = 'display' ) {
+	function ld_value_to_something( &$value = false, $multivalue = false, $to = 'display' ) {
 		//TODO common function for admin/frontend
 		switch ( $to ) {
 			case 'display' :
 				// prepare metafield value for displaying ( with <br> instead fo line breaks)
 				if ( ! $value ) {
-					return '';
+					return;
 				}
 				switch ( $multivalue ) {
 					case 'SV' :
@@ -2985,12 +2986,12 @@ echo lab_directory_create_select(
 						$value = str_replace('/' , '<br />', ($value));
 						break;
 				}
-				return $value;
+				return;
 				break;
 			case 'array' :
 				if ( ! $value ) {
 					$value = array();
-					return $value;
+					return;
 				}
 				switch ( $multivalue ) {
 					case 'special' :
@@ -3014,7 +3015,7 @@ echo lab_directory_create_select(
 						$value = explode( "\n", $value );
 						break;
 				}
-				return $value;
+				return;
 				break;
 		}
 		return;

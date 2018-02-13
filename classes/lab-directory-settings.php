@@ -446,8 +446,8 @@ class Lab_Directory_Settings {
 					}
 				}
 				
-				$mails = Lab_Directory::ld_value_to_something( 
-					$champ_valeurs['mails'], 
+				$mails = $champ_valeurs['mails'];
+				Lab_Directory::ld_value_to_something( $mails, 
 					$synced_meta_fields['mails']['multivalue'], 
 					'array' );
 				// suppress duplicate email if both email metafields are used

@@ -106,6 +106,7 @@ class Lab_Directory_Shortcode {
     	}
     	return $output;
     }
+    
     /* 
      * ld_meta_shortcode function is the default shortcode function 
      * used when no specific function has been written for a shortcode
@@ -119,43 +120,67 @@ class Lab_Directory_Shortcode {
 	    	'translate' => false,
 	    ), $atts);
 	    
-	    // remove 'ld_' prefix to get slug 
-	    $slug = substr($tag,3);
-	    $to_translate = false;
-
-        // search for xx_lang1 xx_lang2 tags
-	    $lang == ''; 
-	    if (strlen($tag)>5 AND strrpos($slug, '_lang', -4) >0) {
-	    	$to_translate=true;
-	    	$base_slug = substr($slug, -6, 6);
-	    	$lang = substr($base_slug, 0, -6);
-	    }
-	    // if no lang_x found, search for tag with _resume _goal _subject suffix
-	    if ( $lang=='' AND (strrpos($tag, '_resume') > 1) OR (strrpos($tag, '_subject') > 1) OR(strrpos($tag, '_goal') > 1) ) {
-	    	$to_translate=true;
-	    	
-	    	$base_slug = $slug;
-	    }
-	    
-	    // translate tag with _resume _goal _subject 
-	    if ($to_translate==true) {
-	    	$meta_key = 'ld_' . $base_slug; 
-	    	$meta_value = self::translate($base_slug, $tag, $lang, $atts); 
-	    } else {
-        	$meta_key = 'ld_' . $field['slug'];
-	    	$meta_value = get_post_meta( get_the_ID(), $slug, true );
-	        	
-	    }
-	    
-	    // a:2:{s:10:"wp_user_id";a:1:{s:4:"test";a:2:{s:11:"translation";s:6:"TEST%3";s:4:"link";s:5:"TEST4";}}s:9:"photo_url";a:1:{s:4:"test";a:2:{s:11:"translation";s:4:"TEST";s:4:"link";s:6:"TEST45";}}}
-	    	  
-	    $meta_value = Lab_Directory::add_tooltips($meta_value, Lab_Directory::$staff_meta_fields[$slug]);
-	    $meta_value = Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);
-	    
-	    
- 
-        // Add enclosing div 
-        return self::div_it($meta_value, $tag, $atts);
+	    return self::ld_get_meta_value ( $atts, $content , $tag ); 
+    }
+    
+    /*
+     * Function to retrieve meta field value in frontend, if not hidden
+     * + translate when necessary
+     * + add tooltips 
+     * + convert (for MV) 
+     * + divit
+     * 
+     * return the metafield value ready for displaying
+     */
+    
+    static function ld_get_meta_value ( $atts, $content = NULL, $tag = '' ) {
+    	
+    	
+    	// remove 'ld_' prefix to get slug
+    	$slug = substr($tag,3);
+    	$to_translate = false;
+    	
+    	// Return if meta field is hidden in frontend
+    	if (Lab_Directory::$staff_meta_fields[$slug]['show_frontend'] != '1') {
+    		return null;
+    	}
+    	
+    	// translation of  _resume _goal _subject suffixed metafields
+    	
+    	// search for xx_lang1 xx_lang2 suffixed tags
+    	$lang == '';
+    	if (strlen($tag)>5 AND strrpos($slug, '_lang', -4) >0) {
+    		$to_translate=true;
+    		$base_slug = substr($slug, -6, 6);
+    		$lang = substr($base_slug, 0, -6);
+    	}
+    	// if no lang_x found, search for tag with _resume _goal _subject suffix
+    	if ( $lang=='' AND (strrpos($tag, '_resume') > 1) OR (strrpos($tag, '_subject') > 1) OR(strrpos($tag, '_goal') > 1) ) {
+    		$to_translate=true;
+    		$base_slug = $slug;
+    	}
+    	 
+    	
+    	if ($to_translate==true) {
+    		// 'translate' tag with _resume _goal _subject
+    		$meta_key = 'ld_' . $base_slug;
+    		$meta_value = self::translate($base_slug, $tag, $lang, $atts);
+    	} else {
+    		// get meta field value
+    		$meta_key = 'ld_' . $field['slug'];
+    		$meta_value = get_post_meta( get_the_ID(), $slug, true );
+    	
+    	}
+    	 
+    	// add tooltips when required 
+    	Lab_Directory::add_tooltips($meta_value, Lab_Directory::$staff_meta_fields[$slug]);
+    	
+    	// convert multivalues when required 
+    	Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);   	 
+    	
+    	// Add enclosing div
+    	return self::div_it($meta_value, $tag, $atts);
+    	 
     }
     
     /*
@@ -404,6 +429,7 @@ class Lab_Directory_Shortcode {
     	$atts = shortcode_atts( array(
     		'add_div'     => true,
     	), $atts);
+    	// Firstname and name sould never been hidden in frontend 
     	$output = get_post_meta( get_the_ID(), 'firstname', true ) . ' ' . get_post_meta( get_the_ID(), 'name', true );
         return self::div_it($output, $tag, $atts);
     }
@@ -411,6 +437,7 @@ class Lab_Directory_Shortcode {
     	$atts = shortcode_atts( array(
     		'add_div'     => true,
     	), $atts);
+    	// Firstname and name sould never been hidden in frontend 
     	$output = get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
         return self::div_it($output, $tag, $atts);
     }
@@ -420,6 +447,12 @@ class Lab_Directory_Shortcode {
     		'add_div'     => true,
      		'label' => 'false',
     	), $atts);
+     	
+    	// Return if photo is hidden in frontend
+     	if (Lab_Directory::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
+     		return null;
+     	}
+     	
     	if ( has_post_thumbnail() ) {
             $attachment_array = wp_get_attachment_image_src( get_post_thumbnail_id() );
             $output = $attachment_array[0];   
@@ -464,7 +497,12 @@ class Lab_Directory_Shortcode {
     		'replace_empty'     => false,
     		'label' => 'false',
         ), $atts);
-        $photo_url = self::ld_photo_url_shortcode(array('add_div' => false, 'label' => 'false',) );
+        
+        // Return if photo is hidden in frontend
+     	if (Lab_Directory::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
+     		return null;
+     	}
+     	$photo_url = self::ld_photo_url_shortcode(array('add_div' => false, 'label' => 'false',) );
         $output = ''; 
         if(!empty($photo_url)){
             $output = '<img class="ld_photo" src="' . $photo_url . '" />';
@@ -476,8 +514,14 @@ class Lab_Directory_Shortcode {
     }
 
     static function ld_bio_shortcode( $atts, $content = NULL, $tag = '' ){
-        $output = get_post_meta( get_the_ID(), $tag, true );
-    	
+        
+        // Return if Bio is hidden in frontend
+     	if (Lab_Directory::$staff_meta_fields['bio']['show_frontend'] != '1') {
+     		return null;
+     	}
+     	
+     	$output = get_post_meta( get_the_ID(), $tag, true );
+     	return self::div_it($output, $tag, $atts);
         /* 
          * old code used the_content, no filter needed
          * $bio = get_the_content();
@@ -485,7 +529,9 @@ class Lab_Directory_Shortcode {
          * $bio = str_replace( ']]>', ']]&gt;', $bio );
          * 
          */
-        return self::div_it($output, $tag, $atts);
+        
+       
+        
     }
 
     static function ld_profile_link_shortcode($atts, $content = NULL, $tag = '' ){
@@ -593,12 +639,24 @@ class Lab_Directory_Shortcode {
     
     static function ld_phd_jury_shortcode($atts, $content = NULL, $tag = '' ){
     
-    	return self::ld_hdr_jury_shortcode($atts, $content, $tag);
+    	// Return if Bio is hidden in frontend
+     	if (Lab_Directory::$staff_meta_fields['phd_jury']['show_frontend'] != '1') {
+     		return null;
+     	}
+     	return self::ld_jury_shortcode($atts, $content, $tag);
     }
-    
     static function ld_hdr_jury_shortcode($atts, $content = NULL, $tag = '' ){
     
-    	$jury_members = get_post_meta( get_the_ID(), substr($tag,3), true );
+    	// Return if Bio is hidden in frontend
+    	if (Lab_Directory::$staff_meta_fields['hdr_jury']['show_frontend'] != '1') {
+    		return null;
+    	}
+    	return self::ld_jury_shortcode($atts, $content, $tag);
+    }
+    
+    static function ld_jury_shortcode($atts, $content = NULL, $tag = '' ){
+    
+     	$jury_members = get_post_meta( get_the_ID(), substr($tag,3), true );
     	
     	if (empty($jury_members)) {
     		return ''; 
