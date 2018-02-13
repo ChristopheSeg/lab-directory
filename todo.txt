@@ -1,0 +1,35 @@
+téléphone   
+
+install metafields vides !!  
+				  voir impact key=slug !!
+				  liste social vide: proposed/prefered en 1ère colonne + PAS DE SENS !!!!
+				  acronym sans link -----
+				  TITRE/RESUME hdr phd SINTERNSHIP AJOUTER ANGLAIS+LOCALE? 
+
+
+avant photo!! créer un champ photo_modified avec date modification: comment?
+OU systématiser import dans affichage, avec une date_rafraichissement, et rafraichir si plus vieux que une semaine
+
+voir add new/ ldap=0; link WP-ld : calculer un wp_user_id dans profile de LD ... 
+
+
+permissions : 
+permission voir login et email (même permissions que Give permanent status Give administrative status ?? 
+ajouter les droits accès edit ou admin sur lab-directory posts
+
+  
+ajouter cando (who,action) groupes lab-directory [administrator,staff ]
+code php: séparer admin et frontend
+Traduction WP 4.0 ?? admin/frontend
+
+OK ajouter settings (locale) lang1 lang2 pour sujet résume, bio...
+	==> voir comment multilangue ?? 
+	==> les gérer dans affichage des meta
+
+    get_locale() returns the WordPress locale in the format 'en_US'
+    get_bloginfo('language') returns the locale in the format 'en-US'
+	$lang = explode('-', get_bloginfo('language'));
+	$lang = $lang[0];
+
+
+Traductions à revoir: 
