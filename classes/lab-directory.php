@@ -824,7 +824,7 @@ div.lab_directory_staff_meta {
 				echo lab_directory_create_select( 
 					'lab_directory_staff_meta_' . $field['slug'], 
 					$studying_levels, 
-					get_post_meta( $post->ID, $field['slug'], __( 'None' ) ) );
+					get_post_meta( $post->ID, $field['slug'], false, __( 'None' ) ) );
 				break;
 			case 'jury' :
 				echo $label;
@@ -872,10 +872,11 @@ div.lab_directory_staff_meta {
 				style="width: 40px;" value="<?php echo $index; ?>" /></td>
 			<td><?php
 					
-echo lab_directory_create_select( 
+					echo lab_directory_create_select( 
 						'lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
 						$jury_functions, 
 						$jury_member['function'], 
+						false,
 						'input-in-td', 
 						' ' ); // TODO(true) ?>
 					</td>

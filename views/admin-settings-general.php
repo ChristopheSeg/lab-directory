@@ -82,7 +82,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		checked( '1', get_option( 'lab_directory_use_lang1' ) );
 		echo count($languages)>0? ' ' : 'disabled'; ?> /></td>
 	<td><?php if (count($languages)>0) {	echo lab_directory_create_select('lab_directory_lang1', 
-		$languages, $lang1, null, true, false);} ?>
+		$languages, $lang1, false, null, true, false);} ?>
 	</td>
 	<td>Language 1, locale, Language 2</td>
 </tr><tr>
@@ -91,7 +91,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		checked( '1', get_option( 'lab_directory_use_lang2' ) );
 		echo count($languages)>1? ' ' : 'disabled'; ?> /></td>
 	<td><?php if (count($languages)>1) {	echo lab_directory_create_select('lab_directory_lang1', 
-		$languages, $lang2, null, true, false);} else { _e('disabled');} ?>
+		$languages, $lang2, false, null, true, false);} else { _e('disabled');} ?>
 	</td>	<td>Language 2, locale, Language 1</td>
 	<td></td>
 </tr>

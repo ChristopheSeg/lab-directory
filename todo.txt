@@ -1,4 +1,9 @@
-téléphone   
+
+METAFILED AIDE À DEPLACER DANS ONGLET AIDE
+
+ajouter cette personne n'a pas de HDR/PHD  si ... 
+	
+  
 
 install metafields vides !!  
 				  voir impact key=slug !!
@@ -21,7 +26,7 @@ ajouter les droits accès edit ou admin sur lab-directory posts
 ajouter cando (who,action) groupes lab-directory [administrator,staff ]
 code php: séparer admin et frontend
 Traduction WP 4.0 ?? admin/frontend
-
+ 
 OK ajouter settings (locale) lang1 lang2 pour sujet résume, bio...
 	==> voir comment multilangue ?? 
 	==> les gérer dans affichage des meta

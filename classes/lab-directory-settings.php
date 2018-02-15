@@ -115,7 +115,6 @@ class Lab_Directory_Settings {
 				'ldap_attribute' => $calculated_ldap_attribute, 
 				'show_frontend' => isset( $show_frontends[$index] ) ? '1' : '0' );		
 		}
-		
 		// sort by activated, then by order
 		uasort( $meta_fields_array, __NAMESPACE__ . '\compare_order' );
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
@@ -251,10 +250,18 @@ class Lab_Directory_Settings {
 				$attributs_mails = array();
 				
 				if ( $synced_meta_fields['mails']['ldap_attribute'] ) {
-					$attributs_mails[] = $synced_meta_fields['mails']['ldap_attribute'];
+					if (is_array($synced_meta_fields['mails']['ldap_attribute'] ) )  {
+						$attributs_mails = array_merge ($attributs_mails, $synced_meta_fields['mails']['ldap_attribute']);
+					} else {
+						$attributs_mails[] = $active_meta_field['ldap_attribute'];
+					}
 				}
 				if ( $synced_meta_fields['other_mails']['ldap_attribute'] ) {
-					$attributs_mails[] = $synced_meta_fields['other_mails']['ldap_attribute'];
+					if (is_array($synced_meta_fields['other_mails']['ldap_attribute'] ) )  {
+						$attributs_mails = array_merge ($attributs_mails, $synced_meta_fields['other_mails']['ldap_attribute']);
+					} else {
+						$attributs_mails[] = $active_meta_field['other_ldap_attribute'];
+					}	
 				}
 				if ( $attributs_mails ) {
 					$search_mails = explode( ',', $search_mail );
@@ -392,24 +399,32 @@ class Lab_Directory_Settings {
 				
 				// retrieve LDAP value foreach synced_metafield
 				foreach ( $synced_meta_fields as $active_meta_field ) {
-					$LDAPattribute = strtolower( $active_meta_field['ldap_attribute'] );
 					$valeurs = array();
 					$indexj = - 1;
-					
-					// tester si l'entrée LDAP existe et si elle est multiple
-					if ( isset( $entree_ldap[$LDAPattribute][0] ) ) {
-						$nb_entrees = $entree_ldap[$LDAPattribute]['count'];
+					$LDAPattributes = $active_meta_field['ldap_attribute'];
 						
-						for ( $j = 0; $j < $nb_entrees; $j++ ) {
-							$indexj++;
-							$valeurs[$indexj] = str_replace( "'", "&#39;", $entree_ldap[$LDAPattribute][$j] );
-							if ( ( $nb_fiches <= 10 ) and ( $test ) ) {
-								$form_messages['ok'][] = $active_meta_field['slug'] . ': ' . $LDAPattribute . "[$j]=" .
-									 $entree_ldap[$LDAPattribute][$j] . "<br/> \n";
-							}
-						}
+					// LDAP_attribute can be an array of attributes 
+					if (! is_array($LDAPattributes) ) {
+						$LDAPattributes = array($LDAPattributes);
 					}
 					
+					//TODOTODO lop de loop !!
+					foreach ($LDAPattributes as $CAP_LDAPattribute) {
+						// tester si l'entrée LDAP existe et si elle est multiple
+						$LDAPattribute = strtolower( $CAP_LDAPattribute );
+						if ( isset( $entree_ldap[$LDAPattribute][0] ) ) {
+							$nb_entrees = $entree_ldap[$LDAPattribute]['count'];
+							
+							for ( $j = 0; $j < $nb_entrees; $j++ ) {
+								$indexj++;
+								$valeurs[$indexj] = str_replace( "'", "&#39;", $entree_ldap[$LDAPattribute][$j] );
+								if ( ( $nb_fiches <= 10 ) and ( $test ) ) {
+									$form_messages['ok'][] = $active_meta_field['slug'] . ': ' . $LDAPattribute . "[$j]=" .
+										 $entree_ldap[$LDAPattribute][$j] . "<br/> \n";
+								}
+							}
+						}
+					}					
 					// Serialisation des valeurs
 					if ( $indexj >= 0 ) {
 						switch ( $active_meta_field['multivalue'] ) {
@@ -419,25 +434,23 @@ class Lab_Directory_Settings {
 							case 'MV' : 
 						    	/* Multiple valued (take all values if LDAP fields has multiple values ,
 								/* saving MV fields on a single meta imposes imploding value array
-								 * (can be annoying if $valeurs contains CR! )
+								 * (can be counterproductive if $valeurs contains CR! )
 								 */
 						    	$champ_valeurs[$active_meta_field['slug']] = implode( "\n", $valeurs );
 								break;
 							case ',' : // 'Comma separated values' ,
-								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode(',',$valeurs[0]);
+								$champ_valeurs[$active_meta_field['slug']] = implode( ",", $valeurs );
 								break;
 							case ';' : // 'Semicolumn separated values' ,
-								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode(';',$valeurs[0]);
+								$champ_valeurs[$active_meta_field['slug']] = implode( ";", $valeurs );
+								break;
+							case 'CR' : // 'Carriage return separated values' ,
+								$champ_valeurs[$active_meta_field['slug']] = implode( "\n", $valeurs );
 								break;
 							case '|' : // '| separated values' ,
 							case '/' : // '| separated values' ,
-								$champ_valeurs[$active_meta_field['slug']] = $valeurs[0]; // don't explode('|',$valeurs[0]);
-								break;
-							case 'CR' : // 'Carriage return separated values' ,
-								$champ_valeurs[$active_meta_field['slug']] = $valeurs; // don't explode("\n",$valeurs[0]);
-								break;
 							default : //
-								$champ_valeurs[$active_meta_field['slug']] = $valeurs; // don't explode("\n",$valeurs[0]);
+								$champ_valeurs[$active_meta_field['slug']] = implode( $active_meta_field['multivalue'], $valeurs );
 								break;
 						}
 					} else {
@@ -785,9 +798,13 @@ class Lab_Directory_Settings {
 		
 		$LDAPattributes = array();
 		foreach ( $active_meta_fields as $active_meta_field ) {
-			if ( $active_meta_field['ldap_attribute']) {
-				// Add non empty attribute
-				$LDAPattributes[] = $active_meta_field['ldap_attribute'];
+			if ( $active_meta_field['ldap_attribute'] ) {
+				// Add non empty attribute(s)
+				if (is_array($active_meta_field['ldap_attribute'] ) )  {
+					$LDAPattributes = array_merge ($LDAPattributes, $active_meta_field['ldap_attribute']);
+				} else {
+					$LDAPattributes[] = $active_meta_field['ldap_attribute'];					
+				}
 			}
 		}
 		

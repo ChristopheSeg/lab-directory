@@ -24,7 +24,7 @@
 			<td>
 				<p class="description" id="ldap_test_filter-description">
 				<input name="ldap_test_avec_import" type="checkbox" value="1" <?php checked( '1', $lab_directory_ldap_test_avec_import ); ?> /> 
-				Cochez pas cette case pour tester aussi l'importation des fiches LDAP dans l'annuaire
+				Cochez cette case pour tester aussi l'importation des fiches LDAP dans l'annuaire
 				<br><b>il est recommandé de faire les premiers tests sans import</b> 
 				<br>N.B. This feature can be used to import non synced staff profile (profile out of synchronization filter) in your Lab-Directory; however these profiles will not be synced if they are not added to the synchronization filter.  
 				</p>

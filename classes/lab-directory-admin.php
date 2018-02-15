@@ -890,8 +890,7 @@ class Lab_Directory_Admin {
 		
 		$did_import_old_lab_directory_staff = false;
 		
-		// TODO TEMPORARY statement  REMOVE THIS 
-		Lab_Directory::import_spip_staff();
+		// TODO TEMPORARY statement  REMOVE THIS Lab_Directory::import_spip_staff();
 					
 		if ( isset( $_GET['import'] ) && $_GET['import'] == 'true' ) {
 			Lab_Directory::import_old_lab_directory_staff();

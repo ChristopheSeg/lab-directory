@@ -93,6 +93,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
 			<a href="#footnote" title="Note"><sup>(4)(6)</sup></a></th>
 		  <?php if ($use_ldap) : ?> 
           <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Attribute<a href="#footnote" title="Note"><sup>(5)</sup></a></th>
+          <th id="columnname" class="manage-column column-columnname" scope="col" style="width:2.5%;"><a href="#footnote" title="Note"><sup>(7)</sup></a></th>
           <?php endif; ?>
          <th id="columnname" class="manage-column column-columnname" scope="col" style="width:5%;"><?php _e('Enabled', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col" style="width:5%;">Show in frontend</th>
@@ -111,6 +112,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
 			<a href="#footnote" title="Note"><sup>(4)(6)</sup></a></th>
 		  <?php if ($use_ldap) : ?> 
           <th id="columnname" class="manage-column column-columnname" scope="col">LDAP Attribute<a href="#footnote" title="Note"><sup>(5)</sup></a></th>
+           <th id="columnname" class="manage-column column-columnname" scope="col"><a href="#footnote" title="Note"><sup>(7)</sup></a></th>
           <?php endif; ?>
           <th id="columnname" class="manage-column column-columnname" scope="col"><?php _e('Enabled', 'lab-directory'); ?></th>
           <th id="columnname" class="manage-column column-columnname" scope="col">Show in frontend</th>
@@ -150,7 +152,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
             </td>
             <td>
                	<?php echo lab_directory_create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
-              		$lab_directory_group_names, $field['group'], 'input-in-td', false, false); 
+              		$lab_directory_group_names, $field['group'], false, 'input-in-td', false, false); 
 					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
                	?>
 			</td>
@@ -160,7 +162,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  					echo '<span class="dashicons dashicons-lock"></span>';
  				}
  				echo lab_directory_create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
-              		$lab_directory_meta_field_types, $field['type'], 'input-in-td', false, $fixed_type); ?>
+              		$lab_directory_meta_field_types, $field['type'], false, 'input-in-td', false, $fixed_type); ?>
             </td>
             <td>
  				<?php 
@@ -168,7 +170,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  					echo '<span class="dashicons dashicons-lock"></span>';
  				}  
 				echo lab_directory_create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
-            	$lab_directory_multivalues, $field['multivalue'], 'input-in-td',false, $fixed_MV); 
+            	$lab_directory_multivalues, $field['multivalue'], false, 'input-in-td',false, $fixed_MV); 
  				?>
              </td>
             <?php if ($use_ldap) : ?> 
@@ -179,14 +181,20 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  					echo '<span class="dashicons dashicons-lock"></span>';echo __('Not syncable', 'Lab-Directory');
  				} else { 
  					echo lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
- 							$lab_directory_ldap_attributes, $field['ldap_attribute'], 'input-in-td', __('No syncing'));
+ 							$lab_directory_ldap_attributes, $field['ldap_attribute'], !$fixed_MV, 'input-in-td', __('No syncing'));
+ 					
  				}
               		
  				?>
 	        </td>
-	        <?php endif; ?>
-            
-            <td>
+	        <td>
+	        <?php 
+	        if (!$fixed_MV) {
+ 				echo '<span class="dashicons dashicons-images-alt"></span>';
+ 			}
+	        ?>
+            </td>
+            <?php endif; ?><td>
 			    <input class="toggleizered" name="lab_directory_staff_meta_fields_activateds[<?php echo $index; ?>]" 
 			    	id="lab_directory_staff_meta_fields_activateds_<?php echo $index; ?>" 
 			    	type="checkbox" value="1" <?php checked( true, $field['activated'] ); ?> />
@@ -224,4 +232,9 @@ $notes = Lab_Directory::get_lab_directory_multivalues_names();
 foreach ($notes as $key =>$note) {
 echo '&nbsp;&nbsp;&nbsp;&nbsp;' . ($lab_directory_multivalues[$key]? $lab_directory_multivalues[$key]: $key) . ' : ' . $note . '<br>';
 }?>
+</p>
+<p>(7). This <span class="dashicons dashicons-images-alt"></span> icon indicates that this metafield can aggregate multiple LDAP fields. 
+In that case, this metafield can not be single valued. You must set it to one of the possible multivalued  or separated list option. 
+When syncing to LDAP directory, this settings will apply to both selected LDAP attributes. For this reason, it is not possible to aggregate some LDAP attributes having 
+different multivalue formats.,  However it remains possible to aggregate one multivalued LDAP attribute with other single valued attributes. 
 </p>
