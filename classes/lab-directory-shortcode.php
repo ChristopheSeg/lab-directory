@@ -82,7 +82,7 @@ class Lab_Directory_Shortcode {
 
     /*** Begin shortcode functions ***/
 	
-	// TODO ALL Shortcode: test display frontend, activated (frontend...), MV, tooltips
+	// TODO ALL Shortcode: test activated (frontend...), MV, tooltips
 
     /* 
      * add a div to all shortcode  
@@ -134,16 +134,14 @@ class Lab_Directory_Shortcode {
     
     static function ld_get_meta_value ( $atts, $content = NULL, $tag = '' ) {
     	
-    	
     	// remove 'ld_' prefix to get slug
     	$slug = substr($tag,3);
     	$to_translate = false;
-    	
     	// Return if meta field is hidden in frontend
     	if (Lab_Directory::$staff_meta_fields[$slug]['show_frontend'] != '1') {
     		return null;
     	}
-    	
+    	 
     	// translation of  _resume _goal _subject suffixed metafields
     	
     	// search for xx_lang1 xx_lang2 suffixed tags
@@ -173,7 +171,7 @@ class Lab_Directory_Shortcode {
     	 
     	// add tooltips when required 
     	Lab_Directory::add_tooltips($meta_value, Lab_Directory::$staff_meta_fields[$slug]);
-    	
+    	 
     	// convert multivalues when required 
     	Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);   	 
     	
@@ -258,7 +256,6 @@ class Lab_Directory_Shortcode {
 	   			$output .= '<style type="text/css">' . $template['css'] .'</style>';
 	   		}
 	   	}
-	   	
 	    // Rewind_post() because have_posts() has already been called in the main (single.php) template
 		rewind_posts(); 
         if ( have_posts() ) {
@@ -368,7 +365,7 @@ class Lab_Directory_Shortcode {
     			$atts['id'] =$post->ID; 
     		}
     	}
-    	   
+    	
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -394,8 +391,8 @@ class Lab_Directory_Shortcode {
 	   		
             while ( $query->have_posts() ) {
                 $query->the_post();
-    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
                 
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
             }
         }  else {
   
@@ -640,6 +637,7 @@ class Lab_Directory_Shortcode {
 		if  ($taxonomies) {
 			
 		  foreach ($taxonomies  as $key => $taxonomy ) {
+		  	if ($output) {$output .= '<br>'; }
 		  	$output .= $taxonomy['labels']['name'] . ' : ';
 		    $terms = get_terms( array(
 			    'taxonomy' => $key,

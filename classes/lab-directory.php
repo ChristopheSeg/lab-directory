@@ -1891,8 +1891,12 @@ echo lab_directory_create_select(
 				'show_frontend' => '1', 
 				'activated' => '0' );
 		}
-		
-		return $default_meta_fields;
+		$output = array(); 
+		// reconstruct the array adding slug as key 
+		foreach ($default_meta_fields as $default_meta_field) {
+			$output[$default_meta_field['slug']] = $default_meta_field;
+		}
+		return $output;
 	}
 	
 	//
