@@ -289,11 +289,20 @@ class Lab_Directory {
 		$new_columns = array( 
 			'cb' => '<input type="checkbox" />', 
 			'title' => __( 'Title' ), 
-			'id' => __( 'ID' ), 
+			// 'id' => __( 'ID' ), 
+			'ld_taxonomy_team' => _x( 'Staff Team', '1st taxonomy singular name', 'lab-directory' ),
+			'ld_taxonomy_laboratory' => _x( 'Laboratories', '2nd taxonomy general name' , 'lab-directory' ),
 			'ldap' => __( 'LDAP syncing', 'lab-directory' ),
 			'featured_image' =>__( 'Staff photo', 'lab-directory' ),
 			'date' => __( 'Date' ) );
 		
+		// remove unused taxonomies 
+		if (! get_option( 'lab_directory_use_taxonomy1' ) ) {
+			unset ($new_columns['ld_taxonomy_team']);
+		}
+		if (! get_option( 'lab_directory_use_taxonomy2' ) ) {
+			unset ($new_columns['ld_taxonomy_laboratory']);
+		}
 		return $new_columns;
 	}
 
@@ -314,7 +323,15 @@ class Lab_Directory {
 				$out = get_post_meta( $post_id, 'ldap', true ) =='1'? '<span class="dashicons dashicons-yes"></span>': '';
 				break;
 			
-			default :
+			case 'ld_taxonomy_team' : 
+				$out = get_the_term_list( $post_id , 'ld_taxonomy_team' , '' , ',' , '' );
+            	break;
+            	
+            case 'ld_taxonomy_laboratory' :
+            	$out = get_the_term_list( $post_id , 'ld_taxonomy_laboratory' , '' , ',' , '' );
+            	break;
+            
+				default :
 				break;
 		}
 		echo $out;
@@ -2778,7 +2795,8 @@ echo lab_directory_create_select(
 					'new_item_name' => __( 'New Staff Team Name', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
 					'menu_name' => __( 'Staff Teams', 'lab-directory'  ) ),
-				'rewrite' => array(
+				'show_admin_column' => true,
+        		'rewrite' => array(
 					'slug' => 'lab_directory_staff-teams',
 					'with_front' => false,
 					'hierarchical' => true ) ); 

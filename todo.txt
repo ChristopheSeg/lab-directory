@@ -1,9 +1,11 @@
+DONE: 
+taxonomies [ld_team] [ld_laboratory] navigation bar [ld_categories_nav] in all staff list (excepted defense list)
+add a link to staff profile in PHD and HDR pages
+TODO: 
 
-METAFILED AIDE À DEPLACER DANS ONGLET AIDE
-
-ajouter cette personne n'a pas de HDR/PHD  si ... 
+defense list ajouter un lien #PHD?? 
 	
-  
+METAFILED AIDE À DEPLACER DANS ONGLET AIDE
 
 install metafields vides !!  
 				  voir impact key=slug !!

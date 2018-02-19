@@ -10,3 +10,6 @@
 	<div class="clearfix"></div><hr>
 [/lab_directory_staff_loop]
 
+<div class="clearfix"></div>
+[ld_categories_nav]
+
