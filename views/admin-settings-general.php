@@ -57,7 +57,8 @@ $lang2 = get_option( 'lab_directory_lang2',true);
     <p>Staff can be registerd in categories such as team, laboratory institution... using one or two taxonomies. By default, taxonomy1 corresponds to teams, taxonomy2 corresponds to laboratories  (usefull if your staff belong to several laboratories). Each taxonomy can be customized to correspond to others categorization.</p>
  	<p><input name="lab_directory_use_taxonomy1" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy1' ) ); ?> /> Check this to use Taxonomy 1 (<?php echo $taxonomies['ld_taxonomy_team']['labels']['name']; ?>)</p>
     <p><input name="lab_directory_use_taxonomy2" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy2' ) ); ?> /> Check this to use Taxonomy 2 (<?php echo $taxonomies['ld_taxonomy_laboratory']['labels']['name']; ?>)</p>
-
+	<p><input name="lab_directory_use_ld_footer_pages" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_pages' ) ); ?> /> Check this to use display manager contact on each page.</p>
+	<p><input name="lab_directory_use_ld_footer_posts" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_posts' ) ); ?> /> Check this to use display manager contact on each post.</p>
 
  
 <h2>Languages for subject, resume and goal metafields (partially implemented)</h2>

@@ -23,7 +23,7 @@ Lab-directory require only a little CSS and coding :
 - all displays (list, grid...) can be configured using simple wordpress shortcode (wordpress loop) 
 
 ### Lab-Directory Taxonomy (Optional)
-Lab-Directory can use up to 2 taxonomies to organise your staff directory. Default taxonomies are Team and Laboratories. They can be set to refer to your custom taxonomies. . 
+Lab-Directory can use up to 2 taxonomies to organise your staff directory. Default taxonomies 'Teams' and 'Laboratories' can be customized. All categories under these taxonomies hold a manager contact (one of your staff). When a page or post is belonging to one category (example 'laboratory 1') an optionnal  contact footer is added at the end of page linking to corresponding staff profile(s) and email(s). 
 
 ### Lab-Directory I18n (Internationalisation)
 Lab-Directory is ready to be translated in your language. Default language are French and English 

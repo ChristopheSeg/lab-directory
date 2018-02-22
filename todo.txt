@@ -1,6 +1,12 @@
 DONE: 
 
 TODO: 
+ajouter post_excerpt (email) 
+ajouter un "drapeau" devant traduction resumé ->
+import cnrs refaire liste équipes!! 
+
+add help for manager
+LDAP sync cron ??
 
 defense list ajouter une ancre #PHD?? 
 	

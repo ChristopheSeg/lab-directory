@@ -687,12 +687,12 @@ class Lab_Directory_Shortcode {
     	
 
     	$output='
-    	<table class="widefat fixed striped" cellspacing="0" id="lab_directory_staff-meta-fields">
+    	<table class="jury striped" cellspacing="0" id="lab_directory_staff-meta-fields">
     		<thead>
     		<tr>'; 
-    	if ($column_f) { $output .= '	<th id="columnname" scope="col" style="width: 15%;">Function</th>';}
-    	$output.= '	<th id="columnname" scope="col" style="width: 25%;">Name</th>';
-    	if ($column_t) { $output .= '	<th id="columnname" scope="col"">Title, University, enterprise</th>';}
+    	if ($column_f) { $output .= '	<th id="columnname" scope="col">Function</th>';}
+    	$output.= '	<th id="columnname" scope="col" >Name</th>';
+    	if ($column_t) { $output .= '	<th id="columnname" scope="col">Title, University, enterprise</th>';}
 		$output.= '	</tr>
 	</thead>
 

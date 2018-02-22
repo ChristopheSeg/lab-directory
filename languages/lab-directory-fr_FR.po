@@ -1314,7 +1314,7 @@ msgid ""
 "must be added or changed on LDAP directory"
 msgstr ""
 "Cette fiche personnelle et la photo sont synchronisés sur l'annuaire LDAP. "
-"La photo doit être modifié ou ajoutés dans l’annuaire LDAP"
+"La photo doit être modifié ou ajoutée dans l’annuaire LDAP"
 
 #: views/admin-settings-permissions.php:76
 #: views/admin-settings-permissions.php:88

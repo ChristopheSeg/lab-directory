@@ -561,6 +561,8 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy1', isset( $_POST['lab_directory_use_taxonomy1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_ld_footer_pages', isset( $_POST['lab_directory_use_ld_footer_pages'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_ld_footer_posts', isset( $_POST['lab_directory_use_ld_footer_posts'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_lang1', isset( $_POST['lab_directory_use_lang1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_lang2', isset( $_POST['lab_directory_use_lang2'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_locale_first', $_POST['lab_directory_locale_first']);

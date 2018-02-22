@@ -116,17 +116,43 @@ class Lab_Directory {
 			'add_meta_boxes_lab_directory_staff', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
 		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
+		
+		// TOOD Are Fontawesome usefull?  
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
 		
 		add_action( 'init', array( 'Lab_Directory', 'init_tinymce_button' ) );
 		
-		//  TODO what is this for ? Usefull? 
+		//  TODO Ajax seems broken ? 
 		add_action( 'wp_ajax_get_my_form', array( 'Lab_Directory', 'thickbox_ajax_form' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'manage_listing_query' ) );
 		add_filter( 'post_row_actions', array( 'Lab_Directory', 'modify_quick_edit' ), 10, 1 );
 		add_filter( 'bulk_actions-edit-lab_directory_staff', array( 'Lab_Directory', 'modify_bulk_actions' ), 10, 1 );
+		
+		// remove description from taxonomies
+		add_filter('manage_edit-ld_taxonomy_team_columns', array( 'Lab_Directory', 'ld_taxonomy_team_description' ), 10, 1 );
+		add_filter('manage_edit-ld_taxonomy_laboratory_columns', array( 'Lab_Directory', 'ld_taxonomy_laboratory_description' ), 10, 1 );
+		add_action( 'ld_taxonomy_team_add_form',  array( 'Lab_Directory', 'ld_taxonomies_form' ), 10, 2 );
+		add_action( 'ld_taxonomy_laboratory_add_form',  array( 'Lab_Directory', 'ld_taxonomies_form' ), 10, 2 );
+		add_action( 'ld_taxonomy_team_edit_form',  array( 'Lab_Directory', 'ld_taxonomies_form' ), 10, 2 );
+		add_action( 'ld_taxonomy_laboratory_edit_form',  array( 'Lab_Directory', 'ld_taxonomies_form' ), 10, 2 );
+		
+		// add manager_ids column to taxonomies
+		add_filter( 'manage_ld_taxonomy_team_custom_column',   array( 'Lab_Directory', 'ld_taxonomies_columns_content'), 10, 3 );
+		add_filter( 'manage_ld_taxonomy_laboratory_custom_column',   array( 'Lab_Directory', 'ld_taxonomies_columns_content'), 10, 3 );
+		
+		// Add custom field to taxonomies
+		add_action( 'ld_taxonomy_team_edit_form_fields',   array( 'Lab_Directory', 'ld_taxonomy_team_custom_fields'), 10, 2 );
+		add_action( 'ld_taxonomy_team_add_form_fields',   array( 'Lab_Directory', 'ld_taxonomy_team_custom_fields'), 10, 2 );
+		add_action( 'ld_taxonomy_laboratory_edit_form_fields',   array( 'Lab_Directory', 'ld_taxonomy_laboratory_custom_fields'), 10, 2 );
+		add_action( 'ld_taxonomy_laboratory_add_form_fields',   array( 'Lab_Directory', 'ld_taxonomy_laboratory_custom_fields'), 10, 2 );
+		
+		// Save the custom field changes made on taxonomies
+		add_action( 'edited_ld_taxonomy_team',   array( 'Lab_Directory', 'save_ld_taxonomies_custom_fields'), 10, 2 );
+		add_action( 'created_ld_taxonomy_team',   array( 'Lab_Directory', 'save_ld_taxonomies_custom_fields'), 10, 2 );
+		add_action( 'edited_ld_taxonomy_laboratory',   array( 'Lab_Directory', 'save_ld_taxonomies_custom_fields'), 10, 2 );
+		add_action( 'created_ld_taxonomy_laboratory',   array( 'Lab_Directory', 'save_ld_taxonomies_custom_fields'), 10, 2 );
 		
 		// add_filter( 'bulk_actions-edit-weddings', 'remove_from_bulk_actions' );
 		
@@ -227,8 +253,8 @@ class Lab_Directory {
 	static function ld_content_filter($content) {
     	global $wp_query, $post;
 
-    		// Check if we're inside the main loop in a single post page AND and ($post->post_type == 'lab_directory_staff'
-   		 	if ( in_the_loop() && is_main_query() AND  $post and ($post->post_type == 'lab_directory_staff') ) {
+    		// LAb_directory pages: Check if we're inside the main loop in a single post page AND and ($post->post_type == 'lab_directory_staff'
+   		 	if ( in_the_loop() && is_main_query() AND  $post AND ($post->post_type == 'lab_directory_staff') ) {
 		    		
 					// TODO singular si defense list avec 1 seul post !! 
 		    	if (!Lab_directory_shortcode::$hdr_loop ){
@@ -253,12 +279,66 @@ class Lab_Directory {
 		    	}
 			    	
 		    }
-    	
-
-    	return $content;
-	    
+		    
+		    
+		    // Add ld_footer contentf to Pages and posts
+				if ( ( get_option( 'lab_directory_use_ld_footer_pages') AND is_page() ) || 
+					(get_option( 'lab_directory_use_ld_footer_posts') AND is_single() ) ) {
+			    
+					$post_categories = wp_get_object_terms($post->ID, array('category'));
+					$outputs = array(); 
+					 
+					foreach ($post_categories as $category) {
+						$output ='';
+						foreach (self::lab_directory_get_taxonomies() as $slug => $ld_taxonomy) {
+							if ($term = get_term_by( 'name', $category->name, $slug) )  {
+								$term_meta = get_option( 'taxonomy_term_' .$term->term_taxonomy_id );
+								
+								if ($term_meta['display_style'] !='None' AND $term_meta['manager_ids']) {
+									foreach ( $term_meta['manager_ids'] as $id ) {
+										$mails = get_post_meta( $id, 'mails', true ); 
+										Lab_Directory::ld_value_to_something( $mails, Lab_Directory::$staff_meta_fields[$slug]['multivalue'], 'display' );
+										
+										$output .= '&nbsp;&nbsp;&nbsp;<a href="' . get_permalink($id). 
+												'"><span class="dashicons dashicons-phone"></span>' . get_the_title($id) . 
+												'</a>'; 
+										if ($mails) {
+											$output .= '&nbsp;<a href="mailto:'. $mails . '"><span class="dashicons dashicons-email"></span></a>';
+										}
+									}
+								}
+								if ($output) {
+									if ($term_meta['display_style'] =='Contact') {
+										/* translators: This is used in pages and posts footer to display contact, %s is the team or laboratory (one categeory)*/
+										$outputs[] =  sprintf (__("%s contact : ", 'lab-directory'), '<i>' . $category->name . '</i> ') . $output;
+									} else {
+										/* translators: This is used in pages and posts footer to display manager, %s is the team or laboratory (one categeory)*/
+										$outputs[] =  sprintf (__("%s manager : ", 'lab-directory'), '<i>' . $category->name . '</i> ') . $output;
+									}												
+								}	
+							}							
+						}						
+					}
+					
+					//TODO suppress inline style (move) 
+					if (! empty($outputs)) {
+						$content .= '
+	<style type="text/css">
+	div.ld_footer {
+	    background-color: #eee;
+	    font-size: 0.9em;
+	    padding: 3px;
+	    margin-top: 5px;	
+	}
+	</style>
+	<div class="ld_footer">' . implode('<br>', $outputs) . '</div>';
+					}	    	
+		    } // End add ld_footer content
+		
+		return $content; 
 	}
 	
+
 	static function load_profile_template( $original ) {
 		
 		// get_page_templates
@@ -343,7 +423,7 @@ class Lab_Directory {
 			'cb' => '<input type="checkbox" />', 
 			'name' => __( 'Name' ), 
 			'id' => __( 'ID' ), 
-			'description' => __( 'Description' ), 
+			//'description' => __( 'Description' ), 
 			// TODO translation, what is this for?? 
 			'slug' => __( 'Slug' ), 
 			'posts' => __( 'Posts' ) );
@@ -2798,8 +2878,10 @@ echo lab_directory_create_select(
 					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
 					'new_item_name' => __( 'New Staff Team Name', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'menu_name' => __( 'Staff Teams', 'lab-directory'  ) ),
-				'show_admin_column' => true,
+					'menu_name' => __( 'Staff Teams', 'lab-directory'  ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'team_manager' => __( 'Team manager', 'lab-directory'  ) ),
+        		'show_admin_column' => true,
         		'rewrite' => array(
 					'slug' => 'lab_directory_staff-teams',
 					'with_front' => false,
@@ -2831,14 +2913,219 @@ echo lab_directory_create_select(
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
 					'new_item_name' => __( 'New Laboratory Name', 'lab-directory'  ),
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
-					'menu_name' => __( 'Staff Laboratories', 'lab-directory'  ) ),
-				'rewrite' => array(
+					'menu_name' => __( 'Staff Laboratories', 'lab-directory'  ) ,
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */ 
+					'laboratory_manager' => __( 'Laboratory manager', 'lab-directory'  ) ),
+        		'rewrite' => array(
 					'slug' => 'lab_directory_staff-laboratories',
 					'with_front' => false,
 					'hierarchical' => true ) );
         }
         return $taxonomies;    
 	}	
+	
+	/**
+	 * Remove the 'description' column from the taxonomies table in 'edit-tags.php'
+	 */
+	static function ld_taxonomy_team_description ( $columns )
+	{
+		if( isset( $columns['description'] ) )
+			unset( $columns['description'] );
+		if( isset( $columns['slug'] ) )
+			unset( $columns['slug'] );
+		
+		$columns['manager_ids'] = __('Team manager', 'lab_directory');
+		$columns['display_style'] = __('Display as', 'lab_directory');
+		
+		// Push Post column (total) at the end
+		if( isset( $columns['posts'] ) ){
+			$temp=$columns['posts'];
+			unset( $columns['posts'] );
+			$columns['posts'] = $temp;
+		}
+		
+		return $columns;
+	}
+	
+	static function ld_taxonomy_laboratory_description ( $columns )
+	{
+		if( isset( $columns['description'] ) )
+			unset( $columns['description'] );
+		if( isset( $columns['slug'] ) )
+			unset( $columns['slug'] );
+		
+		$columns['manager_ids'] = __('Laboratory manager', 'lab_directory');
+		$columns['display_style'] = __('Display as', 'lab_directory');
+		
+		// Push Post column (total) at the end
+		if( isset( $columns['posts'] ) ){
+			$temp=$columns['posts'];
+			unset( $columns['posts'] );
+			$columns['posts'] = $temp;
+		}
+		
+		return $columns;
+	}
+	
+	static function ld_taxonomies_columns_content( $content, $column_name, $term_id )
+	{
+		if ( 'manager_ids' == $column_name ) {
+			global $wpdb;
+			$term_meta = get_option( "taxonomy_term_$term_id" );
+			
+			$content = array(); 
+			foreach ( $term_meta['manager_ids'] as $ID ) {		
+				$row = $wpdb->get_row( "SELECT post_title FROM $wpdb->posts
+					WHERE post_type = 'lab_directory_staff' AND ID = '$ID'", 'OBJECT' );
+				if ($row) {
+					$content[]= $row->post_title;
+				}
+			}
+			$content = implode('<br>', $content);
+		}
+		
+		if ( 'display_style' == $column_name ) {
+			$term_meta = get_option( "taxonomy_term_$term_id" );
+			$content = ''; 
+			if ($term_meta['display_style'] !='None') {
+				$content = __($term_meta['display_style'], 'lab_directory');
+			} else {
+				$content = __('None');
+			}
+		}
+		
+		return $content;
+	}
+	
+
+	/**
+	 * Hide the term description in the taxonomies edit/add form
+	 */
+	static function ld_taxonomies_form ( $columns )
+	{
+		?><style>.term-description-wrap{display:none;}</style><?php
+	}
+
+	// A callback function to add a custom field to our "ld_taxonomy_team" taxonomy
+	static function ld_taxonomy_team_custom_fields( $tag)  {
+		// Check for existing taxonomy meta for the term you're editing
+		$t_id = $tag->term_id; // Get the ID of the term you're editing
+		$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
+	
+		if (! $term_meta['display_style'] ) {
+			$term_meta['display_style']='Manager'; 
+		}
+		if (! $term_meta['manager_ids']) {
+			$term_meta['manager_ids'] = array(); 
+		}
+		?>
+	      
+	    <tr class="form-field">  
+	        <th scope="row" valign="top">  
+	            <label for="manager_ids"><?php _e('Team manager', 'lab_directory'); ?></label>  
+	        </th>  
+	        <td>  
+	            <?php echo self::staff_select('term_meta[manager_ids][]', $term_meta['manager_ids']); ?><br />  
+	            <span class="description"><?php _e('Team manager is used for displaying a contact at the end of pages and posts having the same taxonomy name that the present one.', 'lab_directory'); ?></span>  
+	        </td>  
+	    </tr>  
+	    <tr class="form-field">  
+	        <th scope="row" valign="top">  
+	            <label for="display_style"><?php _e('Display style', 'lab_directory'); ?></label>  
+	        </th>  
+	        <td>  
+	            <select name="term_meta[display_style]" id="term_meta[display_style]" >
+					<option value="None" <?php echo $term_meta['display_style']=='None'? 'selected=""':''; ?> ><?php _e('Do not display', 'lab_directory'); ?></option>
+					<option value="Contact" <?php echo $term_meta['display_style']=='Contact'? 'selected=""':''; ?> ><?php _e('Contact', 'lab_directory'); ?></option>
+					<option value="Team manager" <?php echo $term_meta['display_style']=='Manager'? 'selected=""':''; ?> ><?php _e('Manager', 'lab_directory'); ?></option>
+				</select><br />  
+	            <span class="description"><?php _e('For each category you can choose to hide manager, or to display as a contact.', 'lab_directory'); ?></span>  
+	        </td>  
+	    </tr>  
+	      
+	    <?php  
+	} 
+	
+	// A callback function to add a custom field to our "ld_taxonomy_laboratory" taxonomy
+	static function ld_taxonomy_laboratory_custom_fields($tag) {
+		// Check for existing taxonomy meta for the term you're editing
+		$t_id = $tag->term_id; // Get the ID of the term you're editing
+		$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
+		
+		if (! $term_meta['display_style'] ) {
+			$term_meta['display_style']='Manager'; 
+		}
+		if (! $term_meta['manager_ids']) {
+			$term_meta['manager_ids'] = array();
+		}
+		
+		?>
+		      
+		    <tr class="form-field">  
+		        <th scope="row" valign="top">  
+		            <label for="manager_ids"><?php _e('Laboratory manager', 'lab_directory'); ?></label>  
+		        </th>  
+		        <td><?php echo self::staff_select('term_meta[manager_ids][]', $term_meta['manager_ids']); ?><br />  
+	            <span class="description"><?php _e('Laboratory manager is used for displaying a contact at the end of pages and posts having the same taxonomy name that the present one.', 'lab_directory'); ?></span>  
+		        </td>  
+		    </tr>  
+	    <tr class="form-field">  
+	        <th scope="row" valign="top">  
+	            <label for="display_style"><?php _e('Display style', 'lab_directory'); ?></label>  
+	        </th>  
+	        <td>  
+	            <select name="term_meta[display_style]" id="term_meta[display_style]" >
+					<option value="None" <?php echo $term_meta['display_style']=='None'? 'selected=""':''; ?> ><?php _e('Do not display', 'lab_directory'); ?></option>
+					<option value="Contact" <?php echo $term_meta['display_style']=='Contact'? 'selected=""':''; ?> ><?php _e('Contact', 'lab_directory'); ?></option>
+					<option value="Laboratory manager" <?php echo $term_meta['display_style']=='Manager'? 'selected=""':''; ?> ><?php _e('Manager', 'lab_directory'); ?></option>
+				</select><br />  
+	            <span class="description"><?php _e('For each category you can choose to hide manager, or to display as a contact.', 'lab_directory'); ?></span>  
+	        </td>  
+	    </tr>  
+		      
+		    <?php  
+		} 
+		
+	// Save the custom field changes made on taxonomies
+	static function save_ld_taxonomies_custom_fields( $term_id ) {  
+	    if ( isset( $_POST['term_meta'] ) ) {  
+	        $t_id = $term_id;  
+	        $term_meta = get_option( "taxonomy_term_$t_id" );  
+	        $cat_keys = array_keys( $_POST['term_meta'] );  
+	            foreach ( $cat_keys as $key ){  
+	            if ( isset( $_POST['term_meta'][$key] ) ){
+	            	$term_meta[$key] = $_POST['term_meta'][$key];  
+	            }  
+	        }  
+	        //save the option array  
+	        var_dump($term_meta); 
+	        update_option( "taxonomy_term_$t_id", $term_meta );  
+	    }  
+	}  
+	
+	static function staff_select($name, $current_staff_ids) {
+		global $wpdb;
+		$results = $wpdb->get_results( "SELECT ID, post_title FROM $wpdb->posts 
+			WHERE post_type = 'lab_directory_staff' AND post_status = 'publish' ORDER BY post_title", 'OBJECT' );
+
+		$output = ''; 
+		$my_query = null;
+		$my_query = new WP_Query($args);
+		if ($results) {
+			$output .= '<select multiple name="' . $name. '" id="' . $name. '" >';
+			$output .= '<option value="" disabled ' . ($current_staff_ids ? 'selected=""':'') . 
+					'>'. __('Select contact(s) or manager(s)', 'lab_directory') . '</option>';
+			foreach ($results as $result){
+				
+				$output .= '<option value="' . $result->ID . '" ' . 
+					(in_array($result->ID, $current_staff_ids) ? 'selected=""':'') .
+					'>'. $result->post_title . '</option>';
+			}
+			$output .= '</select>';
+				
+		}
+	return $output; 
+	}
 
 	static function hide_permalink( $content ) {
 		return $content;
