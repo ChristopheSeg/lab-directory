@@ -51,11 +51,34 @@ class Lab_Directory_Admin {
 		// When using several tab, use unique IDs ! 
 		switch ($current_tab) {
 			case 'general':
-				$content = '<p>' . __('This settings should be accessible only to authorized webmasters. It is used to activate/unactivate LDAP syncing, set taxonomies and social networks in use. ','lab-directory') . '</p>';
+				$content = '<p>' . __('These settings should be accessible only to authorized webmasters. It is used to activate/unactivate LDAP syncing, set taxonomies and social networks in use. ','lab-directory') . '</p>';
 				$screen->add_help_tab( array(
-						'id'	=> $current_tab,
+						'id'	=> 'overview',
 						'title'	=> $tabs[$current_tab],
 						'content' => $content));
+				$content = '<p><strong>' . __('Translation for subject, resume and goal metafields','lab-directory') . '</strong></p>';
+				$content .= '<p>' . __('All metafields are single language without any reliable possibility to translate their content. In order to internationalise your staff directory, Lab-Directory propose 2 other languages for field corresponding to: subject, resume, and goal. They can be used for example to show an english version of a PHD subject on staff pages when using multiple language website.','lab-directory') . '</p>';
+				$content .= '<p>' . __('The idea of subject, resume and goal metafields "translation" is to define 3 languages "locale" the main language of your website and two other laguages "language 1" and "language 2" (_lang1 and _lang2 suffix are added to multiple languages fields). As an example, PHD_subject, PHD_subject_lang1 and PHD_subject_lang2 represent a PHD subject given in 3 possible languages.','lab-directory') . '</p>';
+				$content .= '<p>' . __('As most webmaster knows, when using several languages content on a website, most of the time people give you this content in one (or zero!) language. In order to be as efficient as possible, priority rules are defined for these content.','lab-directory') . '</p>';
+
+				$content .= '<p><strong>' . __('All metafield with lang1 and lang2 suffix have a <code>translate</code> parameter','lab-directory') . '</strong></p>';
+				$content .= '<ul style ="padding-left:15px;">';
+				$content .= '<li>' . __('Without this parameter (or <code>translate=true</code>) give one translation using the preceeding rule: <code>[PHD_subject]</code> will be rendered as one of the 3 possible existing values depending on lang1 and lang2 usage and browsed page language.','lab-directory') . '</li>';
+				$content .= '<li>' . __('Use the parameter <code>[translate=false]</code> in shortcode to force language<code>[PHD_subject translate=false]</code> will be rendered as PHD_subject content (*) and <code>[PHD_subject_lang2 translate=false]</code> as PHD_subject_lang2 content (*) . (*) only if they exist!)','lab-directory') . '</li>';
+				$content .= '<li>' . __('Use <code>[translate=all]</code> to display 1 to 3 translations of a field when they exist (they will appear according to the ordering rules defined above)','lab-directory') . '</li>';
+				$content .= '<li>' . __('Please note that <code>[PHD_subject  translate=yyy]</code> and <code>[PHD_subject_xxx  translate=yyy]</code> are equivalent if yyy is not equal to false','lab-directory') . '</li>';
+				$content .= '</ul>';
+				$screen->add_help_tab( array(
+					'id'	=> 'Translation',
+					'title'	=> __('Translation'),
+					'content' => $content));
+				
+				$content = '<p>' . __('Staff can be categorized using taxonomies such as team, laboratory, institution... By default lab directory offers 2 taxonomies : taxonomy1 corresponds to teams, taxonomy2 corresponds to laboratories  (usefull if your staff belong to several laboratories). Each taxonomy can be customized to correspond to others categorization.','lab-directory') . '</p>';
+				$screen->add_help_tab( array(
+					'id'	=> 'Taxonomies',
+					'title'	=> __('Taxonomies'),
+					'content' => $content));
+				
 				break;
 			case 'capabilities':
 				 $content  = '<p>' . __('Permission in lab-directory are given by checking first the wordpress group of a user (editor, author, ... subscriber)  and secondly the possibility for a user to pertain a lab-directory group of staff (permanent staff, doctorate...). At least one of these permission should be given to grant permission to the a user.','lab-directory') . '</p>'; 
@@ -404,22 +427,6 @@ class Lab_Directory_Admin {
 			</ul>
 			
 
-	<p> 
-	<ul>
-	
-	<li>champ à redéfinir autrement(Widgets ??)</li>
-	<li>
-	<li>'fiche_validee'      => 'SMALLINT NOT NULL DEFAULT "0"', devient post_status
-	<li>'resp_equipe'        => 'bigint(21) DEFAULT NULL',
-	<li>'resp_projets'       => 'TEXT NULL DEFAULT NULL',
-	<li>'resp_plateformes'    => 'TEXT NULL DEFAULT NULL',
-	<li>'resp_projets_articles' =>'TEXT NULL DEFAULT NULL',
-	<li>'resp_plateformes_articles' => 'TEXT NULL DEFAULT NULL',
-	
-	
-	</ul>
-	
-	</p>	
 	
 	     
 				<?php 
@@ -558,6 +565,7 @@ class Lab_Directory_Admin {
 			if ( !empty($_POST['admin-settings-general']) && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-general' )){
 
 				// Process/save form fields
+				// update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_ldap', isset( $_POST['lab_directory_use_ldap'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy1', isset( $_POST['lab_directory_use_taxonomy1'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_taxonomy2', isset( $_POST['lab_directory_use_taxonomy2'] ) ? '1' : '0'  );
@@ -568,6 +576,7 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_locale_first', $_POST['lab_directory_locale_first']);
 				update_option( 'lab_directory_lang1', $_POST['lab_directory_lang1']);
 				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
+				update_option( 'lab_directory_title_firstname_first', $_POST['lab_directory_title_firstname_first']);
 				
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
@@ -892,13 +901,14 @@ class Lab_Directory_Admin {
 		
 		$did_import_old_lab_directory_staff = false;
 		
-		// TODO TEMPORARY statement  REMOVE THIS 
-		Lab_Directory::import_spip_staff();
-					
+		// TODO TEMPORARY statement  REMOVE THIS  Lab_Directory::import_spip_staff();
+		// Attention l'import SPIP casse les modifications (résumé et tite bilingues !!		
+		
 		if ( isset( $_GET['import'] ) && $_GET['import'] == 'true' ) {
 			Lab_Directory::import_old_lab_directory_staff();
 			$did_import_old_lab_directory_staff = true;
 		}
+		
 		if ( Lab_Directory::has_old_lab_directory_staff_table() ):
 			?>
 

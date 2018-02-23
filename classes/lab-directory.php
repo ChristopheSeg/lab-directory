@@ -102,12 +102,6 @@ class Lab_Directory {
 			array( 'Lab_Directory', 'custom_lab_directory_staff_admin_columns' ), 
 			10, 
 			3 );
-		add_filter( 'manage_edit-lab_category_columns', array( 'Lab_Directory', 'set_lab_category_columns' ) );
-		add_filter( 
-			'manage_lab_category_custom_column', 
-			array( 'Lab_Directory', 'custom_lab_category_columns' ), 
-			10, 
-			3 );
 		
 		add_filter( 'enter_title_here', array( 'Lab_Directory', 'lab_directory_staff_title_text' ) );
 		add_filter( 'admin_head', array( 'Lab_Directory', 'remove_media_buttons' ) );
@@ -162,6 +156,7 @@ class Lab_Directory {
 		// add single post content hook (title and content )
 		add_filter( 'the_content', array( 'Lab_Directory', 'ld_content_filter' ) );
 		add_filter( 'posts_results',  array( 'Lab_Directory', 'ld_posts_results_filter' ) );
+		add_filter( 'get_the_excerpt',  array( 'Lab_Directory', 'ld_filter_excerpt' ) );
 		
 		add_action(	'restrict_manage_posts', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
@@ -227,6 +222,7 @@ class Lab_Directory {
 	{
 		add_rewrite_endpoint( 'hdr', EP_PERMALINK );
 		add_rewrite_endpoint( 'phd', EP_PERMALINK );
+		add_rewrite_endpoint( 'en', EP_PERMALINK );
 	}
 	
 	static function ld_posts_results_filter( $posts ) {
@@ -250,7 +246,18 @@ class Lab_Directory {
 				return $posts ;
 		}
 	
-	static function ld_content_filter($content) {
+		static function ld_filter_excerpt( $excerpt ) {
+			global $post;
+			if ($post->post_type == 'lab_directory_staff') {
+				$mails = get_post_meta( $post->ID, 'mails', true );
+				Lab_Directory::ld_value_to_something( $mails, Lab_Directory::$staff_meta_fields['mails']['multivalue'], 'display' );
+				return $mails . ' (' .__('Staff directory item','lab_directory') . ')';
+			} else {
+				return $excerpt;
+			}
+		}
+		
+		static function ld_content_filter($content) {
     	global $wp_query, $post;
 
     		// LAb_directory pages: Check if we're inside the main loop in a single post page AND and ($post->post_type == 'lab_directory_staff'
@@ -286,18 +293,19 @@ class Lab_Directory {
 					(get_option( 'lab_directory_use_ld_footer_posts') AND is_single() ) ) {
 			    
 					$post_categories = wp_get_object_terms($post->ID, array('category'));
-					$outputs = array(); 
+					$outputs = array();
 					 
 					foreach ($post_categories as $category) {
 						$output ='';
 						foreach (self::lab_directory_get_taxonomies() as $slug => $ld_taxonomy) {
+							echo ""; 
 							if ($term = get_term_by( 'name', $category->name, $slug) )  {
 								$term_meta = get_option( 'taxonomy_term_' .$term->term_taxonomy_id );
 								
 								if ($term_meta['display_style'] !='None' AND $term_meta['manager_ids']) {
 									foreach ( $term_meta['manager_ids'] as $id ) {
 										$mails = get_post_meta( $id, 'mails', true ); 
-										Lab_Directory::ld_value_to_something( $mails, Lab_Directory::$staff_meta_fields[$slug]['multivalue'], 'display' );
+										Lab_Directory::ld_value_to_something( $mails, Lab_Directory::$staff_meta_fields['mails']['multivalue'], 'display' );
 										
 										$output .= '&nbsp;&nbsp;&nbsp;<a href="' . get_permalink($id). 
 												'"><span class="dashicons dashicons-phone"></span>' . get_the_title($id) . 
@@ -417,32 +425,7 @@ class Lab_Directory {
 		echo $out;
 	}
 
-	// TODOTODO categories replaced with builtin taxonomies, is this used??? 
-	static function set_lab_category_columns() {
-		$new_columns = array( 
-			'cb' => '<input type="checkbox" />', 
-			'name' => __( 'Name' ), 
-			'id' => __( 'ID' ), 
-			//'description' => __( 'Description' ), 
-			// TODO translation, what is this for?? 
-			'slug' => __( 'Slug' ), 
-			'posts' => __( 'Posts' ) );
-		
-		return $new_columns;
-	}
 
-	static function custom_lab_category_columns( $out, $column_name, $theme_id ) {
-		switch ( $column_name ) {
-			case 'id' :
-				$out .= $theme_id;
-				break;
-			
-			default :
-				break;
-		}
-		
-		return $out;
-	}
 	
 	// enqueue tabs script
 	static function lab_directory_scripts_and_css_for_tabs() {
@@ -1085,7 +1068,9 @@ echo lab_directory_create_select(
 			// Add New staff
 			$ldap_synced = false;
 			update_post_meta( $post_id, 'ldap', '0' );
-			$post_title = get_post_meta( $post_id, 'firstname',true) . ' ' . get_post_meta( $post_id, 'name',true); 
+		 	$post_title = get_option('lab_directory_title_firstname_first') ? 
+		 			get_post_meta( $post_id, 'firstname',true) . ' ' . get_post_meta( $post_id, 'name',true):
+		 			get_post_meta( $post_id, 'name',true) . ' ' . get_post_meta( $post_id, 'firstname',true);
 			$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' , 'post_title' => $post_title), array( 'ID' => $post_id ) );
 			clean_post_cache( $post_id );
 			

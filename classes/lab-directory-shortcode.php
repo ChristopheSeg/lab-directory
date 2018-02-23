@@ -159,7 +159,7 @@ class Lab_Directory_Shortcode {
     	 
     	
     	if ($to_translate==true) {
-    		// 'translate' tag with _resume _goal _subject
+    		// 'translate' tag with _resume _goal _subject suffix 
     		$meta_key = 'ld_' . $base_slug;
     		$meta_value = self::translate($base_slug, $tag, $lang, $atts);
     	} else {
@@ -207,14 +207,13 @@ class Lab_Directory_Shortcode {
     		}
     		// ADD enpty label: <span class="label_champ">  </span>
     		if (!empty($output)) {
-		        if ( ( self::$lab_directory_main_shortcode_params['label'] ===true OR 
-		        	self::$lab_directory_main_shortcode_params['label'] =='true') AND
-			        (  $atts['label'] !== false AND $atts['label'] != 'false'  ) ) {
-	    				$separator = '<br /><span class="label_champ"></span>';
+		        if (count($output)>1 ) {
+	    				return '<span class="dashicons dashicons-arrow-right"></span>' .implode('<br /><span class="dashicons dashicons-arrow-right"></span>', 
+	    					$output);
     			} else {
-    				$separator ='<br />';
+	    				return $output[0];
     			}    			
-    			return implode($separator,$output);
+    			
     		} else {
     			return '';
     		}
@@ -513,8 +512,9 @@ class Lab_Directory_Shortcode {
     	), $atts);    	
     	
     	$format = (isset($atts['format_date']) AND ($atts['format_date'] != '')) ? $atts['format_date']: 'd/m/Y';
-    	$text = __('HDR', 'lab-directory') . ' ' .
-    		date ($format, strtotime(get_post_meta( get_the_ID(), 'hdr_date', true ))) .
+    	$date = get_post_meta( get_the_ID(), 'hdr_date', true );
+    	$date = $date? date ($format, strtotime($date)) : ' ?date? ';
+    	$text = $date . ' ' . __('HDR', 'lab-directory')  . 
     		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',));
     	$output = self::ld_profile_link_shortcode(
     		array('add_div' => false, 'label' => 'false', 'hdr' => true, 'inner_text' => $text));
@@ -527,8 +527,9 @@ class Lab_Directory_Shortcode {
     		'label' => 'false',
     	), $atts);
     	$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
-    	$text = __('PHD', 'lab-directory') . ' ' .
-    		date ($format, strtotime(get_post_meta( get_the_ID(), 'phd_date', true ))) .
+    	$date = get_post_meta( get_the_ID(), 'phd_date', true );
+    	$date = $date? date ($format, strtotime($date)) : __('Unknown date','lab_directory');
+    	$text = $date . ' ' . __('PHD', 'lab-directory')  . 
     		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false')) . '</a>';
     	$output = self::ld_profile_link_shortcode(
     		array('add_div' => false, 'label' => 'false', 'phd' => true, 'inner_text' => $text));
@@ -1100,9 +1101,7 @@ class Lab_Directory_Shortcode {
     }
     
     static function retrieve_template_html($slug) {
-	    
-	    // TODOTODO  si slug inexistant !! error!! 
-        
+	   
         // Load template (HTML and CSS)
 		$template = self::ld_load_template($slug);
 		

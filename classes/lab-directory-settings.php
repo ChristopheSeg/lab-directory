@@ -383,6 +383,7 @@ class Lab_Directory_Settings {
 		
 		$ldap_attribute_name = $LDAPattribute = strtolower( $synced_meta_fields['name']['ldap_attribute'] );
 		$ldap_attribute_firstname = $LDAPattribute = strtolower( $synced_meta_fields['firstname']['ldap_attribute'] );
+		$lab_directory_title_firstname_first = get_option('lab_directory_title_firstname_first');
 		
 		for ( $i = 0; $i < $entrees_ldap["count"]; $i++ ) {
 			
@@ -477,7 +478,14 @@ class Lab_Directory_Settings {
 					}
 				}
 				
-				$prenom_nom = $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'];
+				$champ_valeurs['post_title'] = $lab_directory_title_firstname_first ? 
+		 			$champ_valeurs['firstname'] . ' ' . $champ_valeurs['name']:
+		 			$champ_valeurs['name'] . ' ' . $champ_valeurs['firstname'];
+	 			
+		 		$champ_valeurs['post_excerpt']= implode(' ', $mails) . ' (' .__('Staff directory item','lab_directory') . ')'; 
+				
+				$prenom_nom = $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'];	
+		 	
 				/*
 				 * Recherche de l'existence d'un id pour cette entrée.
 				 * Si possible on utilise les mails. et
@@ -695,7 +703,8 @@ class Lab_Directory_Settings {
 
 	function register_new_staff( $champ_valeurs ) {
 		$new_lab_directory_staff_array = array( 
-			'post_title' => $champ_valeurs['firstname'] . ' ' . $champ_valeurs['name'], 
+			'post_title' => $champ_valeurs['post_title'],
+			'post_excerpt' => $champ_valeurs['post_excerpt'],
 			'post_content' => '',  // $lab_directory_staff->bio,
 			'post_type' => 'lab_directory_staff', 
 			'post_status' => 'publish' );
@@ -714,7 +723,14 @@ class Lab_Directory_Settings {
 	function update_lab_directory_staff( $champ_valeurs, $post_id ) {
 		$success = true;
 		
+		// Update post_title and excerpt
 		if ( $post_id ) {
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_title' => $champ_valeurs['post_title'],
+				'post_excerpt' => $champ_valeurs['post_excerpt'],
+			) );
+			
 			foreach ( $champ_valeurs as $key => $value ) {
 				$success = $success and update_post_meta( $post_id, $key, $value );
 			}
