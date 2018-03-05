@@ -97,7 +97,7 @@ class Lab_Directory_Shortcode {
         (  ! isset($atts['label']) OR ($atts['label'] !== false AND $atts['label'] != 'false'  ) ) )
         {
     		$label = ' with_label';
-    		$output ='<span class="label_field">' . lab_directory::$default_meta_field_names[substr($tag,3)] . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
+    		$output ='<span class="label_field">' . __(lab_directory::$default_meta_field_names[substr($tag,3)], 'lab-directory') . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
     	}
     	if ( isset($atts['add_div']) AND ($atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
     		return '<div class=" '. $tag . $label . ' ld_field">' . $output . '</div>';
@@ -283,7 +283,6 @@ class Lab_Directory_Shortcode {
 	    self::$lab_directory_main_shortcode_params = $atts; 
 	   	$query = Lab_Directory_Shortcode::lab_directory_staff_query($atts);
         $output = "";
-
 
         if ( $query->have_posts() ) {
         	// add template CSS part if atts['css'] is given
@@ -474,6 +473,7 @@ class Lab_Directory_Shortcode {
     	), $atts);
     	// Firstname and name sould never been hidden in frontend 
     	$output = get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
+        $output.=  ' zzz langue='. get_locale();
         self::add_staff_profile_link ($output, $atts);
         return self::div_it($output, $tag, $atts);
     }
@@ -775,7 +775,8 @@ class Lab_Directory_Shortcode {
 	
 		$query_args = array(
 			'post_type'      => 'lab_directory_staff',
-			'posts_per_page' => - 1
+			'posts_per_page' => - 1,
+			'lang' => '', // do not restrict to one language
 		);
 	
 		// check if it's a single lab_directory_staff member first, since single members won't be ordered
@@ -830,9 +831,7 @@ class Lab_Directory_Shortcode {
 		if ( isset( $params['meta_key'] ) && $params['meta_key'] != '' ) {
 			$query_args['meta_key'] = $params['meta_key'];
 		}
-		
 		$output = new WP_Query( $query_args );
-
 		return $output;
 	}
 	
@@ -856,7 +855,8 @@ class Lab_Directory_Shortcode {
 	
 		$query_args = array(
 			'post_type'      => 'lab_directory_staff',
-			'posts_per_page' => - 1
+			'posts_per_page' => - 1, 
+			'lang' => '', // do not restrict to one language
 		);
 	
 		// check if it's a single lab_directory_staff member first, since single members won't be ordered
@@ -962,7 +962,8 @@ class Lab_Directory_Shortcode {
 	
 		$query_args = array(
 			'post_type'      => 'lab_directory_staff',
-			'posts_per_page' => - 1
+			'posts_per_page' => - 1,
+			'lang' => '', // do not restrict to one language
 		);
 	
 		// check if it's a single lab_directory_staff member first, since single members won't be ordered

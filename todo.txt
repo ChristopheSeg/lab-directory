@@ -1,14 +1,15 @@
 DONE: 
-added a post_excerpt for staff (used for filter results);
-added option to have firstname OR name first in title;
-added help and cleaned page for admin general settings;
-
+remove lang filter for staff pages query
+add an option url-slug in setting for lab directory staff page
+ 
 TODO: 
 test taxonomy avec Premier étage seul, et nested cats
 
 import cnrs refaire liste équipes!! 
 voir cas import ldap hors filtre 
 
+http://cnrs_webkit.fr/lab_directory_staff/riad-kabouche/
+		defense list vide !!
 add help for manager
 LDAP sync cron ??
 
@@ -17,6 +18,8 @@ POLYLANG
 - category avec slug différents en en!! (pirvi-en) mais on peut ajuster URL
 - ajout de /fr /en en fin deurl fonctionne avec add_rewrite_endpoint( 'en', EP_PERMALINK ); , mais pas le switcher
 voir inc/switcher.php et frontened/frontend-liks.php
+
+
 SUITE
 defense list ajouter une ancre #PHD?? 
 	

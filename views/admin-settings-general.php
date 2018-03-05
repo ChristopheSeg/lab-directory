@@ -117,7 +117,10 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	</div> 
 </div>
 
-
+<div class="mid_left">
+	<b>URL slug for Lab-Directory staff pages</b><br/>
+	<input name="lab_directory_staff_url_slug" id="lab_directory_staff_url_slug" value="<?php echo (get_option( 'lab_directory_staff_url_slug' )? get_option( 'lab_directory_staff_url_slug' ) : 'people'); ?>" type="text">
+</div>
 
 <div class="mid_left">
 	<b>Staff Taxonomies</b><br/>
@@ -132,6 +135,9 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<p><input type="radio" name="lab_directory_title_firstname_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> />Name Firstname</p>
 
 </div>
+
+
+
 <div class="both_columns">
 	<b> <?php _e('Translation for subject, resume and goal metafields','lab-directory') ?> </b> (partially implemented)<br/><br/>
 	

@@ -175,6 +175,9 @@ class Lab_Directory {
 	}
 
 	static function create_post_types() {
+		
+		$url_slug = get_option( 'lab_directory_staff_url_slug' )? get_option( 'lab_directory_staff_url_slug' ) : 'people';
+		
 		register_post_type( 
 			'lab_directory_staff', 
 			array( 
@@ -202,12 +205,16 @@ class Lab_Directory {
 				, 
 				'supports' => array( 'title', 
 					// 'editor',
-					'thumbnail' ) // disabled for ldap=1
-, 
+					'thumbnail' ),  // disabled for ldap=1
+
 				'public' => true, 
 				'has_archive' => false, 
 				'menu_icon' => 'dashicons-id', 
-				'taxonomies' => array( 'lab_category' ) ) );
+				'taxonomies' => array( 'lab_category' ), //TODO obsolete ?? 
+				'rewrite' => array( 'slug' => $url_slug, 'with_front' => false ),
+				) );
+		
+		 
 	}
 
 	static function create_lab_directory_staff_taxonomies() {
@@ -222,7 +229,6 @@ class Lab_Directory {
 	{
 		add_rewrite_endpoint( 'hdr', EP_PERMALINK );
 		add_rewrite_endpoint( 'phd', EP_PERMALINK );
-		add_rewrite_endpoint( 'en', EP_PERMALINK );
 	}
 	
 	static function ld_posts_results_filter( $posts ) {

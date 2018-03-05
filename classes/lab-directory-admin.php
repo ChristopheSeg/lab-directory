@@ -432,6 +432,10 @@ class Lab_Directory_Admin {
 				<?php 
 				
 			}	
+			
+			// Flush rewrite rules 
+			global $wp_rewrite;
+    		$wp_rewrite->flush_rules();
 		}
 		static function settings_translations($lang, $lang_name, $locale, $locale_name) {
 		
@@ -577,6 +581,9 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_lang1', $_POST['lab_directory_lang1']);
 				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
 				update_option( 'lab_directory_title_firstname_first', $_POST['lab_directory_title_firstname_first']);
+				update_option( 'lab_directory_staff_url_slug', $_POST['lab_directory_staff_url_slug'] ? 
+					sanitize_title_with_dashes($_POST['lab_directory_staff_url_slug']) : 
+					'people');
 				
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
