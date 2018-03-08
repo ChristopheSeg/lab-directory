@@ -19,7 +19,9 @@ class Lab_Directory_Shortcode {
 			'translate' => false,
 		);
     static $lab_directory_main_shortcode_params = array();
+    
     public static $hdr_loop = false; 
+	
 	static function register_shortcode() {
 
         //Main shortcode to initiate plugin
@@ -190,22 +192,42 @@ class Lab_Directory_Shortcode {
      * $tag = ld_hdr_subject or ld_hdr_subject_lang1 or ld_hdr_subject_lang2 (example)
      */
     
-    static function translate($base_slug, $tag='', $lang='', $atts=array()) {
+    static function translate($base_slug, $tag='', $ld_lang='', $atts=array()) {
     	
+    	global $lang; // Find ordering for languages
+    	$lang1 = get_option( 'lab_directory_lang1');
+    	$lang2 = get_option( 'lab_directory_lang2');
+    	
+    	$orders = array('','_lang1','_lang2'); 
+    	if ($lang1 AND $lang1==$lang){
+    		$orders = array('_lang1','','_lang2');
+    	} elseif ($lang2 AND $lang2==$lang){
+    		$orders = array('_lang2','','_lang1');
+    	} elseif (get_option( 'lab_directory_locale_first','1')) {
+    		$orders = array('','_lang1','_lang2');
+    	} else {
+    		$orders = array('_lang1','','_lang2');
+    	}
+   	
     	if ( ($atts['translate'] === true) OR ($atts['translate'] == 'true') ) {
-    		// TODO Implement translation 
-    		return get_post_meta( get_the_ID(), $base_slug.$lang, true );
+    		// Find first avalaible according to language ordering
+    		foreach ($orders as $ld_lang){
+    			if ($temp = get_post_meta( get_the_ID(), $base_slug.$ld_lang, true ) ) {
+    				return $temp;
+    			}
+    		}
     	}
 
     	if ($atts['translate'] == 'all') {
-   			$orders = array('','_lang1','_lang2');
+   			
+    		// Find All avaliable translation in language order
     		$output = array();
-    		foreach ($orders as $lang) {
-    			if ($value = get_post_meta( get_the_ID(), $base_slug.$lang, true ) ) {
+    		foreach ($orders as $ld_lang) {
+    			if ($value = get_post_meta( get_the_ID(), $base_slug.$ld_lang, true ) ) {
     				$output[]= $value;
     			}
     		}
-    		// ADD enpty label: <span class="label_champ">  </span>
+    		// ADD emnpty label: <span class="label_champ">  </span>
     		if (!empty($output)) {
 		        if (count($output)>1 ) {
 	    				return '<span class="dashicons dashicons-arrow-right"></span>' .implode('<br /><span class="dashicons dashicons-arrow-right"></span>', 
@@ -220,7 +242,7 @@ class Lab_Directory_Shortcode {
    		}
    		
    		// (else) if ($atts['translate'] === false OR $atts['translate'] == 'false') {
-    	return get_post_meta( get_the_ID(), $base_slug.$lang, true );
+    	return get_post_meta( get_the_ID(), $base_slug.$ld_lang, true );
     		
     	// return "<br> base slug=$base_slug  tag=$tag lang=$lang" . get_post_meta( get_the_ID(), $base_slug, true );
     }
@@ -473,14 +495,14 @@ class Lab_Directory_Shortcode {
     	), $atts);
     	// Firstname and name sould never been hidden in frontend 
     	$output = get_post_meta( get_the_ID(), 'name', true ) . ' ' . get_post_meta( get_the_ID(), 'firstname', true );
-        $output.=  ' zzz langue='. get_locale();
-        self::add_staff_profile_link ($output, $atts);
+    	self::add_staff_profile_link ($output, $atts);
         return self::div_it($output, $tag, $atts);
     }
     
     static function add_staff_profile_link (&$output, $atts) {
+	    global $lang; 
 	    if ( ($atts['add_link']=='true' ) OR ($atts['add_link']===true) )  { 
-	    	$output = "<a href='" . get_permalink( get_the_ID() ) . "'>" . $output . '</a>';
+	    		$output = "<a href='" . Lab_Directory::get_ld_permalink( get_the_ID() ) . "'>" . $output . '</a>';
 	    }	    
     }
 
@@ -588,7 +610,7 @@ class Lab_Directory_Shortcode {
         	'hdr' => false, 
         	'phd' => false,	 
         ), $atts);
-        $profile_link = get_permalink( get_the_ID() );
+        $profile_link = Lab_Directory::get_ld_permalink( get_the_ID() );
         
         if ( $atts['hdr']) {
         	$profile_link .= 'hdr';
@@ -631,10 +653,11 @@ class Lab_Directory_Shortcode {
     
     static function ld_categories_nav_shortcode($atts, $content = NULL, $tag = '' ){
         
+		global $post; 
 		$taxonomies=lab_directory::lab_directory_get_taxonomies(); 
 		$output =''; 
-        $current_url = explode('?', "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-		
+        $current_url = get_permalink();
+        $simple_url = (strpos($current_url, '?')>0);
 		if  ($taxonomies) {
 			
 		  foreach ($taxonomies  as $key => $taxonomy ) {
@@ -646,9 +669,12 @@ class Lab_Directory_Shortcode {
 			) );
 		    
 		    foreach ( $terms as $term) {
-		    	$output .= '<a href="' . $current_url[0] . '?cat=' . $term->term_taxonomy_id . '" >' .$term->name . '</a> | ';
+		    	$tax_url = $simple_url ? 
+		    		$current_url . '&staff_grid='. $term->term_taxonomy_id:
+		    		$current_url . 'staff_grid/' . $term->term_taxonomy_id;
+		    	$output .= '<a href="' . $tax_url . '" >' .$term->name . '</a> | ';
             }
-            $output .= '<a href="' . $current_url[0] . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
+            $output .= '<a href="' . $current_url . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
          }
         }  
         return $output;
@@ -721,26 +747,46 @@ class Lab_Directory_Shortcode {
     	global $wp_query;
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	$params = shortcode_atts( self::$lab_directory_main_shortcode_default_params, $params);
-    	self::$lab_directory_main_shortcode_params = $params; 
     	
+    	/*
+    	 * 
+    	echo "<br>========= lab_directory_main_shortcode =================";
+    	
+    	if(isset($wp_query->query_vars)) {
+    		var_dump($wp_query->query_vars);
+    		echo "<br>template=". urldecode($wp_query->query_vars['ld_template']);
+    	}
+    	
+    	echo "<br>========= lab_directory_main_shortcode =================<br>";
+    	 */
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 
-		if (isset($params['id']) AND ($params['id']!='') ) {
+	  	if ( isset($wp_query->query_vars['staff_trombi']) ) {
+       		$template = 'staff_trombi';
+       		$params['cat'] = $wp_query->query_vars['staff_trombi'];
+       	}elseif ( isset($wp_query->query_vars['staff_list']) ) {
+       		$template = 'staff_list';
+       		$params['cat'] = $wp_query->query_vars['staff_list'];
+       	}elseif ( isset($wp_query->query_vars['staff_grid']) ) {
+       		$template = 'staff_grid';
+       		$params['cat'] = $wp_query->query_vars['staff_grid'];
+       	}elseif ( isset($params['id']) AND ($params['id']!='') ) {
        		// Search for a single staff profile
    			$template = 'single_staff';
    			//TODO  traiter le cas id fourni pour template différent
-       	} elseif (  isset($wp_query->query_vars['hdr']) ) {
+       	}elseif ( isset($wp_query->query_vars['hdr']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_hdr';
-       	}
-       	elseif (  isset($wp_query->query_vars['phd']) ) {
+       	}elseif (  isset($wp_query->query_vars['phd']) ) {
        		$template = isset($params['template'])? $params['template'] : 'single_staff_phd';
-        } else {
-       		 {
-       			$template = isset($params['template'])? $params['template'] : 'staff_grid';
-       		}
+       	}else {
+       		$template = isset($params['template'])? $params['template'] : 'staff_list';
        	}
+       	var_dump($params);
        	// Save template name for use in loop's div
        	self::$current_template = $template;  
+        // Save $atts for using inside loop
+        self::$lab_directory_main_shortcode_params = $params; 
+    	
         $output = self::retrieve_template_html($template); 
         // delete save atts before exiting loop 
         self::$lab_directory_main_shortcode_params = false;
@@ -764,10 +810,13 @@ class Lab_Directory_Shortcode {
 			'order'    => 'DESC',
 			'meta_key' => '',
 			'staff_filter'     => false,
-			'template' => 'staff_trombi',			
+			'template' => 'staff_trombi',	
+			'label'	=> false,
+			'translate' => false,
 		);
-		
+		var_dump($params);
 		$params = shortcode_atts( $default_params, $params );
+		var_dump($params);
 		// make sure we aren't calling both id and cat at the same time
 		if ( isset( $params['id'] ) && $params['id'] != '' && isset( $params['cat'] ) && $params['cat'] != '' ) {
 			return "<strong>ERROR: You cannot set both a single ID and a category ID for your Lab Directory</strong>";
@@ -788,18 +837,18 @@ class Lab_Directory_Shortcode {
 	
 		// If no cat nor id filter in loop
 		if ( ( !isset( $params['cat'] ) || $params['cat'] == '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
-			// Try to add url parameter filter ($_GET) in $params filter
+			// TODO OBSOLETE Try to add url parameter filter ($_GET) in $params filter
 			if ($_GET['cat']) {
 				$params['cat'] = $_GET['cat'];
 			}
 		}
-	
+		
 		// check if we're returning a lab_directory_staff category
 		if ( ( isset( $params['cat'] ) && $params['cat'] != '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
 			$cats_query = array();
 	
 			$cats = explode( ',', $params['cat'] );
-	
+			
 			if (count($cats) > 1) {
 				$cats_query['relation'] = $params['cat_relation'];
 			}
@@ -893,7 +942,7 @@ class Lab_Directory_Shortcode {
 	
 			$query_args['tax_query'] = $cats_query;
 		}
-	
+		
 		$query_args['orderby'] = 'meta_value';
 		$query_args['order'] = 'DESC';
 		$query_args['meta_key'] = 'hdr_date';

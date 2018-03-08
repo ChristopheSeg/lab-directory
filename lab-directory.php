@@ -10,21 +10,13 @@
  * Author URI: http://www.nourl.yet
  */
 global $wpdb;
-$lab_directory_table = $wpdb->prefix . 'lab_directory';
 
-define( 'LAB_DIRECTORY_TABLE', $wpdb->prefix . 'lab_directory' );
+// $lab_directory_table = $wpdb->prefix . 'lab_directory';  //Import
+// define( 'LAB_DIRECTORY_TABLE', $wpdb->prefix . 'lab_directory' ); //Import
 // define( 'LAB_DIRECTORY_TEMPLATES', $wpdb->prefix . 'lab_directory_templates' );
 define( 'LAB_DIRECTORY_PHOTOS_DIRECTORY', WP_CONTENT_DIR . "/uploads/lab-directory-photos/" );
-define( 'LAB_DIRECTORY_TEMPLATES', plugin_dir_path( __FILE__ ) . "templates" );
-
-/**
- * Load plugin textdomain.
- */
-function lab_directory_load_textdomain() {
-	load_plugin_textdomain( 'lab-directory', false, basename( dirname( __FILE__ ) ) . '/languages' );
-}
-
-add_action( 'init', 'lab_directory_load_textdomain' );
+define( 'LAB_DIRECTORY_TEMPLATES', WP_CONTENT_DIR . "/plugins/lab-directory/templates" );
+define( 'LAB_DIRECTORY_LANGUAGES', WP_CONTENT_DIR . "/plugins/lab-directory/languages" );
 
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-settings.php' );
 

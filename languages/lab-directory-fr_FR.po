@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-05 10:16+0100\n"
-"PO-Revision-Date: 2018-03-05 10:17+0100\n"
+"PO-Revision-Date: 2018-03-07 10:46+0100\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -663,7 +663,7 @@ msgstr ""
 #: classes/lab-directory.php:324
 #, php-format
 msgid "%s manager : "
-msgstr ""
+msgstr "manageur %s :"
 
 #: classes/lab-directory.php:379 classes/lab-directory.php:3138
 msgid "Title"
@@ -1210,7 +1210,7 @@ msgstr ""
 #: classes/lab-directory.php:3144 classes/lab-directory.php:3145
 #: classes/lab-directory.php:3146
 msgid "HDR subject"
-msgstr ""
+msgstr "Sujet de HDR"
 
 #: classes/lab-directory.php:3147
 msgid "HDR defense date"

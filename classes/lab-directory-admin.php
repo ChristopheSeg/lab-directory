@@ -284,7 +284,7 @@ class Lab_Directory_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations();
 	
-		$locale = get_locale(); //string(5) "fr_FR" 
+		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR" 
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'acronyms';
 		
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }  
@@ -319,7 +319,7 @@ class Lab_Directory_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations('core');
 	
-		$locale = get_locale(); //string(5) "fr_FR"
+		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR"
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : $locale;
 	
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }
@@ -550,7 +550,7 @@ class Lab_Directory_Admin {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
-		$locale = get_locale(); //string(5) "fr_FR"
+		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR"
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations('core');
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }

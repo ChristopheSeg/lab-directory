@@ -148,7 +148,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		<td><i>Replacement priority (use first available)</i></td>
 	</tr>
 	<tr>
-		<td>locale</td>
+		<td>default language</td>
 		<td></td>
 		<td><?php echo $language_list[$locale]['native_name']; ?>, <?php echo $language_list[$locale]['english_name']; ?></td>
 		<td>locale lang1 lang2</td>

@@ -1,23 +1,38 @@
 DONE: 
-remove lang filter for staff pages query
-add an option url-slug in setting for lab directory staff page
- 
+added a lang slug in URL for staff-pages (compatible with Polylang plugin url http://mydomain.com/en/my-post/, untested with other multilingual website plugin))
+added pseudo translation for resume goal and subject metafields
+BUG: current plugin is not compatible with Polylang (and may be other multilingual plugins) Compatibility need rewamping the way lab-directory pages are generated
+started: new staff page architecture for multilingual compatibility
 TODO: 
+ATTENTION V2RIFIER TEXT DOMAIN CHARG2 :::: pb????
+
+
+Passer par 2*1  post(s) traduits pour les pages people ??
+si nice url pas simple ajouter tags 
+someurl/staff_grid/PIRVI
+someurl/staff_list/PIRVI
+someurl/staff_photos/PIRVI
+someurl/staff/stafftitle
+someurl/staff_hdr/stafftitle
+someurl/defense_list
+si url simple ajouter paramètre 
+http://local_wp_ircica.fr/?p=123?staff_grid=PIRVI .... 
+someurl/staff_list/PIRVI
+someurl/staff_photos/PIRVI
+someurl/staff/stafftitle
+someurl/staff_hdr/stafftitle
+
+avec shortcode [lab-directory] et calcul du template avec URL: 
+	http://www.rlmseo.com/blog/passing-get-query-string-parameters-in-wordpress-url/
+attention pas someurl et defense sur 2 post sinon, comment calculer les liens 
+	 
 test taxonomy avec Premier étage seul, et nested cats
 
 import cnrs refaire liste équipes!! 
 voir cas import ldap hors filtre 
 
-http://cnrs_webkit.fr/lab_directory_staff/riad-kabouche/
-		defense list vide !!
 add help for manager
 LDAP sync cron ??
-
-POLYLANG 
-- staff pas de transation redirige vers accueil!! 
-- category avec slug différents en en!! (pirvi-en) mais on peut ajuster URL
-- ajout de /fr /en en fin deurl fonctionne avec add_rewrite_endpoint( 'en', EP_PERMALINK ); , mais pas le switcher
-voir inc/switcher.php et frontened/frontend-liks.php
 
 
 SUITE
