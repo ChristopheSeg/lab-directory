@@ -73,6 +73,9 @@ class Lab_Directory {
 	static $default_post_language_slug = ''; // 'fr'
 	static $url_slug ='people'; 
 	
+	// The url of ld main page containing [lab-directory] exact shortcode without any parameter
+	static $main_ld_permalink =array();
+	
 	static $staff_meta_fields = null;
 
 	static $translations = null;
@@ -93,14 +96,11 @@ class Lab_Directory {
 		self::$default_post_language_slug = substr(self::$default_post_language, 0, 2)  ;
 		self::$url_slug = get_option( 'lab_directory_staff_url_slug' ) ? get_option( 'lab_directory_staff_url_slug' ) : 'people';
 		
-		
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
 		
-		//TODO DEPRECATED Fires before the MO translation file is loaded.
-		// add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_lab_directory_set_language' ) );
-		
-		// add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_lab_directory_textdomain' ) );
+	
+		add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_lab_directory_textdomain' ) );
 		add_filter('pll_get_post_types',array( 'Lab_Directory',  'add_cpt_to_pll'), 10, 2);
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
@@ -110,6 +110,7 @@ class Lab_Directory {
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_translations' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_default_meta_field_names' ) );
+		add_action( 'init', array( 'Lab_Directory', 'initiate_main_ld_permalink' ) );
 		
 		add_filter( 'get_sample_permalink_html', array( 'Lab_Directory', 'hide_permalink' ) );
 		add_filter( 'admin_post_thumbnail_html', array( 'Lab_Directory', 'lab_directory_staff_photo_meta_box' ), 10, 3 );
@@ -227,7 +228,6 @@ class Lab_Directory {
 		
 		// Rewrite rules modification for additionnal hdr/phd endpoints //muplugins_loaded
 		add_action( 'registered_taxonomy', array( 'Lab_Directory', 'lab_directory_redirect' ) );
-		add_action( 'init', array( 'Lab_Directory', 'lab_directory_add_rewrite_endpoints' ) );
 		//add_filter( 'rewrite_rules_array', array( 'Lab_Directory', 'lab_directory_add_rewrite_rules' ) );
 		add_filter( 'query_vars', array( 'Lab_Directory', 'lab_directory_add_query_vars' ) );
 		add_action( 'init', array( 'Lab_Directory', 'lab_directory_add_rewrite_tags' ) , 10, 0);
@@ -288,49 +288,18 @@ class Lab_Directory {
 		}
 	}
 	
-	// TODO DEPRECATED 
-	static function load_lab_directory_set_language() {
-	global $lang, $locale;
-	
-		// First remove /lang_slug/ from URI for lab directory staff pages 
-		$temp = $_SERVER['REQUEST_URI'];
-		
-		if (preg_match('"/(people)/"', $temp)) {
-			//TODO PEOPLE §§
-			if (preg_match('"/([a-z]{2})/people/"', $temp, $matches)) {
-				$_SERVER['REQUEST_URI'] = str_replace('/' . $matches[1] .'/people/', '/people/', $temp);
-			} 
-			$lang = $matches[1]? $matches[1] : self::$default_post_language_slug;
-			if ($lang =='en') {$locale ='en_GB';}
-			
-			echo "<br>lang=$lang  locale=$locale m=$matches[1] $matches[2]";
-			
-		}
-				
-	}
-	
 	static function add_cpt_to_pll($post_types, $hide) {
 		// hides 'lab_directory_staff' from the list of custom post types in Polylang settings
 		unset($post_types['lab_directory_staff']);
 		return $post_types;
 	}
 	
-	// TODO DEPRECATED 
+	
 	static function load_lab_directory_textdomain() {
-
-		// load_textdomain( 'lab-directory',LAB_DIRECTORY_LANGUAGES . '/lab-directory-en_GB.mo' );
-		global $lang, $locale;
-		echo "<br>lang=$lang  locale=$locale";
 		load_plugin_textdomain( 'lab-directory',false, '/lab-directory/languages/' );
-		// load_textdomain( 'lab-directory','/wp-content/plugins/lab-directory/languages/' );
-		
 	}
 
-	static function lab_directory_add_rewrite_endpoints() {
-		global $lang;
-		add_rewrite_endpoint( 'hdr', EP_PERMALINK );
-		add_rewrite_endpoint( 'phd', EP_PERMALINK );
-	}
+	
 	
 	static function lab_directory_redirect() {
 		$matches = null; 
@@ -365,11 +334,15 @@ class Lab_Directory {
 		$qvars[] = 'staff_grid';
 		$qvars[] = 'staff_list';
 		$qvars[] = 'staff_trombi';
+		$qvars[] = 'staff';
+		$qvars[] = 'staff_phd';
+		$qvars[] = 'staff_hdr';
 		
 		return $qvars;
 	}
 	
 	static function lab_directory_add_rewrite_tags() {
+		//TODO REGEXP not enough secure! 
 		// staff_grid 
 		add_rewrite_tag('%staff_grid%', '([^&/]+)');
 		add_rewrite_endpoint( 'staff_grid', EP_PERMALINK );
@@ -381,6 +354,18 @@ class Lab_Directory {
 		// staff_trombi
 		add_rewrite_tag('%staff_trombi%', '([^&/]+)');
 		add_rewrite_endpoint( 'staff_trombi', EP_PERMALINK );
+
+		// staff
+		add_rewrite_tag('%staff%', '([^&/]+)');
+		add_rewrite_endpoint( 'staff', EP_PERMALINK );
+
+		// staff_phd
+		add_rewrite_tag('%staff_phd%', '([^&/]+)');
+		add_rewrite_endpoint( 'staff_phd', EP_PERMALINK );
+		
+		// staff_hdr
+		add_rewrite_tag('%staff_hdr%', '([^&/]+)');
+		add_rewrite_endpoint( 'staff_hdr', EP_PERMALINK );
 		
 	}
 	/* add a pll_pre_translation_url filter (only called when pll is in use)
@@ -402,20 +387,7 @@ class Lab_Directory {
 		}
 	}
 	
-	/* 
-	 * replacement for get_permalink to add $lang in URL when translation are in use.
-	 */
-	// TO BE DEPRECATED?? 
-	static function get_ld_permalink( $id=null ) {
-		global $lang; 
-		$temp = get_permalink( $id );
-		// Add language slug 
-		if ($lang AND $lang != self::$default_post_language_slug) {
-			$temp = str_replace(self::$url_slug, $lang . '/' . self::$url_slug, $temp);
-		}
-		return $temp;
-	}
-	
+
 	static function lab_directory_post_link( $url, $post, $leavename=false ) {
 		global $wp_query;
 	
@@ -438,10 +410,10 @@ class Lab_Directory {
 					// add empty span to display hooked content on a page
 					$posts[0]->post_content = '<span></span>';
 				}
-				if ( isset( $wp_query->query_vars['hdr'] ) ) {
+				if ( isset( $wp_query->query_vars['staff_hdr'] ) ) {
 					$posts[0]->post_title = "HDR: " . $posts[0]->post_title;
 				}
-				if ( isset( $wp_query->query_vars['phd'] ) ) {
+				if ( isset( $wp_query->query_vars['staff_phd'] ) ) {
 					$posts[0]->post_title = "PHD: " . $posts[0]->post_title;
 				}
 			}
@@ -473,6 +445,8 @@ class Lab_Directory {
 			
 			// TODO singular si defense list avec 1 seul post !!
 			if ( ! Lab_directory_shortcode::$hdr_loop ) {
+				
+				//TODO OBSOLETE 
 				
 				if ( isset( $wp_query->query_vars['hdr'] ) ) {
 					Lab_directory_shortcode::$hdr_loop = true;
@@ -515,7 +489,8 @@ class Lab_Directory {
 									Lab_Directory::$staff_meta_fields['mails']['multivalue'], 
 									'display' );
 								
-								$output .= '&nbsp;&nbsp;&nbsp;<a href="' . self::get_ld_permalink( $id ) .
+								//TODO implement real search for permalink 
+								$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Shortcode::get_ld_permalink( get_permalink($id), 'staff', $id ) .
 									 '"><span class="dashicons dashicons-phone"></span>' . get_the_title( $id ) . '</a>';
 								if ( $mails ) {
 									$output .= '&nbsp;<a href="mailto:' . $mails .
@@ -1163,7 +1138,7 @@ div.lab_directory_staff_meta {
 					<tr>
 			<td><input type="text"
 				name="lab_directory_staff_meta_<?php echo $field['slug']; ?>_orders[]"
-				style="width: 40px;" value="<?phpp echo $index; ?>" /></td>
+				style="width: 40px;" value="<?php echo $index; ?>" /></td>
 			<td><?php
 					
 					echo lab_directory_create_select( 
@@ -3431,10 +3406,36 @@ div.lab_directory_staff_meta {
 
 		;
 	}
-
+	
 	/*
-	 *
+	 * This function search for the unique posts (many language) having the exact shortcode [lab-directory]
 	 */
+	static function initiate_main_ld_permalink() {
+		global $wpdb,$lang;
+		self::$main_ld_permalink = array();
+		$ld_posts = $wpdb->get_results("SELECT ID,guid FROM $wpdb->posts WHERE post_content like '%[lab-directory]%'");
+		if (count(ldposts) == 0) {
+			self::$main_ld_permalink = ''; 
+		}
+		
+		if (count(ldposts) >= 1) {
+			//Save first post in $main_ld_permalink[0] (in case lang is not found) but this can be in any languages!
+			self::$main_ld_permalink[0]['ID']= $ld_posts[0]->ID;
+			self::$main_ld_permalink[0]['permalink']= get_permalink($ld_posts[0]->ID);
+		}
+		
+		if (function_exists (pll_languages_list) ) {
+			$languages = pll_languages_list('slug');
+			foreach ($languages as $language){
+				self::$main_ld_permalink[$language]['ID'] = pll_get_post(self::$main_ld_permalink[0]['ID'], $language);
+				self::$main_ld_permalink[$language]['permalink'] = get_permalink(self::$main_ld_permalink[$language]['ID'] );
+			}
+		}
+		
+		//TODO add wpml compatibility 
+		
+	}
+
 	function add_tooltips( &$meta_value, $field ) {
 		if ( ! $meta_value ) {
 			return;
@@ -3460,7 +3461,7 @@ div.lab_directory_staff_meta {
 		}
 		return;
 	}
-
+	
 	/*
 	 * This function convert a value depending on its multivalue type
 	 */

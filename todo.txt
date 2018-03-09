@@ -1,10 +1,10 @@
 DONE: 
-added a lang slug in URL for staff-pages (compatible with Polylang plugin url http://mydomain.com/en/my-post/, untested with other multilingual website plugin))
-added pseudo translation for resume goal and subject metafields
-BUG: current plugin is not compatible with Polylang (and may be other multilingual plugins) Compatibility need rewamping the way lab-directory pages are generated
-started: new staff page architecture for multilingual compatibility
+
 TODO: 
-ATTENTION V2RIFIER TEXT DOMAIN CHARG2 :::: pb????
+dans les lab_directory_phd_query et autres
+vérifier traitement query_vars (si pas de main loop???  et voir ordre id, staff_slug etc... 
+revoir toutes les boucles 
+imposer prépondérance des paramètre d'URL sur les paramètres de boucle. 
 
 
 Passer par 2*1  post(s) traduits pour les pages people ??
