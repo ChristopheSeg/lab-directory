@@ -1,10 +1,20 @@
 DONE: 
 
 TODO: 
-dans les lab_directory_phd_query et autres
-vérifier traitement query_vars (si pas de main loop???  et voir ordre id, staff_slug etc... 
-revoir toutes les boucles 
-imposer prépondérance des paramètre d'URL sur les paramètres de boucle. 
+traiter cas URL numérique http://cnrs_webkit.fr/archives/123
+
+admin ajouter <label<>:label pour input 
+defense_list broken!! 
+voir si boucle simple fonctionnelle sans main) ??
+
+
+revoir toutes les boucles  imposer prépondérance des paramètre d'URL sur les paramètres de boucle. 
+
+SLUG programmés dans settings ??? (staff staff_hdr....)
+
+supprimer OBSOLETE
+
+Adapter l'aide des shortcodes
 
 
 Passer par 2*1  post(s) traduits pour les pages people ??
@@ -15,6 +25,7 @@ someurl/staff_photos/PIRVI
 someurl/staff/stafftitle
 someurl/staff_hdr/stafftitle
 someurl/defense_list
+
 si url simple ajouter paramètre 
 http://local_wp_ircica.fr/?p=123?staff_grid=PIRVI .... 
 someurl/staff_list/PIRVI
@@ -22,9 +33,6 @@ someurl/staff_photos/PIRVI
 someurl/staff/stafftitle
 someurl/staff_hdr/stafftitle
 
-avec shortcode [lab-directory] et calcul du template avec URL: 
-	http://www.rlmseo.com/blog/passing-get-query-string-parameters-in-wordpress-url/
-attention pas someurl et defense sur 2 post sinon, comment calculer les liens 
 	 
 test taxonomy avec Premier étage seul, et nested cats
 

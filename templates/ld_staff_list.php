@@ -1,6 +1,6 @@
 [lab_directory_staff_loop staff_filter=true label=true]
 	[ld_photo]
-	[ld_name]
+	[ld_firstname_name add_link=true]
 	[ld_position]
 	[ld_mails]
 	[ld_phone_number]

@@ -386,13 +386,11 @@ class Lab_Directory_Shortcode {
     static function lab_directory_hdr_loop_shortcode( $atts, $content = NULL ) {
         
     	global $post; 
-    	
-    	if (Lab_Directory_Shortcode::$current_template !== 'defense_widget_list' AND 
-    		Lab_Directory_Shortcode::$current_template !== 'defense_list' AND 
-    		Lab_Directory_Shortcode::$current_template !== null) {
-  
-    	}
-    	
+    		
+    	if (Lab_Directory_Shortcode::$current_template == null) {
+    		return; 
+	    }
+  	
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -440,11 +438,9 @@ class Lab_Directory_Shortcode {
 	    
         global $post; 
         
-        if (Lab_Directory_Shortcode::$current_template !== 'defense_widget_list' AND 
-    		Lab_Directory_Shortcode::$current_template !== 'defense_list' AND 
-    		Lab_Directory_Shortcode::$current_template !== null) {
- 
-    	}
+        if (Lab_Directory_Shortcode::$current_template == null) {
+    		return; 
+	    }
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
 	    if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -627,11 +623,8 @@ class Lab_Directory_Shortcode {
         }else {
         	$template = 'staff';
         }
-        self::get_ld_permalink(
-   
         $profile_link = self::get_ld_permalink( 
-        	get_permalink($wp_query->query_vars['p']), $template, get_post_field( 'post_name', get_the_ID() ) )
-        	);
+        	get_permalink($wp_query->query_vars['p']), $template, get_post_field( 'post_name', get_the_ID() ) );
         
         
         
@@ -683,7 +676,7 @@ class Lab_Directory_Shortcode {
 			) );
 		    
 		    foreach ( $terms as $term) {
-		    	$output .= '<a href="' . self::get_ld_permalink($permalink, self::$current_template, $term->term_taxonomy_id) . '" >' .$term->name . '</a> | ';
+		    	$output .= '<a href="' . self::get_ld_permalink($permalink, self::$current_template, $term->slug) . '" >' .$term->name . '</a> | ';
             }
             $output .= '<a href="' . self::get_ld_permalink($permalink, self::$current_template, '') . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
          }
@@ -694,12 +687,15 @@ class Lab_Directory_Shortcode {
      * $permalink : post permalink or URL
      * $slug staff_grid staff_list... staff
      * $id taxonomy or lab_directory staff id
+     * $query_vars_only if true only return the end of the url containing query vars
      */
     
-    static function get_ld_permalink($permalink='', $slug='',$id='', $lang=0) {
+    static function get_ld_permalink($permalink='', $slug='',$id='', $lang=0, $query_string_only= false) {
     	$permalink = Lab_Directory::$main_ld_permalink[$lang]['permalink'];
     	$simple_url = (strpos($permalink, '?') !== false);
-    	
+    	if ($query_string_only) {
+    		$permalink = ''; 
+    	}
     	if ($slug)  {
     		$permalink .=  $simple_url ?
 		    	'&'. $slug:
@@ -782,6 +778,7 @@ class Lab_Directory_Shortcode {
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	$params = shortcode_atts( self::$lab_directory_main_shortcode_default_params, $params);
     	
+    	echo "<br>========= lab_directory_main_shortcode =================";
     	/*
     	 * 
     	echo "<br>========= lab_directory_main_shortcode =================";
@@ -797,15 +794,15 @@ class Lab_Directory_Shortcode {
 
 	  	if ( isset($wp_query->query_vars['staff_trombi']) ) {
        		$template = 'staff_trombi';
-       		$params['cat'] = $wp_query->query_vars['staff_trombi'];
-       	
+       		$params['category_name'] = $wp_query->query_vars['staff_trombi'];     
+       		
 	  	}elseif ( isset($wp_query->query_vars['staff_list']) ) {
        		$template = 'staff_list';
-       		$params['cat'] = $wp_query->query_vars['staff_list'];
+       		$params['category_name'] = $wp_query->query_vars['staff_list'];
        	
        	}elseif ( isset($wp_query->query_vars['staff_grid']) ) {
        		$template = 'staff_grid';
-       		$params['cat'] = $wp_query->query_vars['staff_grid'];
+       		$params['category_name'] = $wp_query->query_vars['staff_grid'];
        	
        	}elseif ( isset($wp_query->query_vars['staff']) ) {
        		$template = 'single_staff';
@@ -823,9 +820,8 @@ class Lab_Directory_Shortcode {
        		// Search for a single staff profile
    			$template = 'single_staff';
    		
-   			//TODO  traiter le cas id fourni pour template différent
-       	}else {
-       		$template = isset($params['template'])? $params['template'] : 'staff_list';
+       	}else {  // Use default template if template not set
+       		$template = isset($template)? $template : get_option( 'lab_directory_default_template', 'staff_grid');
        	}
        	// Save template name for use in loop's div
        	self::$current_template = $template;  
@@ -889,6 +885,23 @@ class Lab_Directory_Shortcode {
 				$params['cat'] = $_GET['cat'];
 			}
 		}
+
+		// Search by post taxonomy (category_name)
+		if ( ( isset( self::$lab_directory_main_shortcode_params['category_name'] ) && self::$lab_directory_main_shortcode_params['category_name'] != '' ) ) {
+			$cats_query[] = array( 
+					'relation' => 'OR',
+					array(
+					'taxonomy' => 'ld_taxonomy_team',
+					'terms'    => self::$lab_directory_main_shortcode_params['category_name'],
+					'field'    => 'slug',  ) ,
+					array(
+					'taxonomy' => 'ld_taxonomy_laboratory',
+					'terms'    => self::$lab_directory_main_shortcode_params['category_name'],
+					'field'    => 'slug', )
+			);		
+			$query_args['tax_query'] = $cats_query;
+		}
+		
 		
 		// check if we're returning a lab_directory_staff category
 		if ( ( isset( $params['cat'] ) && $params['cat'] != '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
@@ -928,8 +941,8 @@ class Lab_Directory_Shortcode {
 			$query_args['meta_key'] = $params['meta_key'];
 		}
 		
-		
 		$output = new WP_Query( $query_args );
+		
 		return $output;
 	}
 	
@@ -961,6 +974,10 @@ class Lab_Directory_Shortcode {
 		// check if it's a single lab_directory_staff member first, since single members won't be ordered
 		if ( ( isset( $params['id'] ) && $params['id'] != '' ) && ( ! isset( $params['cat'] ) || $params['cat'] == '' ) ) {
 			$query_args['p'] = $params['id'];
+		}
+		// Search by post_slug  (post_name)
+		if ( ( isset( self::$lab_directory_main_shortcode_params['staff_slug'] ) && self::$lab_directory_main_shortcode_params['staff_slug'] != '' ) ) {
+			$query_args['name'] = self::$lab_directory_main_shortcode_params['staff_slug'];
 		}
 		// ends single lab_directory_staff
 	
@@ -1206,6 +1223,7 @@ class Lab_Directory_Shortcode {
     static function retrieve_template_html($slug) {
 	   
         // Load template (HTML and CSS)
+        echo '<br> slug='.$slug;
 		$template = self::ld_load_template($slug);
 		
 		$output = '';

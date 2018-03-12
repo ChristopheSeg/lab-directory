@@ -61,6 +61,7 @@
 $use_lang1 = get_option( 'lab_directory_use_lang1',true);
 $use_lang2 = get_option( 'lab_directory_use_lang2',true);
 $lab_directory_locale_first =  get_option( 'lab_directory_locale_first','1');
+$lab_directory_default_template = get_option( 'lab_directory_default_template', 'staff_grid');
 $lang1 = get_option( 'lab_directory_lang1',true);
 $lang2 = get_option( 'lab_directory_lang2',true);
 ?>
@@ -118,11 +119,6 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 </div>
 
 <div class="mid_left">
-	<b>URL slug for Lab-Directory staff pages</b><br/>
-	<input name="lab_directory_staff_url_slug" id="lab_directory_staff_url_slug" value="<?php echo (get_option( 'lab_directory_staff_url_slug' )? get_option( 'lab_directory_staff_url_slug' ) : 'people'); ?>" type="text">
-</div>
-
-<div class="mid_left">
 	<b>Staff Taxonomies</b><br/>
  	<p><input name="lab_directory_use_taxonomy1" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy1' ) ); ?> /> Use Taxonomy 1 (<?php echo $taxonomies['ld_taxonomy_team']['labels']['name']; ?>)</p>
     <p><input name="lab_directory_use_taxonomy2" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy2' ) ); ?> /> Use Taxonomy 2 (<?php echo $taxonomies['ld_taxonomy_laboratory']['labels']['name']; ?>)</p>
@@ -131,9 +127,17 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 </div>
 <div class="mid_left">
 	<b>Title for staff pages</b><br/>
-	<p><input type="radio" name="lab_directory_title_firstname_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> />Firstname Name </p>
-	<p><input type="radio" name="lab_directory_title_firstname_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> />Name Firstname</p>
+	<label><input type="radio" name="lab_directory_title_firstname_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> />Firstname Name</label>
+	<label><input type="radio" name="lab_directory_title_firstname_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> />Name Firstname</label>
 
+</div>
+
+<div class="mid_left">
+	<b>Template for staff list</b><br/>
+	<label><input type="radio" name="lab_directory_default_template" value="staff_grid" <?php checked('staff_grid', $lab_directory_default_template); ?> />Compact Grid</label>
+	<label><input type="radio" name="lab_directory_default_template" value="staff_list" <?php checked('staff_list', $lab_directory_default_template); ?> />Compact list</label>
+	<label><input type="radio" name="lab_directory_default_template" value="staff_trombi" <?php checked('staff_trombi', $lab_directory_default_template); ?> />Photos</label>
+	
 </div>
 
 

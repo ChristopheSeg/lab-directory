@@ -581,9 +581,8 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_lang1', $_POST['lab_directory_lang1']);
 				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
 				update_option( 'lab_directory_title_firstname_first', $_POST['lab_directory_title_firstname_first']);
-				update_option( 'lab_directory_staff_url_slug', $_POST['lab_directory_staff_url_slug'] ? 
-					sanitize_title_with_dashes($_POST['lab_directory_staff_url_slug']) : 
-					'people');
+				update_option( 'lab_directory_default_template', $_POST['lab_directory_default_template']);
+				
 				
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
