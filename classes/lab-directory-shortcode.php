@@ -16,6 +16,7 @@ class Lab_Directory_Shortcode {
 			'staff_filter'     => false,
 			'label' => false,
 			'translate' => false,
+			'template' => '',
 		);
     static $lab_directory_main_shortcode_params = array();
     
@@ -304,7 +305,7 @@ class Lab_Directory_Shortcode {
     }
     
     static function lab_directory_staff_loop_shortcode( $atts, $content = NULL ) {
-    	
+ 
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -387,10 +388,6 @@ class Lab_Directory_Shortcode {
         
     	global $post; 
     		
-    	if (Lab_Directory_Shortcode::$current_template == null) {
-    		return; 
-	    }
-  	
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -438,9 +435,6 @@ class Lab_Directory_Shortcode {
 	    
         global $post; 
         
-        if (Lab_Directory_Shortcode::$current_template == null) {
-    		return; 
-	    }
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
 	    if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -692,20 +686,27 @@ class Lab_Directory_Shortcode {
     
     static function get_ld_permalink($permalink='', $slug='',$id='', $lang=0, $query_string_only= false) {
     	$permalink = Lab_Directory::$main_ld_permalink[$lang]['permalink'];
+    	
     	$simple_url = (strpos($permalink, '?') !== false);
     	if ($query_string_only) {
     		$permalink = ''; 
     	}
     	if ($slug)  {
-    		$permalink .=  $simple_url ?
-		    	'&'. $slug:
-		    	$slug;	
+    		if ($simple_url) {
+    			$permalink .=  '&'. $slug;
+    		} else {
+    			// Add a / if it does not exist in permalink ( permalink structure set to 'numeric'
+    			$permalink = trim ($permalink, '/'). '/'. $slug; 
+    		}
+		    
     		if ($id)  {
     			$permalink .=  $simple_url ?
 	    			'='. $id:
 	    			'/' . $id;
     		}
        	}
+       	// echo "<br> xxx=$lang perma=$permalink";
+       	 
        	return $permalink;
 
     }
@@ -778,7 +779,6 @@ class Lab_Directory_Shortcode {
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	$params = shortcode_atts( self::$lab_directory_main_shortcode_default_params, $params);
     	
-    	echo "<br>========= lab_directory_main_shortcode =================";
     	/*
     	 * 
     	echo "<br>========= lab_directory_main_shortcode =================";
@@ -790,9 +790,11 @@ class Lab_Directory_Shortcode {
     	
     	echo "<br>========= lab_directory_main_shortcode =================<br>";
     	 */
+    	
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-
-	  	if ( isset($wp_query->query_vars['staff_trombi']) ) {
+    	 
+	  	 // If some query_vars exists set tmpalte and staff or cat filter
+	  	 if ( isset($wp_query->query_vars['staff_trombi']) ) {
        		$template = 'staff_trombi';
        		$params['category_name'] = $wp_query->query_vars['staff_trombi'];     
        		
@@ -816,13 +818,19 @@ class Lab_Directory_Shortcode {
        		$template = 'single_staff_phd';
        		$params['staff_slug'] = $wp_query->query_vars['staff_phd'];
        		
-       	}elseif ( isset($params['id']) AND ($params['id']!='') ) {
-       		// Search for a single staff profile
-   			$template = 'single_staff';
-   		
-       	}else {  // Use default template if template not set
+       	}else{  // Use default template if template not set by query vars
        		$template = isset($template)? $template : get_option( 'lab_directory_default_template', 'staff_grid');
        	}
+       	// If template was set in params, override previous value
+       	if ($params['template'] AND $params['template'] !='') {
+       		$template = $params['template'];
+       	}
+
+       	// If params (id) exist ovverride previous value 
+       	if ( isset($params['id']) AND ($params['id']!='') ) {
+       		$template = 'single_staff'; 
+       	}
+       	
        	// Save template name for use in loop's div
        	self::$current_template = $template;  
         // Save $atts for using inside loop
@@ -1223,8 +1231,7 @@ class Lab_Directory_Shortcode {
     static function retrieve_template_html($slug) {
 	   
         // Load template (HTML and CSS)
-        echo '<br> slug='.$slug;
-		$template = self::ld_load_template($slug);
+        $template = self::ld_load_template($slug);
 		
 		$output = '';
 		if ($template['css']) {

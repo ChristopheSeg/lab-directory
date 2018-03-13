@@ -583,7 +583,16 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_title_firstname_first', $_POST['lab_directory_title_firstname_first']);
 				update_option( 'lab_directory_default_template', $_POST['lab_directory_default_template']);
 				
+				// Url slugs; 
+				$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
+				$lab_directory_url_slugs = array();
+				foreach ($template_slugs as $key => $info)  {
+					$new_value = sanitize_title($_POST["lab_directory_url_slugs['$key']"]);
+					$lab_directory_url_slugs[$key] = $new_value? $new_value : $key;
+				}
+				update_option('lab_directory_url_slugs', $lab_directory_url_slugs);
 				
+				// Social networks
 				$socialnetworks = array();
 				if ( isset( $_POST['lab_directory_used_social_networks'] ) ) {	 
 					foreach($_POST['lab_directory_used_social_networks'] as $key =>$value) {

@@ -327,27 +327,27 @@ class Lab_Directory {
 		//TODO REGEXP not enough secure! 
 		// staff_grid 
 		add_rewrite_tag('%staff_grid%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff_grid', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff_grid', EP_PERMALINK | EP_PAGES  );
 
 		// staff_list
 		add_rewrite_tag('%staff_list%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff_list', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff_list', EP_PERMALINK  | EP_PAGES );
 		
 		// staff_trombi
 		add_rewrite_tag('%staff_trombi%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff_trombi', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff_trombi', EP_PERMALINK | EP_PAGES  );
 
 		// staff
 		add_rewrite_tag('%staff%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff', EP_PERMALINK | EP_PAGES  );
 
 		// staff_phd
 		add_rewrite_tag('%staff_phd%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff_phd', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff_phd', EP_PERMALINK  | EP_PAGES );
 		
 		// staff_hdr
 		add_rewrite_tag('%staff_hdr%', '([^&/]+)');
-		add_rewrite_endpoint( 'staff_hdr', EP_PERMALINK );
+		add_rewrite_endpoint( 'staff_hdr', EP_PERMALINK | EP_PAGES  );
 		
 	}
 	/* add a pll_translation_url filter (only called when pll is in use)
@@ -355,6 +355,7 @@ class Lab_Directory {
 	 */
 	
 	static function filter_pll_translation_url( $var, $lang ) {
+		
 		$var .= self::$main_ld_permalink['query_string'];	
 		return $var;
 	}
@@ -389,8 +390,10 @@ class Lab_Directory {
 				
 				// Set title  directory by team/laboratory (taxonomy)
 				if ( isset( $wp_query->query_vars['staff_grid'] ) ) {
-					$term = get_term_by('slug', $wp_query->query_vars['staff_grid']); 
-					var_dump($term); 
+					$term = get_term_by('slug', $wp_query->query_vars['staff_grid'], 'ld_taxonomy_team'); 
+					if (! $term->name) {
+						$term = get_term_by('slug', $wp_query->query_vars['staff_grid'], 'ld_taxonomy_laboratory');	
+					}
 					$posts[0]->post_title = $term->name ?
 							sprintf( __( "%s  directory", 'lab-directory' ), $term->name  ) : 
 							__( "Directory", 'lab-directory' );
@@ -3406,7 +3409,7 @@ div.lab_directory_staff_meta {
 			self::$main_ld_permalink[0]['permalink']= get_permalink($ld_posts[0]->ID);
 		}
 		self::$main_ld_permalink['query_string'] = '';
-		$current_url = trim($_SERVER['SCRIPT_URI'], '/'). $_SERVER['REQUEST_URI']; 
+		$current_url = trim($_SERVER['SCRIPT_URI'], '/'). $_SERVER['QUERY_STRING']; 
 		if (function_exists (pll_languages_list) ) {
 			$languages = pll_languages_list('slug');
 			foreach ($languages as $language){
@@ -3418,7 +3421,6 @@ div.lab_directory_staff_meta {
 				}
 			}
 		}
-		
 		//TODO add wpml compatibility 
 		
 	}

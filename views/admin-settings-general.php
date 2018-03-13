@@ -113,7 +113,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<div style="float:left; width: 20%; min-width: 150px;">
 	<i><?php echo ($use_default_social_networks? 'Proposed social networks (default)':'Enabled'); ?></i><br> <?php echo $used ;?> 
 	</div>
-	<div style="float:left; width: 40%; min-width: 150px;">
+	<div style="float:left; width: 60%; min-width: 150px;">
 	<i>Other available social networks </i><br> <?php echo $unused ;?> 
 	</div> 
 </div>
@@ -129,18 +129,47 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<b>Title for staff pages</b><br/>
 	<label><input type="radio" name="lab_directory_title_firstname_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> />Firstname Name</label>
 	<label><input type="radio" name="lab_directory_title_firstname_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> />Name Firstname</label>
-
 </div>
 
+
+
 <div class="mid_left">
-	<b>Template for staff list</b><br/>
+	<b>Default template for staff list</b><br/>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_grid" <?php checked('staff_grid', $lab_directory_default_template); ?> />Compact Grid</label>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_list" <?php checked('staff_list', $lab_directory_default_template); ?> />Compact list</label>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_trombi" <?php checked('staff_trombi', $lab_directory_default_template); ?> />Photos</label>
 	
 </div>
 
-
+<div class="both_columns">
+	<b>URL slug for staff pages</b><br/>
+	<table class="widefat striped" style="width: auto; table-layout: auto;" cellspacing="0" >
+	<tbody>
+		<tr>
+			<td><b>URL slug</b></td>
+			<td>replacement slug</td>
+			<td>corresponding template description</td>
+		</tr>
+		<?php  
+		$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
+		$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
+		foreach ($template_slugs as $key => $info)  {
+		$value = $lab_directory_url_slugs[$key];
+		?>
+		<tr>
+			<td><b><?php echo $key;?></b></td>
+			<td>
+				<input name="lab_directory_url_slugs['<?php echo $key;?>']" id="lab_directory_url_slugs['<?php echo $value;?>']" value="<?php echo $value; ?>" type="text">
+			</td>
+			<td><p class="description"><?php echo $info?></p>
+			</td>
+		</tr>
+		<?php } // end foreach ?>
+		</tbody>
+		</table>
+			
+	
+</div>
 
 <div class="both_columns">
 	<b> <?php _e('Translation for subject, resume and goal metafields','lab-directory') ?> </b> (partially implemented)<br/><br/>

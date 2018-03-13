@@ -4,11 +4,6 @@ TODO:
 traiter cas URL numérique http://cnrs_webkit.fr/archives/123
 
 admin ajouter <label<>:label pour input 
-defense_list broken!! 
-voir si boucle simple fonctionnelle sans main) ??
-
-
-revoir toutes les boucles  imposer prépondérance des paramètre d'URL sur les paramètres de boucle. 
 
 SLUG programmés dans settings ??? (staff staff_hdr....)
 
@@ -24,7 +19,7 @@ someurl/staff_list/PIRVI
 someurl/staff_photos/PIRVI
 someurl/staff/stafftitle
 someurl/staff_hdr/stafftitle
-someurl/defense_list
+Y AJOUTER defense_list 
 
 si url simple ajouter paramètre 
 http://local_wp_ircica.fr/?p=123?staff_grid=PIRVI .... 
