@@ -1,13 +1,12 @@
 DONE: 
 
-TODO: 
-traiter cas URL numérique http://cnrs_webkit.fr/archives/123
 
+TODO:
+Provide a Shortcut to Your Settings Page with Plugin Action Links
+ajouter filter permalink pour rétablir url correctes dans admin pointant vers stafff/toto 
+ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
-
-SLUG programmés dans settings ??? (staff staff_hdr....)
-
-supprimer OBSOLETE
+tester ordre traduction titre....
 
 Adapter l'aide des shortcodes
 
@@ -28,6 +27,7 @@ someurl/staff_photos/PIRVI
 someurl/staff/stafftitle
 someurl/staff_hdr/stafftitle
 
++ Aide sur remplacement des slug
 	 
 test taxonomy avec Premier étage seul, et nested cats
 

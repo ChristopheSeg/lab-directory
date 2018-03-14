@@ -25,9 +25,9 @@
       <li><code>label</code> - set this parameter to true to display a label on each metafield (excepted staff photo)</li>
       <li><code>template</code> - the slug for the lab_directory_staff template to use:</li>
 		  <ul style ="padding-left:15px;">
-		  <li><code>[lab-directory id=122 template=single_staff]</code> - used to display one single staff profile (id should be given)</li>
-		  <li><code>[lab-directory id=122 template=single_staff_phd]</code> - used to display PHD Information for one staff (id should be given)</li>
-		  <li><code>[lab-directory id=122 template=single_staff_hdr]</code> - used to display HDR Information for one staff (id should be given)</li>
+		  <li><code>[lab-directory id=122 template=staff]</code> - used to display one single staff profile (id should be given)</li>
+		  <li><code>[lab-directory id=122 template=staff_phd]</code> - used to display PHD Information for one staff (id should be given)</li>
+		  <li><code>[lab-directory id=122 template=staff_hdr]</code> - used to display HDR Information for one staff (id should be given)</li>
 		  <li><code>[lab-directory template=staff_grid]</code> or <code> [lab-directory]</code> - used to display a compact grid of staff (default template)</li>
 		  <li><code>[lab-directory template=staff_list]</code> - used to display a list (several lines for each staff, full width)</li>
 		  <li><code>[lab-directory template=staff_trombi]</code> - used to display a grid of staff photos</li>
@@ -42,8 +42,7 @@
   [lab-directory]</code> shortcode load a template (each template define a list of field to display and corresponding CSS rules) which call one secondary loop (or two secondary loops in case of defense list) to filter staff. 
   </p>
   <ul>
-      <li><code>[lab_directory_single_staff_loop]</code> - this loop is called when a single staff id is provided [lab-directory id=122]</li>
-      <li><code>[lab_directory_staff_loop]</code> - this loop extract all staff profile (used by staff_list staff_trmombi staff_grid templates)</li>
+      <li><code>[lab_directory_staff_loop]</code> - this loop extract all staff profile (used by staff staff_list staff_trombi staff_grid templates)</li>
       <li><code>[lab_directory_hdr_loop period=??]</code> (1) - this loop extract staff having a HDR profiles (used in defense list template)</li>
       <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
 		  <ul style ="padding-left:15px;">

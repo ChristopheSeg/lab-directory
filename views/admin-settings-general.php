@@ -159,7 +159,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		<tr>
 			<td><b><?php echo $key;?></b></td>
 			<td>
-				<input name="lab_directory_url_slugs['<?php echo $key;?>']" id="lab_directory_url_slugs['<?php echo $value;?>']" value="<?php echo $value; ?>" type="text">
+				<input name="lab_directory_url_slugs[<?php echo $key;?>]" id="lab_directory_url_slugs[<?php echo $value;?>]" value="<?php echo $value; ?>" type="text">
 			</td>
 			<td><p class="description"><?php echo $info?></p>
 			</td>

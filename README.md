@@ -38,36 +38,36 @@ Lab-Directory is ready to be translated in your language. Default language are F
   .clearfix {
     clear: both;
   }
-  .ld_single_staff {
+  .ld_staff {
     margin-bottom: 50px;
   }
-  .ld_single_staff .ld_photo {
+  .ld_staff .ld_photo {
     float: left;
     margin-right: 15px;
   }
-  .ld_single_staff .ld_photo img {
+  .ld_staff .ld_photo img {
     max-width: 100px;
     height: auto;
   }
-  .ld_single_staff .ld_name {
+  .ld_staff .ld_name {
     font-size: 1em;
     line-height: 1em;
     margin-bottom: 4px;
   }
-  .ld_single_staff .ld_position {
+  .ld_staff .ld_position {
     font-size: .9em;
     line-height: .9em;
     margin-bottom: 10px;
   }
-  .ld_single_staff .ld_bio {
+  .ld_staff .ld_bio {
     margin-bottom: 8px;
   }
 
 </style>
 
 
-    [lab_directory_single_staff_loop]
-        <div class="ld_single_staff">
+    [lab_directory_staff_loop]
+        <div class="ld_staff">
                 <div class="ld_photo">[ld_photo]</div>
             	<div class="ld_name" >[ld_name]</div> 
             	<div class="ld_name" >[ld_position]</div>
@@ -78,7 +78,7 @@ Lab-Directory is ready to be translated in your language. Default language are F
                 <div class="ld_name" >[ld_category]</div>
             <div class="clearfix"></div>
         </div>
-    [/lab_directory_single_staff_loop]
+    [/lab_directory_staff_loop]
 
 ```
 

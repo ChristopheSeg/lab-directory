@@ -29,7 +29,6 @@ class Lab_Directory_Shortcode {
 
         //Shortcode to initiate Lab Directory loops
         add_shortcode( 'lab_directory_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_staff_loop_shortcode' ) );
-        add_shortcode( 'lab_directory_single_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_single_staff_loop_shortcode' ) );
         add_shortcode( 'lab_directory_hdr_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_hdr_loop_shortcode' ) );
         add_shortcode( 'lab_directory_phd_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_phd_loop_shortcode' ) );
         
@@ -247,63 +246,7 @@ class Lab_Directory_Shortcode {
     	// return "<br> base slug=$base_slug  tag=$tag lang=$lang" . get_post_meta( get_the_ID(), $base_slug, true );
     }
     
-    static function lab_directory_single_staff_loop_shortcode( $atts, $content = NULL ) {
-	    // global $post; 
-	    $output = "";
-	    
-	    // Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
-    	if (self::$lab_directory_main_shortcode_params) {
-	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
-	    } else {
-	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_default_params, $atts);	
-	    }
-
-	    self::$lab_directory_main_shortcode_params = $atts; 
-
-	   	// If an id is given (example [lab-directory id=766]) $post do not contains the staff profile 
-	   	if (isset($atts['id']) AND ($atts['id'] !='')) {
-	   		// Query single post from ID
-	   		query_posts(array(
-			    'p' => $atts['id'],
-			    'post_type' => 'lab_directory_staff'));
-	   	} 
-	   	
-	   	// if no success Now search from the main lopp params 
-	   	elseif ( ( isset( self::$lab_directory_main_shortcode_params['staff_slug'] ) && 
-	    		self::$lab_directory_main_shortcode_params['staff_slug'] != '' ) ) {
-	   	// If no id is given load staff profile (post)
-	    	query_posts(array(
-			    'name' => self::$lab_directory_main_shortcode_params['staff_slug'],
-			    'post_type' => 'lab_directory_staff'));
-	   	}
-	   	
-	   	
-	   	// add template CSS part if atts['css'] is given
-	   	if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
-	   		$template= self::ld_load_template($atts['css'], true );
-	   		// Save template to add to div in loop 
-	   		self::$current_template = $atts['css'];
-	   		if ($template['css']) {
-	   			$output .= '<style type="text/css">' . $template['css'] .'</style>';
-	   		}
-	   	}
-	    // Rewind_post() because have_posts() has already been called in the main (single.php) template
-		// rewind_posts(); 
-        if ( have_posts() ) {
-        	// do not loop posts here it's always a single staff
-            the_post();
-    		$content = str_replace('<br />', '', $content);
-    		$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
-        } else {
-        	$output .= '<p>' . __('Sorry, there is no staff corresponding to this request !', 'lab-directory') .  '</p>';
-        }
-        
-        // delete save atts before exiting loop
-        self::$lab_directory_main_shortcode_params = false;
-        
-        return $output;
-    }
-    
+ 
     static function lab_directory_staff_loop_shortcode( $atts, $content = NULL ) {
  
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
@@ -317,6 +260,7 @@ class Lab_Directory_Shortcode {
         $output = "";
 
         if ( $query->have_posts() ) {
+        	
         	// add template CSS part if atts['css'] is given
         	if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
         		$template= self::ld_load_template($atts['css'], true );
@@ -365,6 +309,10 @@ class Lab_Directory_Shortcode {
 
             while ( $query->have_posts() ) {
                 $query->the_post();
+                // Save the edit staff url 
+                if ($query->post_count==1) {
+                	Lab_Directory::$main_ld_permalink['edit_staff_url'] = get_edit_post_link($posts[0]->ID);
+                }
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
                 
             }
@@ -693,10 +641,10 @@ class Lab_Directory_Shortcode {
     	}
     	if ($slug)  {
     		if ($simple_url) {
-    			$permalink .=  '&'. $slug;
+    			$permalink .=  '&'. Lab_Directory::$lab_directory_url_slugs[$slug];
     		} else {
     			// Add a / if it does not exist in permalink ( permalink structure set to 'numeric'
-    			$permalink = trim ($permalink, '/'). '/'. $slug; 
+    			$permalink = trim ($permalink, '/'). '/'. Lab_Directory::$lab_directory_url_slugs[$slug]; 
     		}
 		    
     		if ($id)  {
@@ -783,42 +731,42 @@ class Lab_Directory_Shortcode {
     	 * 
     	echo "<br>========= lab_directory_main_shortcode =================";
     	
-    	if(isset($wp_query->query_vars)) {
-    		var_dump($wp_query->query_vars);
-    		echo "<br>template=". urldecode($wp_query->query_vars['ld_template']);
-    	}
-    	
     	echo "<br>========= lab_directory_main_shortcode =================<br>";
     	 */
     	
     	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
     	 
 	  	 // If some query_vars exists set tmpalte and staff or cat filter
-	  	 if ( isset($wp_query->query_vars['staff_trombi']) ) {
+	  	 if ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_trombi']]) ) {
        		$template = 'staff_trombi';
-       		$params['category_name'] = $wp_query->query_vars['staff_trombi'];     
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_trombi']];     
        		
-	  	}elseif ( isset($wp_query->query_vars['staff_list']) ) {
+	  	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_list']]) ) {
        		$template = 'staff_list';
-       		$params['category_name'] = $wp_query->query_vars['staff_list'];
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_list']];
        	
-       	}elseif ( isset($wp_query->query_vars['staff_grid']) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_grid']]) ) {
+       		echo "<br> staff grid";
        		$template = 'staff_grid';
-       		$params['category_name'] = $wp_query->query_vars['staff_grid'];
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_grid']];
        	
-       	}elseif ( isset($wp_query->query_vars['staff']) ) {
-       		$template = 'single_staff';
-       		$params['staff_slug'] = $wp_query->query_vars['staff'];
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff']]) ) {
+       		$template = 'staff';
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff']];
        	
-       	}elseif ( isset($wp_query->query_vars['staff_hdr']) ) {
-       		$template = 'single_staff_hdr';
-       		$params['staff_slug'] = $wp_query->query_vars['staff_hdr'];
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_hdr']]) ) {
+       		$template = 'staff_hdr';
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_hdr']];
        	
-       	}elseif ( isset($wp_query->query_vars['staff_phd']) ) {
-       		$template = 'single_staff_phd';
-       		$params['staff_slug'] = $wp_query->query_vars['staff_phd'];
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_phd']]) ) {
+       		$template = 'staff_phd';
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_phd']];
        		
-       	}else{  // Use default template if template not set by query vars
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['defense_list']]) ) {
+       		$template = 'defense_list';
+       	
+       	}
+       	else{  // Use default template if template not set by query vars
        		$template = isset($template)? $template : get_option( 'lab_directory_default_template', 'staff_grid');
        	}
        	// If template was set in params, override previous value
@@ -828,9 +776,9 @@ class Lab_Directory_Shortcode {
 
        	// If params (id) exist ovverride previous value 
        	if ( isset($params['id']) AND ($params['id']!='') ) {
-       		$template = 'single_staff'; 
+       		$template = 'staff'; 
        	}
-       	
+   
        	// Save template name for use in loop's div
        	self::$current_template = $template;  
         // Save $atts for using inside loop
@@ -886,13 +834,6 @@ class Lab_Directory_Shortcode {
 		
 		// ends single lab_directory_staff
 	
-		// If no cat nor id filter in loop
-		if ( ( !isset( $params['cat'] ) || $params['cat'] == '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
-			// TODO OBSOLETE Try to add url parameter filter ($_GET) in $params filter
-			if ($_GET['cat']) {
-				$params['cat'] = $_GET['cat'];
-			}
-		}
 
 		// Search by post taxonomy (category_name)
 		if ( ( isset( self::$lab_directory_main_shortcode_params['category_name'] ) && self::$lab_directory_main_shortcode_params['category_name'] != '' ) ) {
@@ -988,15 +929,7 @@ class Lab_Directory_Shortcode {
 			$query_args['name'] = self::$lab_directory_main_shortcode_params['staff_slug'];
 		}
 		// ends single lab_directory_staff
-	
-		// If no cat nor id filter in loop
-		if ( ( !isset( $params['cat'] ) || $params['cat'] == '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
-			// Try to add url parameter filter ($_GET) in $params filter
-			if ($_GET['cat']) {
-				$params['cat'] = $_GET['cat'];
-			}
-		}
-	
+		
 		// check if we're returning a lab_directory_staff category
 		if ( ( isset( $params['cat'] ) && $params['cat'] != '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
 			$cats_query = array();
@@ -1100,13 +1033,6 @@ class Lab_Directory_Shortcode {
 		}
 		// ends single lab_directory_staff
 	
-		// If no cat nor id filter in loop
-		if ( ( !isset( $params['cat'] ) || $params['cat'] == '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
-			// Try to add url parameter filter ($_GET) in $params filter
-			if ($_GET['cat']) {
-				$params['cat'] = $_GET['cat'];
-			}
-		}
 	
 		// check if we're returning a lab_directory_staff category
 		if ( ( isset( $params['cat'] ) && $params['cat'] != '' ) && ( ! isset( $params['id'] ) || $params['id'] == '' ) ) {
@@ -1222,9 +1148,9 @@ class Lab_Directory_Shortcode {
 		    	'staff_list' => __('This template is used to display staff directory as a list', 'lab-directory'),
 		    	'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab-directory'),
 		    	'defense_list' => __('This template is used to display a defenses list', 'lab-directory'),
-		    	'single_staff' => __('This template is used to display a single staff profile', 'lab-directory'),
-		    	'single_staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
-		    	'single_staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
+		    	'staff' => __('This template is used to display a single staff profile', 'lab-directory'),
+		    	'staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
+		    	'staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
     );
     }
     

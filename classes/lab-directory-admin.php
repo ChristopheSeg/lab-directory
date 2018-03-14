@@ -159,10 +159,10 @@ class Lab_Directory_Admin {
 				$content .=  '<li>' . __('look for template saved in settings (last added, highest priority )', 'lab-directory'). '</li></ol></p>';
 				$content .=  '<p>' . __('When loading default css (it can be used to see all default CSS rules used in a template) only keep in Lab-Directory settings the CSS Rules that you modified (no need to override one rule with itself). ', 'lab-directory'). '</p>';
 				$content .=  '<p><b>' . __('Important: do not modify files in folder wp-content/plugins/lab-directory/templates/ your changes will be lost on the next update of Lab-Directory plugin.', 'lab-directory'). '</b></p>';
-				$content .=  '<p>' . __('Class used in Lab-Directory template div (example given for single_staff template).', 'lab-directory'). '</p>';
+				$content .=  '<p>' . __('Class used in Lab-Directory template div (example given for staff template).', 'lab-directory'). '</p>';
 				
-				$content .=  '<p><ol><li><i>&lt;div class="ld_single_staff_loop"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory loop content.', 'lab-directory'). '</li>';
-				$content .=  '<li><i>&lt;div class="ld_single_staff_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed by the name of the template used ( here single_staff) ', 'lab-directory'). '</li>';
+				$content .=  '<p><ol><li><i>&lt;div class="ld_staff_loop"&gt;</i> : ' . __('This wrapper (div) enclose the whole Lab-Directory loop content.', 'lab-directory'). '</li>';
+				$content .=  '<li><i>&lt;div class="ld_staff_item"&gt;</i> : ' . __('This div enclose each individual item found in the Lab-Directory loop. It is prefixed by the name of the template used ( here staff) ', 'lab-directory'). '</li>';
 				$content .=  '<li><i>&lt;div class="ld_field ld_photo"&gt;</i> : ' . __('This div enclose each individual line of an item (name, photo, position). It has 2 classes "ld-field" (all fields have it) and a second class (ld_photo) equal to the Lab-Directory slug of that field', 'lab-directory'). '</li></ol>';
 				
 					$screen->add_help_tab( array(
@@ -433,9 +433,6 @@ class Lab_Directory_Admin {
 				
 			}	
 			
-			// Flush rewrite rules 
-			global $wp_rewrite;
-    		$wp_rewrite->flush_rules();
 		}
 		static function settings_translations($lang, $lang_name, $locale, $locale_name) {
 		
@@ -585,12 +582,19 @@ class Lab_Directory_Admin {
 				
 				// Url slugs; 
 				$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
-				$lab_directory_url_slugs = array();
-				foreach ($template_slugs as $key => $info)  {
-					$new_value = sanitize_title($_POST["lab_directory_url_slugs['$key']"]);
-					$lab_directory_url_slugs[$key] = $new_value? $new_value : $key;
+				$lab_directory_url_slugs = array(); 
+				
+				foreach ($_POST['lab_directory_url_slugs'] as $key => $value)  {
+					$new_value = sanitize_title($value);
+					if ($new_value) {
+						$lab_directory_url_slugs[$key] = $new_value;
+					} else {
+						$lab_directory_url_slugs[$key] = $key; 
+					}
 				}
 				update_option('lab_directory_url_slugs', $lab_directory_url_slugs);
+				// Add a flag to update rewrite rules
+				update_option( 'lab_directory_flush_rewrite_rules_flag', true );
 				
 				// Social networks
 				$socialnetworks = array();

@@ -73,6 +73,8 @@ class Lab_Directory {
 	static $default_post_language_slug = ''; // 'fr'
 	// The url of ld main page containing [lab-directory] exact shortcode without any parameter
 	static $main_ld_permalink =array();
+	// url slug used for templates 
+	static $lab_directory_url_slugs =array();
 	
 	static $staff_meta_fields = null;
 
@@ -92,9 +94,12 @@ class Lab_Directory {
 		
 		self::$default_post_language = get_option('WPLANG')? get_option('WPLANG'): get_locale() ;
 		self::$default_post_language_slug = substr(self::$default_post_language, 0, 2)  ;
+		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
 		
+		//TODO only do that on admin change,  
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
+		add_action( 'init',  array( 'Lab_Directory', 'lab_directory_flush_rewrite_rules'), 20 );
 		
 	
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_lab_directory_textdomain' ) );
@@ -128,7 +133,8 @@ class Lab_Directory {
 			array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
 		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
 		
-		// TOOD Are Fontawesome usefull?
+		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory', 'lab_directory_admin_bar_render' ) );
+		// TODO Are Fontawesome usefull?
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'enqueue_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
@@ -223,7 +229,6 @@ class Lab_Directory {
 		// Custom field translation filter
 		add_filter( 'gettext', array( 'Lab_Directory', 'lab_directory_custom_translations' ), 10, 3 );
 		
-		add_action( 'registered_taxonomy', array( 'Lab_Directory', 'lab_directory_redirect' ) );
 		add_filter( 'query_vars', array( 'Lab_Directory', 'lab_directory_add_query_vars' ) );
 		add_action( 'init', array( 'Lab_Directory', 'lab_directory_add_rewrite_tags' ) , 10, 0);		
 		
@@ -281,6 +286,17 @@ class Lab_Directory {
 		}
 	}
 	
+	/**
+	 * Flush rewrite rules if the previously added flag exists,
+	 * and then remove the flag.
+	 */
+	static function lab_directory_flush_rewrite_rules() {
+		if ( get_option( 'lab_directory_flush_rewrite_rules_flag' ) ) {
+			flush_rewrite_rules();
+			delete_option( 'lab_directory_flush_rewrite_rules_flag' );
+		}
+	}
+	
 	static function add_cpt_to_pll($post_types, $hide) {
 		// hides 'lab_directory_staff' from the list of custom post types in Polylang settings
 		unset($post_types['lab_directory_staff']);
@@ -294,41 +310,59 @@ class Lab_Directory {
 
 	
 	
-	static function lab_directory_redirect() {
-		$matches = null; 
-		$URI = $_SERVER['REQUEST_URI'];
-		preg_match('\'(.+)/grid/([^/]+)/?$\'', $URI, $matches); 
-		if (! $matches) {
-			return; 
-		}
-		// TOTO DEPRECATED function !!
-		// Need redirection
-		return; 
-		$URL = $matches[1] . '?ld_template=grid&p1=' . $matches[2];
 
-		wp_redirect($URL); 
-		exit();
+	// add links/menus to the admin bar '<span class="dashicons dashicons-edit"></span>'.
+	static function lab_directory_admin_bar_render() {
+		
+		if (self::$main_ld_permalink['edit_staff_url']) {
+			global $wp_admin_bar;
+			$wp_admin_bar->add_menu( array(
+				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
+				'id' => 'edit', // this remove the previous edit link
+				'title' =>  __('modify staff profile'), // link title
+				'href' => self::$main_ld_permalink['edit_staff_url'], // name of file
+				'meta' => array('class' => 'wp-admin-bar-edit') // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
+			));
+		}
+		
+		 
 	}
 	
 	
 	static function lab_directory_add_query_vars( $qvars ) {
 		
+		/* without replacement this equal: 
 		$qvars[] = 'staff_grid';
 		$qvars[] = 'staff_list';
 		$qvars[] = 'staff_trombi';
 		$qvars[] = 'staff';
 		$qvars[] = 'staff_phd';
 		$qvars[] = 'staff_hdr';
+		*/
 		
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			$qvars[] =$slug_replacement;
+		}
+		 
 		return $qvars;
 	}
 	
 	static function lab_directory_add_rewrite_tags() {
-		//TODO REGEXP not enough secure! 
-		// staff_grid 
+		
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
+			add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
+		}
+		
+		/* without replacement this where: 
+		 * 
+		add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
+		add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
+		
+		// staff _grid 
 		add_rewrite_tag('%staff_grid%', '([^&/]+)');
 		add_rewrite_endpoint( 'staff_grid', EP_PERMALINK | EP_PAGES  );
-
+		
 		// staff_list
 		add_rewrite_tag('%staff_list%', '([^&/]+)');
 		add_rewrite_endpoint( 'staff_list', EP_PERMALINK  | EP_PAGES );
@@ -348,6 +382,7 @@ class Lab_Directory {
 		// staff_hdr
 		add_rewrite_tag('%staff_hdr%', '([^&/]+)');
 		add_rewrite_endpoint( 'staff_hdr', EP_PERMALINK | EP_PAGES  );
+		 */
 		
 	}
 	/* add a pll_translation_url filter (only called when pll is in use)
@@ -372,30 +407,39 @@ class Lab_Directory {
 				}
 			} else {
 				// Modify title 
-				//TODO find better string than ld post slug
 				global $wpdb;
 			
-				if ( isset( $wp_query->query_vars['staff']) ) {
+				if ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff']]) ) {
 					$posts[0]->post_title = $wpdb->get_var(
-						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . $wp_query->query_vars['staff'] . "' AND post_type='lab_directory_staff'") ;				
+						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . 
+						$wp_query->query_vars[self::$lab_directory_url_slugs['staff']] . "' AND post_type='lab_directory_staff'") ;	
 				}
-				if ( isset( $wp_query->query_vars['staff_hdr'] ) ) {
+				if ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff_hdr']] ) ) {
 					$posts[0]->post_title = "HDR: " . $wpdb->get_var(
-						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . $wp_query->query_vars['staff_hdr'] . "' AND post_type='lab_directory_staff'") ;
+						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . 
+						$wp_query->query_vars[self::$lab_directory_url_slugs['staff_hdr']] . "' AND post_type='lab_directory_staff'") ;
 				}
-				if ( isset( $wp_query->query_vars['staff_phd'] ) ) {
+				if ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff_phd']] ) ) {
 					$posts[0]->post_title = "PHD: " . $wpdb->get_var(
-						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . $wp_query->query_vars['staff_phd'] . "' AND post_type='lab_directory_staff'") ;
+						"SELECT post_title FROM $wpdb->posts WHERE post_name = '" . 
+						$wp_query->query_vars[self::$lab_directory_url_slugs['staff_phd']] . "' AND post_type='lab_directory_staff'") ;
 				}
 				
 				// Set title  directory by team/laboratory (taxonomy)
-				if ( isset( $wp_query->query_vars['staff_grid'] ) ) {
-					$term = get_term_by('slug', $wp_query->query_vars['staff_grid'], 'ld_taxonomy_team'); 
+				if ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff_grid']] ) ) {
+					$taxonomy = $wp_query->query_vars[self::$lab_directory_url_slugs['staff_grid']] ;
+				} elseif ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff_list']] ) ) {
+					$taxonomy = $wp_query->query_vars[self::$lab_directory_url_slugs['staff_list']] ;
+				} elseif ( isset( $wp_query->query_vars[self::$lab_directory_url_slugs['staff_trombi']] ) ) {
+					$taxonomy = $wp_query->query_vars[self::$lab_directory_url_slugs['staff_trombi']] ;
+				} 
+				if ( isset( $taxonomy) ) {
+					$term = get_term_by('slug', $taxonomy, 'ld_taxonomy_team'); 
 					if (! $term->name) {
-						$term = get_term_by('slug', $wp_query->query_vars['staff_grid'], 'ld_taxonomy_laboratory');	
+						$term = get_term_by('slug', $taxonomy, 'ld_taxonomy_laboratory');	
 					}
 					$posts[0]->post_title = $term->name ?
-							sprintf( __( "%s  directory", 'lab-directory' ), $term->name  ) : 
+							sprintf( __( "%s directory", 'lab-directory' ), $term->name  ) : 
 							__( "Directory", 'lab-directory' );
 				}
 				
@@ -430,25 +474,11 @@ class Lab_Directory {
 			
 			// TODO singular si defense list avec 1 seul post !!
 			if ( ! Lab_directory_shortcode::$hdr_loop ) {
-				
-				//TODO OBSOLETE 
-				
-				if ( isset( $wp_query->query_vars['hdr'] ) ) {
-					Lab_directory_shortcode::$hdr_loop = true;
-					Lab_Directory_Shortcode::$current_template = 'single_staff_hdr';
-					// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-					$content .= lab_directory_shortcode::retrieve_template_html( 'single_staff_hdr' );
-				} elseif ( isset( $wp_query->query_vars['phd'] ) ) {
-					Lab_directory_shortcode::$hdr_loop = true;
-					Lab_Directory_Shortcode::$current_template = 'single_staff_phd';
-					// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-					$content .= lab_directory_shortcode::retrieve_template_html( 'single_staff_phd' );
-				} else {
-					Lab_directory_shortcode::$hdr_loop = true;
-					Lab_Directory_Shortcode::$current_template = 'single_staff';
-					// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-					$content .= lab_directory_shortcode::retrieve_template_html( 'single_staff' );
-				}
+				// Is this OBSOLETE 
+				Lab_directory_shortcode::$hdr_loop = true;
+				Lab_Directory_Shortcode::$current_template = 'staff';
+				// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
+				$content .= lab_directory_shortcode::retrieve_template_html( 'staff' );
 			}
 		}
 		
@@ -3410,6 +3440,8 @@ div.lab_directory_staff_meta {
 		}
 		self::$main_ld_permalink['query_string'] = '';
 		$current_url = trim($_SERVER['SCRIPT_URI'], '/'). $_SERVER['QUERY_STRING']; 
+		
+		// Polylang case
 		if (function_exists (pll_languages_list) ) {
 			$languages = pll_languages_list('slug');
 			foreach ($languages as $language){
