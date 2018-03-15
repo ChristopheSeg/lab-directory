@@ -13,7 +13,8 @@ class Lab_Directory_Shortcode {
 			'orderby'  => 'ID',
 			'order'    => 'DESC',
 			'meta_key' => '',
-			'staff_filter'     => false,
+			'format_switcher' => null, 
+			'staff_search'     => null,
 			'label' => false,
 			'translate' => false,
 			'template' => '',
@@ -249,6 +250,7 @@ class Lab_Directory_Shortcode {
  
     static function lab_directory_staff_loop_shortcode( $atts, $content = NULL ) {
  
+    	global $lang;
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -261,6 +263,7 @@ class Lab_Directory_Shortcode {
 
         if ( $query->have_posts() ) {
         	
+        	
         	// add template CSS part if atts['css'] is given
         	if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
         		$template= self::ld_load_template($atts['css'], true );
@@ -271,14 +274,49 @@ class Lab_Directory_Shortcode {
         		}
         	}
         	
-        	if ( ($atts['staff_filter'] === true ) OR ($atts['staff_filter'] == 'true' ) ) {
-        		// Add a text filter on this list
-        		$output .= '
+        	
+        	// For staff list only.. 
+        	if ( self::$current_template == 'staff_trombi' OR self::$current_template == 'staff_grid' OR self::$current_template == 'staff_list') {
+	        	
+	        	// Add format switcher
+	        	$use_format_switcher = (get_option( 'lab_directory_use_format_switcher' ) == '1');
+	        	$use_format_switcher = ($atts['format_switcher']!== null) ? $atts['format_switcher'] : $use_format_switcher;
+	        		
+        		if  ($use_format_switcher === true  OR $use_format_switcher == 'true' )  {
+	  				$output .= 'List format : ';
+	  	
+	        		// 'staff_trombi'
+	        		if (self::$current_template != 'staff_trombi') {
+	        			$link = self::get_ld_permalink('staff_trombi', $atts['category_name'], 0, false);
+	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-camera"></span></a>&nbsp;';
+	        		} else {
+	        			$output .= '<span class="dashicons dashicons-camera"></span>&nbsp;';
+	        		}
+	        		// 'staff_grid'
+	        		if (self::$current_template != 'staff_grid') {
+	        			$link = self::get_ld_permalink( 'staff_grid', $atts['category_name'], 0, false);
+	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-grid-view"></span></a>&nbsp;';
+	        		}else {
+	        			$output .= '<span class="dashicons dashicons-grid-view"></span>&nbsp;';
+	        		}
+	        		// 'staff_list'
+	        		if (self::$current_template != 'staff_list') {
+	        			$link = self::get_ld_permalink('staff_list', $atts['category_name'], 0, false);
+	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-list-view"></span></a>&nbsp;';
+	        		}else {
+	        			$output .= '<span class="dashicons dashicons-list-view"></span>&nbsp;';
+	        		}
+	        	}
+				$use_staff_search = (get_option( 'lab_directory_use_staff_search' ) =='1');
+	        	$use_staff_search = ($atts['staff_search'] !== null) ? $atts['staff_search'] : $use_staff_search;
+	        	if ( $use_staff_search === true  OR $use_staff_search == 'true' ) {
+	        	
+	        		$output .= '
 <style type="text/css">
 #filtre_dynamique_saisie {
     float: right;
-    width: 160px;
-        	
+    width: 250px;
+     
 }
 .text_surligne {
   color: #000;
@@ -296,16 +334,19 @@ class Lab_Directory_Shortcode {
 </style>
 <script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
 <script type="text/javascript" src="/wp-content/plugins/lab-directory/js/text_filter.js"></script>
-        	
-<form id="filtre_dynamique">
-  <input type="reset" id="filtre_dynamique_effacer" value="'. __('Clear filter','lab-directory'). '" />
-  <input type="text" id="filtre_dynamique_saisie" />
-  <label for="filtre_dynamique_saisie">'. __('Filter by name  or firstname','lab-directory') . '</label>
+     
+<form id="filtre_dynamique" style="display: block;float: right;">
+  <input type="reset" id="filtre_dynamique_effacer" value="X" />
+  <input type="text" id="filtre_dynamique_saisie" placeholder="'. __('Search by name or firstname','lab-directory') . '"/>
+  <label for="filtre_dynamique_saisie"><span class="dashicons dashicons-search"></span></label>
 </form>
-<div class="clearfix"></div>
         		';
-        		 
+	        		 
+	        	}
         	}
+        	
+
+        	$output .= '<div class="clearfix"></div>';
 
             while ( $query->have_posts() ) {
                 $query->the_post();
@@ -317,7 +358,7 @@ class Lab_Directory_Shortcode {
                 
             }
             // Add a wrapper for the text filter
-            if ( ($atts['staff_filter'] === true ) OR ($atts['staff_filter'] == 'true' ) ) {
+            if ( $use_staff_search === true  OR $use_staff_search == 'true' ) {
             	$output = '<div id="lab-directory-wrapper">' . $output . '</div>';
             }
         }  else {
@@ -447,7 +488,7 @@ class Lab_Directory_Shortcode {
 	  
 	    if ( ($atts['add_link']=='true' ) OR ($atts['add_link']===true) )  { 
     		$output = "<a href='" . self::get_ld_permalink(  
-    			get_permalink($wp_query->query_vars['p']), 'staff', get_post_field( 'post_name', get_the_ID() ) ) . "'>" . $output . '</a>';
+    			'staff', get_post_field( 'post_name', get_the_ID() ) ) . "'>" . $output . '</a>';
 	    }	    
     }
 
@@ -566,7 +607,7 @@ class Lab_Directory_Shortcode {
         	$template = 'staff';
         }
         $profile_link = self::get_ld_permalink( 
-        	get_permalink($wp_query->query_vars['p']), $template, get_post_field( 'post_name', get_the_ID() ) );
+        	$template, get_post_field( 'post_name', get_the_ID() ) );
         
         
         
@@ -606,7 +647,7 @@ class Lab_Directory_Shortcode {
 		global $post; 
 		$taxonomies=lab_directory::lab_directory_get_taxonomies(); 
 		$output =''; 
-        $permalink = get_permalink();
+        
        if  ($taxonomies) {
 			
 		  foreach ($taxonomies  as $key => $taxonomy ) {
@@ -618,9 +659,9 @@ class Lab_Directory_Shortcode {
 			) );
 		    
 		    foreach ( $terms as $term) {
-		    	$output .= '<a href="' . self::get_ld_permalink($permalink, self::$current_template, $term->slug) . '" >' .$term->name . '</a> | ';
+		    	$output .= '<a href="' . self::get_ld_permalink(self::$current_template, $term->slug) . '" >' .$term->name . '</a> | ';
             }
-            $output .= '<a href="' . self::get_ld_permalink($permalink, self::$current_template, '') . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
+            $output .= '<a href="' . self::get_ld_permalink(self::$current_template, '') . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
          }
         }  
         return $output;
@@ -632,7 +673,7 @@ class Lab_Directory_Shortcode {
      * $query_vars_only if true only return the end of the url containing query vars
      */
     
-    static function get_ld_permalink($permalink='', $slug='',$id='', $lang=0, $query_string_only= false) {
+    static function get_ld_permalink($slug='',$id='', $lang=0, $query_string_only= false) {
     	$permalink = Lab_Directory::$main_ld_permalink[$lang]['permalink'];
     	
     	$simple_url = (strpos($permalink, '?') !== false);
@@ -806,7 +847,8 @@ class Lab_Directory_Shortcode {
 			'orderby'  => 'ID',
 			'order'    => 'DESC',
 			'meta_key' => '',
-			'staff_filter'     => false,
+			'format_switcher' => null, 
+			'staff_search'     => null,
 			'label'	=> false,
 			'translate' => false,
 		);

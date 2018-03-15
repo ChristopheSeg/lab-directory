@@ -486,7 +486,7 @@ msgid "Clear filter"
 msgstr ""
 
 #: classes/lab-directory-shortcode.php:328
-msgid "Filter by name  or firstname"
+msgid "Search by name or firstname"
 msgstr ""
 
 #: classes/lab-directory-shortcode.php:398

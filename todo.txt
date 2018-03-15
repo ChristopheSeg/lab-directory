@@ -1,33 +1,16 @@
 DONE: 
-
+Lab directory Staff permalink corrected in admim page
+Add a format switcher for staff list (grid list or photos)
+Rewrite help for lab-directory loop  and URL_slugs
 
 TODO:
-Provide a Shortcut to Your Settings Page with Plugin Action Links
-ajouter filter permalink pour rétablir url correctes dans admin pointant vers stafff/toto 
+
 ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
 tester ordre traduction titre....
 
 Adapter l'aide des shortcodes
 
-
-Passer par 2*1  post(s) traduits pour les pages people ??
-si nice url pas simple ajouter tags 
-someurl/staff_grid/PIRVI
-someurl/staff_list/PIRVI
-someurl/staff_photos/PIRVI
-someurl/staff/stafftitle
-someurl/staff_hdr/stafftitle
-Y AJOUTER defense_list 
-
-si url simple ajouter paramètre 
-http://local_wp_ircica.fr/?p=123?staff_grid=PIRVI .... 
-someurl/staff_list/PIRVI
-someurl/staff_photos/PIRVI
-someurl/staff/stafftitle
-someurl/staff_hdr/stafftitle
-
-+ Aide sur remplacement des slug
 	 
 test taxonomy avec Premier étage seul, et nested cats
 
@@ -65,17 +48,3 @@ ajouter cando (who,action) groupes lab-directory [administrator,staff ]
 code php: séparer admin et frontend
 Traduction WP 4.0 ?? admin/frontend
  
-OK ajouter settings (locale) lang1 lang2 pour sujet résume, bio...
-	==> voir comment multilangue ?? 
-	==> les gérer dans affichage des meta
-
-    get_locale() returns the WordPress locale in the format 'en_US'
-    get_bloginfo('language') returns the locale in the format 'en-US'
-	$lang = explode('-', get_bloginfo('language'));
-	$lang = $lang[0];
-
-MULTILANGUE 
-polylang compatible siteorigin page builder 'à vérifier) 
-	pas Q-translate, 
-	 	oui pour WPglobus mais payant et en développement 
-Traductions à revoir: 

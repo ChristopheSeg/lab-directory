@@ -134,11 +134,13 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 
 
 <div class="mid_left">
-	<b>Default template for staff list</b><br/>
-	<label><input type="radio" name="lab_directory_default_template" value="staff_grid" <?php checked('staff_grid', $lab_directory_default_template); ?> />Compact Grid</label>
+	<b>Default template, format switcher for staff list</b><br/>
+	<p><label><input type="radio" name="lab_directory_default_template" value="staff_grid" <?php checked('staff_grid', $lab_directory_default_template); ?> />Compact Grid</label>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_list" <?php checked('staff_list', $lab_directory_default_template); ?> />Compact list</label>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_trombi" <?php checked('staff_trombi', $lab_directory_default_template); ?> />Photos</label>
-	
+	</p>
+	<p><label><input name="lab_directory_use_format_switcher" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_format_switcher' ) ); ?> /> lab_directory_use_format_switcher</label></p> 
+	<p><label><input name="lab_directory_use_staff_search" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_staff_search' ) ); ?> /> lab_directory_use_staff search</label></p> 
 </div>
 
 <div class="both_columns">

@@ -99,8 +99,11 @@ class Lab_Directory {
 		//TODO only do that on admin change,  
 		add_action( 'init', array( 'Lab_Directory', 'create_post_types' ) );
 		add_action( 'init', array( 'Lab_Directory', 'create_lab_directory_staff_taxonomies' ) );
-		add_action( 'init',  array( 'Lab_Directory', 'lab_directory_flush_rewrite_rules'), 20 );
-		
+		add_action( 'init', array( 'Lab_Directory', 'lab_directory_flush_rewrite_rules'), 20 );
+		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory',  'lab_directory_add_action_links')  );
+	
+		add_filter( 'post_type_link', array( 'Lab_Directory', 'lab_directory_post_type_link'), 10, 2 );
+
 	
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'load_lab_directory_textdomain' ) );
 		add_filter('pll_get_post_types',array( 'Lab_Directory',  'add_cpt_to_pll'), 10, 2);
@@ -505,7 +508,7 @@ class Lab_Directory {
 									Lab_Directory::$staff_meta_fields['mails']['multivalue'], 
 									'display' );
 								
-								$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Shortcode::get_ld_permalink( get_permalink($id), 'staff', $name ) .
+								$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Shortcode::get_ld_permalink('staff', $name ) .
 									 '"><span class="dashicons dashicons-phone"></span>' . get_the_title( $id ) . '</a>';
 								if ( $mails ) {
 									$output .= '&nbsp;<a href="mailto:' . $mails .
@@ -3456,6 +3459,12 @@ div.lab_directory_staff_meta {
 		//TODO add wpml compatibility 
 		
 	}
+	static function lab_directory_add_action_links ( $links ) {
+		$mylinks = array(
+			'<a href="' . admin_url( 'edit.php?post_type=lab_directory_staff&page=lab-directory-settings' ) . '">Settings</a>',
+		);
+		return array_merge( $links, $mylinks );
+	}
 
 	function add_tooltips( &$meta_value, $field ) {
 		if ( ! $meta_value ) {
@@ -3482,6 +3491,14 @@ div.lab_directory_staff_meta {
 		}
 		return;
 	}
+	
+	static function lab_directory_post_type_link( $url, $post ) {
+		if ( 'lab_directory_staff' == get_post_type( $post ) ) {
+			$url = Lab_Directory_Shortcode::get_ld_permalink('staff',$post->post_name, 0, false);
+		}
+		return $url;
+	}
+	
 	
 	/*
 	 * This function convert a value depending on its multivalue type

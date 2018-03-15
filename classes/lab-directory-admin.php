@@ -78,7 +78,13 @@ class Lab_Directory_Admin {
 					'id'	=> 'Taxonomies',
 					'title'	=> __('Taxonomies'),
 					'content' => $content));
-				
+				$content = '<p>' . __('URL slug replacement is proposed for each possible template slug. Values are sanitized before save. Care and do some test when defining slug already used by Wordpress or other plugins. For example the slug "photo" could conflict with a photo plugging and break lab-directory and/or this photo plugin(s)','lab-directory') . '</p>';
+				$content .= '</ul>';
+				$screen->add_help_tab( array(
+					'id'	=> 'url_slug',
+					'title'	=> __('URL slug'),
+					'content' => $content));
+				URL slug for staff pages
 				break;
 			case 'capabilities':
 				 $content  = '<p>' . __('Permission in lab-directory are given by checking first the wordpress group of a user (editor, author, ... subscriber)  and secondly the possibility for a user to pertain a lab-directory group of staff (permanent staff, doctorate...). At least one of these permission should be given to grant permission to the a user.','lab-directory') . '</p>'; 
@@ -579,6 +585,8 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_lang2', $_POST['lab_directory_lang2']);
 				update_option( 'lab_directory_title_firstname_first', $_POST['lab_directory_title_firstname_first']);
 				update_option( 'lab_directory_default_template', $_POST['lab_directory_default_template']);
+				update_option( 'lab_directory_use_format_switcher', isset( $_POST['lab_directory_use_format_switcher'] ) ? '1' : '0'  );
+				update_option( 'lab_directory_use_staff_search', isset( $_POST['lab_directory_use_staff_search'] ) ? '1' : '0'  );
 				
 				// Url slugs; 
 				$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();

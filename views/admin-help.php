@@ -2,14 +2,30 @@
   div.help-topic {
     margin-bottom: 40px;
   }
-  
+ ol, ul {padding-left: 20px; list-style:disc;} 
 </style>
 
 <div class="help-topic" id="lab_directory_staff-shortcodes">
-  <h2>Shortcodes</h2>
-
+  <h2>Using Lab-Directory IS as simple as adding ONE shortcode ! </h2>
   <p>
-    The simple  shortcode <code>[lab-directory]</code>can be used in a post or page to display your lab_directory_staff.
+    Single language website <strong>must have one and only one page or post </strong> containing the simple and exact shortcode <code>[lab-directory]</code> (without any parameter). 
+    This <i>lab-directory main page</i> will be used to display all information such as staff list in different format, staff profile, staff phd information, defense list...
+    This should works whatever permalink structure is used.   
+  </p>
+  <p>
+  	For multiple language website you must provide a translation of <i>lab-directory main page</i> for each language who want to browse the directory. 
+  	The language switcher is fully functionnal for Polylang plugin. It has not yet been implemented for other multilingual plugins
+  </p>
+  <p>Note that simple filtering of staff list can be obtained by adding parameters in the <i>lab-directory main page</i> URL as described below.</p>    
+ <hr>  
+  <h2>Lab-directory advanced usage</h2>
+  <p>
+    The <code>[lab-directory ...]</code> shortcode can also be used in a post or page to display a filtered list of staff (or a single staff). 
+    This can be usefull to browse the staff list of one team in a specific page of your website. 
+    <ul>
+    <li>Note that, all staff URL in seach page or post will link to <i>lab-directory main page</i>.</li>
+    <li>For that reason, if you only need simple filtering (by team or for a single staff) please consider using the <i>lab-directory main page</i> with additionnal parameters in URL. </li> 
+    </ul>  
   </p>
 
   <p>
@@ -21,7 +37,8 @@
       <li><code>cat_relation</code> - used with cat and cat_field. Possible values are "OR" and "AND". (Ex: [lab-directory cat="administration,corporate" cat_relation="OR"])</li>
       <li><code>orderby</code> - the attribute to use for ordering. Supported values are 'name' and 'ID'. (Ex: [lab-directory orderby=name])</li>
       <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory order=asc])</li>
-      <li><code>staff_filter</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_filter=true])</li>
+      <li><code>staff_search</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_search=true])</li>
+      <li><code>format_switcher</code> - for staff list, when true, add a switch to comute between the 3 possible formats (grid list trombi). </li>
       <li><code>label</code> - set this parameter to true to display a label on each metafield (excepted staff photo)</li>
       <li><code>template</code> - the slug for the lab_directory_staff template to use:</li>
 		  <ul style ="padding-left:15px;">
@@ -47,7 +64,7 @@
       <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
 		  <ul style ="padding-left:15px;">
 		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=PAST</code> <code>period=futur</code> <code>period=all</code> filter for defense date in the past futur or all (default = all).</li>
-		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_filter</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
+		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_search</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
 		  </ul>    
   </ul>  
  
@@ -149,5 +166,52 @@ hr {margin-top: 5px; margin-bottom: 5px;}
 
   </ul>
 </div>
+<h2>Lab-directory main page filtering</h2>
+  <p>
+    The <code>[lab-directory]</code> shortcode of <i>lab-directory main page</i> do not contains any parameter. 
+    Filtering parameters can be given in the URL of this page. Depending on permalink settings, two case are encoutered: 
+  </p>
+    <table class="widefat striped" style="width: auto; table-layout: auto;" cellspacing="0">
+    <tr>
+    <td>URL type</td>
+    <td><i>lab-directory main page</i> URL</td>
+    <td>URLextension structure</td>
+    <td>example</td>
+    </tr> 
+    <tr>
+    <td>Nice URL</td>
+    <td>www.mydomain.net/xxx/people/ </td>
+    <td>template_url_slug/name</td>
+    <td>www.mydomain.net/xxx/people/staff_trombi/myteam<br>www.mydomain.net/xxx/people/photos/myteam</td>
+    </tr> 
+    <tr>
+    <td>Simple URL</td>
+    <td>www.mydomain.net/?p=123</td>
+    <td>&template_url_slug=name</td>
+    <td>www.mydomain.net/?p=123&staff_trombi=name<br>www.mydomain.net/?p=123&photos=name</td>
+    </tr> 
+    </table>
+  <p> Where the couple <i>template_url_slug</i> and <i>name</i> are each optionnal but related to each other:
+     
+  </p>
+    <table class="widefat striped" style="width: auto; table-layout: auto;" cellspacing="0">
+    <tr>
+    <td><i>template_url_slug</i> value</td>
+    <td><i>name</i> value</td>
+    </tr> 
+    <tr>
+    <td>staff<br>staff_hdr<br>staff_phd</td>
+    <td>optionnal: the slug of one team or laboratory defined in lab-directory taxonomies settings</td>
+    </tr> 
+    <tr>
+    <td>staff_list<br>staff_trombi<br>staff_grid</td>
+    <td>mandatory: the slug of one staff (sanitized version of firstname-name or name-firtsname which can be found by hoovering a staff link)</td>
+    </tr> 
+    <tr>
+    <td>defense_list</td>
+    <td>not used</td>
+    </tr> 
+    </table>
+    <p>Additionnally, <i>template_url_slug</i> can be modified in settings to get more significant URL. </p>
 
 

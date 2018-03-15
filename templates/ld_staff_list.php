@@ -1,4 +1,4 @@
-[lab_directory_staff_loop staff_filter=true label=true]
+[lab_directory_staff_loop staff_search=true label=true]
 	[ld_photo]
 	[ld_firstname_name add_link=true]
 	[ld_position]
