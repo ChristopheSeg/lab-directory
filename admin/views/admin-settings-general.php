@@ -78,8 +78,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 <b>Social network used in metafields</b><br/>
 <p>Select whose social networks can be enabled for displaying links in LAB directory. </p>
 	<?php 
-	wp_enqueue_style('social-icons-css',
-			plugins_url( '/css/social_icons.css', dirname(__FILE__) ));
+	wp_enqueue_style('social-icons-css', LAB_DIRECTORY_URL . '/common/css/social_icons.css');
 	
 	$possible_social_networks= get_possible_social_networks();
 	
@@ -193,7 +192,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		<td><input name="lab_directory_use_lang1" type="checkbox" value="1" <?php 
 			checked( '1', get_option( 'lab_directory_use_lang1' ) );
 			echo count($languages)>0? ' ' : _e('Not available', 'lab-directory'); ?> /></td>
-		<td><?php if (count($languages)>0) {	echo lab_directory_create_select('lab_directory_lang1', 
+		<td><?php if (count($languages)>0) {	echo self:: lab_directory_create_select('lab_directory_lang1', 
 			$languages, $lang1, false, null, true, false);} ?>
 		</td>
 		<td>Language 1, locale, Language 2</td>
@@ -202,7 +201,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		<td><input name="lab_directory_use_lang2" type="checkbox" value="1" <?php 
 			checked( '1', get_option( 'lab_directory_use_lang2' ) );
 			echo count($languages)>1? ' ' : _e('Not available', 'lab-directory'); ?> /></td>
-		<td><?php if (count($languages)>1) {	echo lab_directory_create_select('lab_directory_lang1', 
+		<td><?php if (count($languages)>1) {	echo self:: lab_directory_create_select('lab_directory_lang1', 
 			$languages, $lang2, false, null, true, false);} else { _e('Not available', 'lab-directory');} ?>
 		</td>	<td>Language 2, locale, Language 1</td>
 		<td></td>

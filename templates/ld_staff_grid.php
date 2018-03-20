@@ -1,4 +1,4 @@
-[lab_directory_staff_loop staff_search=true]
+[lab_directory_staff_loop staff_search = true]
 	[ld_profile_link] [ld_name_firstname] [/ld_profile_link]
 [/lab_directory_staff_loop]
 

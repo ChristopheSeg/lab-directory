@@ -1,0 +1,21 @@
+  
+ .ld_staff_trombi_loop{
+ 	display: inline-block;
+   }
+ div.ld_staff_trombi_item {
+   float: left;
+   width: 120px;
+   height: 140px;
+   text-align: center;
+   padding: 0px 10px;
+    font-size: 1em;
+    margin-bottom: 4px;
+  }
+
+img.ld_photo  {
+   margin: 0px;
+   max-height: 100px;
+   height: auto;
+   float: none;
+ }
+div.ld_field {width: 100%;}

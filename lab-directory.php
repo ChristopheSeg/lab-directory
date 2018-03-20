@@ -11,16 +11,22 @@
  */
 global $wpdb;
 
-// $lab_directory_table = $wpdb->prefix . 'lab_directory';  //Import
-// define( 'LAB_DIRECTORY_TABLE', $wpdb->prefix . 'lab_directory' ); //Import
-// define( 'LAB_DIRECTORY_TEMPLATES', $wpdb->prefix . 'lab_directory_templates' );
-define( 'LAB_DIRECTORY_PHOTOS_DIRECTORY', WP_CONTENT_DIR . "/uploads/lab-directory-photos/" );
-define( 'LAB_DIRECTORY_TEMPLATES', WP_CONTENT_DIR . "/plugins/lab-directory/templates" );
-define( 'LAB_DIRECTORY_LANGUAGES', WP_CONTENT_DIR . "/plugins/lab-directory/languages" );
+// .../wp-content/plugins/lab-directory
+define( 'LAB_DIRECTORY_DIR', dirname( __FILE__ ) );
+define( 'LAB_DIRECTORY_TEMPLATES', LAB_DIRECTORY_DIR . "/templates" );
+define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 
+if ( is_admin() ) {
+    // we are in admin mode
+    echo "<br> TOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOT ADMIN";
+} else {
+	// Frontend mode 
+	echo "<br> TOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOTOT FRONTEND".
+"<br>templates: ". LAB_DIRECTORY_TEMPLATES. 
+"<br>dirname: ". LAB_DIRECTORY_DIR. 
+"<br>url: ". 	LAB_DIRECTORY_URL;
+}
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-settings.php' );
-
-require_once ( dirname( __FILE__ ) . '/includes/admin_form.php' );
 
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory.php' );
 require_once ( dirname( __FILE__ ) . '/classes/lab-directory-shortcode.php' );
@@ -35,8 +41,3 @@ Lab_Directory_Shortcode::register_shortcode();
 if ( Lab_Directory::show_import_message() ) {
 	Lab_Directory_Admin::register_import_old_lab_directory_staff_message();
 }
-
-function modify_the_link( $post_url, $post ) {
-	return '/wp-content/plugins/lab-directory/view.php?id=' . $post->ID;
-}
-add_filter( 'lab_directory_staff', "modify_the_link", 10, 2 );

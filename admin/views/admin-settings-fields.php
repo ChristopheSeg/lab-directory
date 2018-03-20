@@ -54,7 +54,7 @@ function show_group(group) {
 </style>
 
 <?php 
-wp_enqueue_style('jquery-toggleizer.css',plugins_url( '/css/jquery-toggleizer.css', dirname(__FILE__) ));
+wp_enqueue_style('jquery-toggleizer.css',LAB_DIRECTORY_URL . '/admin/css/jquery-toggleizer.css');
 
 echo_form_messages($form_messages); 
 $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
@@ -151,7 +151,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
               value="<?php echo $field['slug']; ?>" />
             </td>
             <td>
-               	<?php echo lab_directory_create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
+               	<?php echo self::lab_directory_create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
               		$lab_directory_group_names, $field['group'], false, 'input-in-td', false, false); 
 					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
                	?>
@@ -161,7 +161,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
 				if ($fixed_type) {
  					echo '<span class="dashicons dashicons-lock"></span>';
  				}
- 				echo lab_directory_create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
+ 				echo self:: lab_directory_create_select('lab_directory_staff_meta_fields_types[' . $index . ']', 
               		$lab_directory_meta_field_types, $field['type'], false, 'input-in-td', false, $fixed_type); ?>
             </td>
             <td>
@@ -169,7 +169,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  				if ($fixed_MV) {
  					echo '<span class="dashicons dashicons-lock"></span>';
  				}  
-				echo lab_directory_create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
+				echo self:: lab_directory_create_select('lab_directory_staff_meta_fields_multivalues[' . $index . ']', 
             	$lab_directory_multivalues, $field['multivalue'], false, 'input-in-td',false, $fixed_MV); 
  				?>
              </td>
@@ -180,7 +180,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
  					// Nothing to display this ldap field is disabled (unsyncable)
  					echo '<span class="dashicons dashicons-lock"></span>';echo __('Not syncable', 'Lab-Directory');
  				} else { 
- 					echo lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
+ 					echo self:: lab_directory_create_select('lab_directory_staff_meta_fields_ldap_attributes[' . $index . ']', 
  							$lab_directory_ldap_attributes, $field['ldap_attribute'], !$fixed_MV, 'input-in-td', __('No syncing'));
  					
  				}

@@ -84,7 +84,7 @@ class Lab_Directory_Admin {
 					'id'	=> 'url_slug',
 					'title'	=> __('URL slug'),
 					'content' => $content));
-				URL slug for staff pages
+				
 				break;
 			case 'capabilities':
 				 $content  = '<p>' . __('Permission in lab-directory are given by checking first the wordpress group of a user (editor, author, ... subscriber)  and secondly the possibility for a user to pertain a lab-directory group of staff (permanent staff, doctorate...). At least one of these permission should be given to grant permission to the a user.','lab-directory') . '</p>'; 
@@ -503,7 +503,7 @@ class Lab_Directory_Admin {
 				
 			}
 
-			require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-translations.php' );
+			require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-translations.php' );
 		
 		}
 		
@@ -546,7 +546,7 @@ class Lab_Directory_Admin {
 			
 		}
 	
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-taxonomies.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-taxonomies.php' );
 	}	
 		
 	static function settings_general() {
@@ -620,7 +620,7 @@ class Lab_Directory_Admin {
 			}
 		}
 
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-general.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-general.php' );
 	}
 	
 	static function settings_templates() {
@@ -662,7 +662,7 @@ class Lab_Directory_Admin {
 			}
 		}
 	
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-templates.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-templates.php' );
 	}
 	
 	
@@ -698,7 +698,7 @@ class Lab_Directory_Admin {
 		}
 		
 		$use_ldap = (get_option( 'lab_directory_use_ldap' ) == '1');
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-fields.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-fields.php' );
 		
 	}
 
@@ -740,7 +740,7 @@ class Lab_Directory_Admin {
 			$ldap_server = get_option( 'lab_directory_ldap_server' );	
 		}
 		
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-ldap.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-ldap.php' );
 	}
 
 	static function settings_groups() {
@@ -782,7 +782,7 @@ class Lab_Directory_Admin {
 		}
 		
 			
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-groups.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-groups.php' );
 		
 		
 	}
@@ -841,7 +841,7 @@ class Lab_Directory_Admin {
 		}
 		
 			
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-permissions.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-permissions.php' );
 		
 		
 	}
@@ -917,11 +917,11 @@ class Lab_Directory_Admin {
 		}
 		
 		$lab_directory_ldap_last10syncs = get_option( 'lab_directory_ldap_last10syncs', array('No sync operation performed up to now') );
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-settings-test-sync.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-settings-test-sync.php' );
 	}
 	
 	static function help() {
-		require_once( plugin_dir_path( __FILE__ ) . '../views/admin-help.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-help.php' );
 	}
 
 	static function import() {
@@ -999,9 +999,64 @@ class Lab_Directory_Admin {
 		<?php
 	}
 	static function addstaff() {
-		require_once( plugin_dir_path( __FILE__ ) . '../views/edit.php' );
+		require_once( LAB_DIRECTORY_DIR . '/admin/views/edit.php' );
+	}
+	
+	static /* 
+ * Create a select input from value list 
+ * 
+ * $allow_none: text for 'no selection' or false
+ */
+
+
+function lab_directory_create_select($name=false, $values, $current_value= null, $multiple=false, $class=null, $allow_none=false, $disabled=false) {
+	
+	if (($name == false) OR ($values == false)) {
+		return '';
 	}
 	
 	
+	if ($allow_none !== false) {
+		if ($allow_none === true) {
+			$no_selection= __('no selection', 'lab-directory');
+		} else {
+			$no_selection = $allow_none;
+		}
+	} else {
+			$no_selection = '';
+	}
+	
+	$select_options = '';
+	
+	// Convert single current_value to array 
+	if (! is_array($current_value) ) {
+		$current_value = array($current_value); 
+	}
+	$current_values = ''; 
+   	foreach( $values as $key => $value) {
+   		if (in_array($key, $current_value, true) ) {
+   			$noselection=false;
+   			$current_values .= $values[$key];
+   			$select_options .='<option value="' . $key . '" selected="selected">' . $value . '</option>';
+   		} else {
+   			$select_options .='<option value="' . $key . '">' . $value . '</option>';
+   			 
+   		}
+    }
+	
+	$select = '<select ' . ($disabled? 'hidden ':'') . ($multiple? 'multiple size="3" ': '') . ' class="' . $class . '"name="' . $name . ($multiple? '[]': '') . '">';
+	if ($allow_none!== false) {
+		$select .='<option value="none" ' . (in_array('note', $current_value, true)? 'selected="selected"':'') . '>'. $no_selection . '</option>';
+	}
+	$select .= $select_options . '</select>';
+	if ($disabled){
+		// When select is hidden, only current value(s) is displayed
+		$select .= $current_values;
+	
+	}
+	
+    return $select;
+		
+}
 
 }

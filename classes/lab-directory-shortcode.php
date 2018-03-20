@@ -10,6 +10,7 @@ class Lab_Directory_Shortcode {
 			'cat'      => '',
 			'cat_field' => 'ID',
 			'cat_relation' => 'OR',
+			'category_name' => '',
 			'orderby'  => 'ID',
 			'order'    => 'DESC',
 			'meta_key' => '',
@@ -78,7 +79,7 @@ class Lab_Directory_Shortcode {
        
         
         //load default stylesheet
-        wp_enqueue_style( 'default.css', plugins_url( ).'/lab-directory/css/default.css' );
+        wp_enqueue_style( 'default.css', LAB_DIRECTORY_URL . '/public/css/default.css' );
 
 	}
 
@@ -265,7 +266,8 @@ class Lab_Directory_Shortcode {
         	
         	
         	// add template CSS part if atts['css'] is given
-        	if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
+        	if (isset ($atts['css']) AND ($atts['css'] !='') ) {
+        		$atts['css']= sanitize_text_field($atts['css']);
         		$template= self::ld_load_template($atts['css'], true );
         		// Save template to add to div in loop 
         		self::$current_template = $atts['css'];
@@ -332,8 +334,8 @@ class Lab_Directory_Shortcode {
    line-height: 1em;
 }
 </style>
-<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/penagwinhighlight.js"></script>
-<script type="text/javascript" src="/wp-content/plugins/lab-directory/js/text_filter.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/lab-directory/public/js/penagwinhighlight.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/lab-directory/public/js/text_filter.js"></script>
      
 <form id="filtre_dynamique" style="display: block;float: right;">
   <input type="reset" id="filtre_dynamique_effacer" value="X" />
@@ -392,6 +394,7 @@ class Lab_Directory_Shortcode {
 
 	   		// add template CSS part if atts['css'] is given
 	   		if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
+	   			$atts['css']= sanitize_text_field($atts['css']);
 	   			$template= self::ld_load_template($atts['css'], true );
 	   			// Save template to add to div in loop 
 	   			self::$current_template = $atts['css'];
@@ -438,6 +441,7 @@ class Lab_Directory_Shortcode {
     	if ( $query->have_posts() ) {
     		// add template CSS part if atts['css'] is given
     		if (isset ($atts['css']) AND ($atts['css'] !='') ) { 
+    			$atts['css']= sanitize_text_field($atts['css']);
     			$template= self::ld_load_template($atts['css'], true );
     			// Save template to add to div in loop 
     			self::$current_template = $atts['css'];
@@ -560,7 +564,7 @@ class Lab_Directory_Shortcode {
         if(!empty($photo_url)){
             $output = '<img class="ld_photo" src="' . $photo_url . '" />';
         } elseif ($atts['replace_empty']) {
-            $output = '<img class="ld_photo" src="/wp-content/plugins/lab-directory/images/nobody.jpg" />';
+            $output = '<img class="ld_photo" src="' . LAB_DIRECTORY_URL . '/common/images/nobody.jpg" />';
         }
         
         return self::div_it($output, $tag, $atts);
@@ -775,9 +779,7 @@ class Lab_Directory_Shortcode {
     	echo "<br>========= lab_directory_main_shortcode =================<br>";
     	 */
     	
-    	$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-    	 
-	  	 // If some query_vars exists set tmpalte and staff or cat filter
+    	 // If some query_vars exists set tmpalte and staff or cat filter
 	  	 if ( isset($wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_trombi']]) ) {
        		$template = 'staff_trombi';
        		$params['category_name'] = $wp_query->query_vars[Lab_Directory::$lab_directory_url_slugs['staff_trombi']];     
@@ -1141,48 +1143,6 @@ class Lab_Directory_Shortcode {
 		$output = new WP_Query( $query_args );
 		return $output;
 	}
-	
-    static function custom_pre_shortcode_escaping($html) {
-
-        //Regex pattern to match all shortcodes
-        $pattern   = '/\[[\w\-\/]+[\w\s\"\'\=\-\*\$\@\!]*\]/';
-        $replacers = array();
-
-        //Match all shortcodes in template
-        preg_match_all($pattern, $html, $matches);
-
-        //Take each shortcode, run htmlentities() on it, and push them to $replacers
-        foreach($matches as $shortcode) {
-            $replacers[] = htmlentities($shortcode[0]);
-        }
-
-        //Replace each shortcode with the replacer
-        $html = str_replace($matches, $replacers, $html);
-
-        //Now that we've eliminated all quote marks from shortcodes, we can trick
-        //Wordpress's do_shortcode() so that it doesn't recognize any shortcodes
-        //as being in an html attribute, by replacing all remaining quotes with
-        //a unique string surrounded by < & >
-        $html = str_replace('"', '<|-dbl_quote-|>', $html);
-        $html = str_replace("'", "<|-sgl_quote-|>", $html);
-
-        //Now we've replaced all quotes outside of a shortcode, lets just decode
-        //the shortcodes
-        $html = html_entity_decode($html);
-
-        return $html;
-
-    }
-
-    static function custom_pre_shortcode_decoding($html) {
-
-        //Pretty much just undoing the 'encoding' we did above
-        $html = str_replace('<|-dbl_quote-|>', '"', $html);
-        $html = str_replace("<|-sgl_quote-|>", "'", $html);
-
-        return $html;
-
-    }
 
     static function retrieve_template_list() {
 		return array(  	
@@ -1210,32 +1170,6 @@ class Lab_Directory_Shortcode {
 		$output .= '<div class="ld_' . $slug . '_loop" >' . do_shortcode($template['html']) . '</div>';
 		return $output;
 		
-		/* TODO OLD CODE Search utility of escaping
-		 * 
-        if ($cur_template) {
-            
-        } else {
-            $lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
-            $output         = "";
-            // TODO Fatal error: Call to undefined method Lab_Directory_Settings::get_custom_lab_directory_staff_template_for_slug() in /home/seguinot/Documents/www/wp_ircica/wp-content/plugins/lab-directory/classes/lab-directory-shortcode.php on line 658
-            $template       = $lab_directory_staff_settings->get_custom_lab_directory_staff_template_for_slug( $slug );
-            $template_html  = html_entity_decode(stripslashes( $template['html'] ));
-            $template_css   = html_entity_decode(stripslashes( $template['css'] ));
-
-            //Trick wordpress to not recognize html attributes,
-            //before running do_shortcode()
-            $template_html  = self::custom_pre_shortcode_escaping($template_html);
-
-            $output .= "<style type='text/css'>$template_css</style>";
-  
-            $output .= do_shortcode($template_html);
-
-            //Now that we've run all the shortcodes, lets un-trick wordpress
-            $output = self::custom_pre_shortcode_decoding($output);
-
-            return $output;
-        }
-        */ 
     }
 
     /**

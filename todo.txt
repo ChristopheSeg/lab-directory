@@ -1,10 +1,18 @@
 DONE: 
-Lab directory Staff permalink corrected in admim page
-Add a format switcher for staff list (grid list or photos)
-Rewrite help for lab-directory loop  and URL_slugs
 
 TODO:
+==================================
+separate admin/frontend
+	structure: https://developer.wordpress.org/plugins/the-basics/best-practices/#file-organization
+ 
+langue pas prévu: comment faire? 
+	utiliser /languages/plugin-name.po mo pot pour frontend ( le plus important) 
+	ajouter les fichiers .mo.po .pot pour la partie admin (prévoir load_text_domain)
+	ou partie admin faire 2 admin-help, en français ou anglais selon langue
+	
+frontend: faut-il séparer widget du reste? Comment? 
 
+==================================
 ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
 tester ordre traduction titre....

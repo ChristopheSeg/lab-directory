@@ -278,7 +278,6 @@ class Lab_Directory {
 				'public' => true, 
 				'has_archive' => false, 
 				'menu_icon' => 'dashicons-id', 
-				'taxonomies' => array( 'lab_category' ),  // TODO obsolete ??
 				) );
 	}
 
@@ -317,7 +316,7 @@ class Lab_Directory {
 	// add links/menus to the admin bar '<span class="dashicons dashicons-edit"></span>'.
 	static function lab_directory_admin_bar_render() {
 		
-		if (self::$main_ld_permalink['edit_staff_url']) {
+		if (isset(self::$main_ld_permalink['edit_staff_url']) AND self::$main_ld_permalink['edit_staff_url']) {
 			global $wp_admin_bar;
 			$wp_admin_bar->add_menu( array(
 				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
@@ -470,20 +469,6 @@ class Lab_Directory {
 
 	static function ld_content_filter( $content ) {
 		global $wp_query, $post;
-		
-		// LAb_directory pages: Check if we're inside the main loop in a single post page AND and ($post->post_type ==
-	
-		if ( in_the_loop() && is_main_query() and $post and ( $post->post_type == 'lab_directory_staff' ) ) {
-			
-			// TODO singular si defense list avec 1 seul post !!
-			if ( ! Lab_directory_shortcode::$hdr_loop ) {
-				// Is this OBSOLETE 
-				Lab_directory_shortcode::$hdr_loop = true;
-				Lab_Directory_Shortcode::$current_template = 'staff';
-				// remove_filter( 'the_content', array( 'Lab_Directory', 'the_content_filter' ) );
-				$content .= lab_directory_shortcode::retrieve_template_html( 'staff' );
-			}
-		}
 		
 		// Add ld_footer contentf to Pages and posts
 		if ( ( get_option( 'lab_directory_use_ld_footer_pages' ) and is_page() ) ||
@@ -639,14 +624,14 @@ class Lab_Directory {
 	static function lab_directory_scripts_and_css_for_tabs() {
 		wp_enqueue_script( 'jquery-ui-tabs' );
 		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'custom-tabs', plugins_url( '/js/tabs.js', dirname( __FILE__ ) ), array( 'jquery' ) );
+		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js');
 		wp_enqueue_script( 
 			'timepicker-addon', 
-			plugins_url( '/js/jquery.datetimepicker.js', dirname( __FILE__ ) ), 
+			LAB_DIRECTORY_URL . '/admin/js/jquery.datetimepicker.js', 
 			array( 'jquery' ) );
 		
 		$wp_scripts = wp_scripts();
-		wp_enqueue_style( 'timepicker-addon-css', plugins_url( '/css/jquery.datetimepicker.css', dirname( __FILE__ ) ) );
+		wp_enqueue_style( 'timepicker-addon-css', LAB_DIRECTORY_URL . '/admin/css/jquery.datetimepicker.css' );
 		
 		wp_enqueue_style( 
 			'plugin_name-admin-ui-css', 
@@ -658,6 +643,7 @@ class Lab_Directory {
 	}
 
 	static function enqueue_fontawesome() {
+		// Used for social icons (Some plugin may load  (have already loaded) another fontawesome but this can be avoided
 		wp_enqueue_style( 
 			'font-awesome', 
 			'//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
@@ -812,7 +798,6 @@ class Lab_Directory {
 	 *
 	 */
 	static function lab_directory_staff_meta_box_output( $post ) {
-		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 		$studying_levels = Lab_Directory::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory::get_lab_directory_jury_functions();
@@ -936,7 +921,7 @@ div.lab_directory_staff_meta {
 		
 		foreach ( $used_groups as $key => $group_name ) {
 			echo '<div id="Tab-' . $key . '">';
-			foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
+			foreach ( Lab_Directory_Settings::get_lab_directory_staff_meta_fields() as $field ) {
 				if ( ( $field['group'] == $key ) and ( $field['activated'] == '1' ) ) {
 					Lab_Directory::lab_directory_staff_meta_box_render_input( 
 						$post, 
@@ -1108,7 +1093,7 @@ div.lab_directory_staff_meta {
 			case 'phone_number' :
 			case 'studying_level' :
 				echo $label;
-				echo lab_directory_create_select( 
+				echo Lab_Directory_Admin::lab_directory_create_select( 
 					'lab_directory_staff_meta_' . $field['slug'], 
 					$studying_levels, 
 					get_post_meta( $post->ID, $field['slug'], false, __( 'None' ) ) );
@@ -1159,7 +1144,7 @@ div.lab_directory_staff_meta {
 				style="width: 40px;" value="<?php echo $index; ?>" /></td>
 			<td><?php
 					
-					echo lab_directory_create_select( 
+					echo Lab_Directory_Admin::lab_directory_create_select( 
 						'lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
 						$jury_functions, 
 						$jury_member['function'], 
@@ -1189,7 +1174,7 @@ div.lab_directory_staff_meta {
 				style="width: 40px;" value="<?php echo $index; ?>" /></td>
 			<td><?php
 				
-				echo lab_directory_create_select( 
+				echo Lab_Directory_Admin::lab_directory_create_select( 
 					'lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
 					$jury_functions, 
 					$jury_member['function'], 
@@ -1225,7 +1210,7 @@ div.lab_directory_staff_meta {
 							 '<span class="social_networks"><span class="dashicons dashicons-arrow-up"></span></span></button>';
 					}
 					
-					wp_enqueue_style( 'social-icons-css', plugins_url( '/css/social_icons.css', dirname( __FILE__ ) ) );
+					wp_enqueue_style( 'social-icons-css', LAB_DIRECTORY_URL . '/common/css/social_icons.css');
 					$used = '';
 					
 					foreach ( $lab_directory_used_social_networks as $key => $temp ) {
@@ -1305,7 +1290,6 @@ div.lab_directory_staff_meta {
 		// Else update staff entry
 		if ( $_POST['save'] == 'Update' ) {
 			
-			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 			$staff_statuss = Lab_Directory::get_staff_statuss( $post_id );
 			
@@ -1325,7 +1309,7 @@ div.lab_directory_staff_meta {
 			// Loop for each group first (needed to simply add capacity hereafter)
 			foreach ( $used_groups as $key => $group_name ) {
 				// Then do it for each field in a group
-				foreach ( $lab_directory_staff_settings->get_lab_directory_staff_meta_fields() as $field ) {
+				foreach ( Lab_Directory_Settings::get_lab_directory_staff_meta_fields() as $field ) {
 					$field_type = $field['type'];
 					if ( $field['group'] == $key ) {
 						
@@ -2395,7 +2379,7 @@ div.lab_directory_staff_meta {
 	}
 
 	static function register_tinymce_plugin( $plugin_array ) {
-		$plugin_array['lab_directory_button'] = plugins_url( '/../js/shortcode.js', __FILE__ );
+		$plugin_array['lab_directory_button'] = LAB_DIRECTORY_URL . '/admin/js/shortcode.js';
 		;
 		
 		return $plugin_array;
@@ -2408,7 +2392,8 @@ div.lab_directory_staff_meta {
 	}
 
 	static function thickbox_ajax_form() {
-		require_once ( plugin_dir_path( __FILE__ ) . '/../views/shortcode-thickbox.php' );
+		//TODO Test this, move to frontend? 
+		require_once ( LAB_DIRECTORY_DIR . '/admin/views/shortcode-thickbox.php' );
 		exit();
 	}
 
@@ -3650,13 +3635,13 @@ function ld_user_can_by_user( $capability, $user ) {
 function ld_network_icon( $key ) {
 	switch ( $key ) {
 		case 'orcid' :
-			return '<img class="fa" src="' . plugin_dir_url( __FILE__ ) . '../images/academia.png" />';
+			return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/academia.png" />';
 			break;
 		case 'academia' :
-			return '<img class="fa" src="' . plugin_dir_url( __FILE__ ) . '../images/orcid_32x32.png" />';
+			return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/orcid_32x32.png" />';
 			break;
 		case 'research-gate' :
-			return '<img class="fa" src="' . plugin_dir_url( __FILE__ ) . '../images/research_gate.png" />';
+			return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/research_gate.png" />';
 			break;
 		default :
 			return '<i class="fa fa-' . $key . '"></i>';
