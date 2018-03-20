@@ -2,6 +2,9 @@ DONE:
 
 TODO:
 ==================================
+separation: lab-directory ligne 2504  ==> fin 
+https://www.thewpcrowd.com/wordpress/enqueuing-scripts-only-when-widget-or-shortcode/
+
 separate admin/frontend
 	structure: https://developer.wordpress.org/plugins/the-basics/best-practices/#file-organization
  
@@ -10,7 +13,11 @@ langue pas prévu: comment faire?
 	ajouter les fichiers .mo.po .pot pour la partie admin (prévoir load_text_domain)
 	ou partie admin faire 2 admin-help, en français ou anglais selon langue
 	
-frontend: faut-il séparer widget du reste? Comment? 
+frontend: faut-il séparer widget du reste? Comment?  => classe
+conditionnal load de code php shortode?? 
+	identifier les shotrtcode appelés en premier [lab-directory, widegt, hdr loop phdloop 
+	la fonction d'appel charge la classe puis appelle une fonction secondaire 
+
 
 ==================================
 ajouter un shortcode pour lien HDR / PHD

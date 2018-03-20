@@ -152,7 +152,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 			<td>corresponding template description</td>
 		</tr>
 		<?php  
-		$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
+		$template_slugs = Lab_Directory_Admin::retrieve_template_list();
 		$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
 		foreach ($template_slugs as $key => $info)  {
 		$value = $lab_directory_url_slugs[$key];

@@ -290,7 +290,7 @@ class Lab_Directory_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations();
 	
-		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR" 
+		$locale = Lab_Directory_Common::$default_post_language; //string(5) "fr_FR" 
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'acronyms';
 		
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }  
@@ -325,7 +325,7 @@ class Lab_Directory_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations('core');
 	
-		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR"
+		$locale = Lab_Directory_Common::$default_post_language; //string(5) "fr_FR"
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : $locale;
 	
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }
@@ -553,7 +553,7 @@ class Lab_Directory_Admin {
 
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
-		$locale = Lab_Directory::$default_post_language; //string(5) "fr_FR"
+		$locale = Lab_Directory_Common::$default_post_language; //string(5) "fr_FR"
 		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
 		$language_list = wp_get_available_translations('core');
 		$available_languages = get_available_languages(); // array(2) { [0]=> string(5) "en_GB" [1]=> string(5) "fr_FR" }
@@ -589,7 +589,7 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_staff_search', isset( $_POST['lab_directory_use_staff_search'] ) ? '1' : '0'  );
 				
 				// Url slugs; 
-				$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
+				$template_slugs = self::retrieve_template_list();
 				$lab_directory_url_slugs = array(); 
 				
 				foreach ($_POST['lab_directory_url_slugs'] as $key => $value)  {
@@ -1002,14 +1002,11 @@ class Lab_Directory_Admin {
 		require_once( LAB_DIRECTORY_DIR . '/admin/views/edit.php' );
 	}
 	
-	static /* 
+	/* 
  * Create a select input from value list 
  * 
  * $allow_none: text for 'no selection' or false
- */
-
-
-function lab_directory_create_select($name=false, $values, $current_value= null, $multiple=false, $class=null, $allow_none=false, $disabled=false) {
+ */static function lab_directory_create_select($name=false, $values, $current_value= null, $multiple=false, $class=null, $allow_none=false, $disabled=false) {
 	
 	if (($name == false) OR ($values == false)) {
 		return '';
@@ -1057,6 +1054,18 @@ function lab_directory_create_select($name=false, $values, $current_value= null,
 	
     return $select;
 		
-}
+	}
+	
+	static function retrieve_template_list() {
+		return array(
+			'staff_grid' => __('This template is used to display staff directory as a grid', 'lab-directory'),
+			'staff_list' => __('This template is used to display staff directory as a list', 'lab-directory'),
+			'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab-directory'),
+			'defense_list' => __('This template is used to display a defenses list', 'lab-directory'),
+			'staff' => __('This template is used to display a single staff profile', 'lab-directory'),
+			'staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
+			'staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
+		);
+	}
 
 }

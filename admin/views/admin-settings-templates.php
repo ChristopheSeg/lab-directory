@@ -61,7 +61,7 @@
 
 <?php 
 echo_form_messages($form_messages); 
-$template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
+$template_slugs = Lab_Directory_Admin::retrieve_template_list();
 ?>
 
      	
@@ -70,7 +70,7 @@ $template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
    
         <?php _e('Browse template (url_slug):', 'lab-directory');
     	foreach($template_slugs as $template_slug => $template_info) {
-    		$url_slug = Lab_Directory::$lab_directory_url_slugs[$template_slug];
+    		$url_slug = Lab_Directory_Common::$lab_directory_url_slugs[$template_slug];
     		$url_slug = ($url_slug ==$template_slug) ? '' : " ($url_slug) ";    	?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" onclick="show_group('<?php echo $template_slug; ?>'); return false;" value="<?php echo $template_slug.$url_slug; ?>"/>
     <?php }
@@ -92,7 +92,7 @@ $template_slugs = Lab_Directory_Shortcode::retrieve_template_list();
     ?>
      <div class="custom-template  <?php echo $template_slug; ?>" <?php echo $first; ?>>
 
-		<b><?php echo __('Template') . ' : ' . $template_slug. ' / ' . __('URLslug') . ' : ' . Lab_Directory::$lab_directory_url_slugs[$template_slug]; ?></b> <i><?php echo $template_info; ?></i><br>
+		<b><?php echo __('Template') . ' : ' . $template_slug. ' / ' . __('URLslug') . ' : ' . Lab_Directory_Common::$lab_directory_url_slugs[$template_slug]; ?></b> <i><?php echo $template_info; ?></i><br>
 		
 	  <div class="custom-template-css">
 	  <label for="custom_staff_templates[<?php echo $template['index']; ?>][html]">HTML : </label>
