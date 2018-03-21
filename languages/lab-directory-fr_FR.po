@@ -902,7 +902,7 @@ msgid "L2 (Bachelor 2nd year)"
 msgstr ""
 
 #: classes/lab-directory.php:2698
-msgid "L3 (Bachelor 3rd yaer)"
+msgid "L3 (Bachelor 3rd year)"
 msgstr ""
 
 #: classes/lab-directory.php:2699

@@ -129,7 +129,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
         	$lab_directory_fixed_MV = Lab_Directory_Settings::get_lab_directory_fixed_MV();
        		$lab_directory_unsyncable = Lab_Directory_Settings::get_lab_directory_unsyncable();
        		
-        	foreach(Lab_Directory::$staff_meta_fields as $field) : 
+        	foreach(Lab_Directory_Common::$staff_meta_fields as $field) : 
         		$index++;
         		$custom = (strpos($field['slug'], 'custom') !== false);
         		$fixed_type = (in_array($field['slug'], $lab_directory_fixed_types)? true: false);
@@ -143,7 +143,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
               <input name="lab_directory_staff_meta_fields_orders[<?php echo $index; ?>]" value="<?php echo $index; ?>" style="width: 40px;" />
             </td>
             <td>
-              <?php echo lab_directory::$default_meta_field_names[$field['slug']]; ?>
+              <?php echo Lab_Directory_Common::$default_meta_field_names[$field['slug']]; ?>
             </td>
             <td>
               [ld_<?php echo $field['slug']; ?>]

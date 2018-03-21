@@ -13,6 +13,13 @@ class Lab_Directory_Common {
 	
 	// url slug used for templates
 	static $lab_directory_url_slugs =array();
+
+	static $staff_meta_fields = null;
+	
+	static $acronyms = null;
+	
+	// Translation of meta_fields are save here to be reloaded (refreshed) each time without saving in Database
+	static $default_meta_field_names = array();
 		
 	
 	/*
@@ -27,11 +34,19 @@ class Lab_Directory_Common {
 		self::$default_post_language = get_option('WPLANG')? get_option('WPLANG'): get_locale() ;
 		self::$default_post_language_slug = substr(self::$default_post_language, 0, 2)  ;
 		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
+		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_lab_directory_textdomain' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_staff_meta_fields' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_ld_acronyms' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_default_meta_field_names' ) );
 		
+		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
+		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
+		
+		add_filter( 'post_type_link', array( 'Lab_Directory_Common', 'lab_directory_post_type_link'), 10, 2 );
 		
 	}
 	
@@ -72,7 +87,7 @@ class Lab_Directory_Common {
 		
 	static function get_ld_permalink($slug='',$id='', $lang=0, $query_string_only= false) {
 		$permalink = self::$main_ld_permalink[$lang]['permalink'];
-		 
+		
 		$simple_url = (strpos($permalink, '?') !== false);
 		if ($query_string_only) {
 			$permalink = '';
@@ -101,5 +116,341 @@ class Lab_Directory_Common {
 		load_plugin_textdomain( 'lab-directory',false, '/lab-directory/languages/' );
 	}
 	
+	public function get_lab_directory_studying_levels() {
 	
+		// Define the list of studying levels and their translation
+		$studying_levels = array(
+				
+			'L1' => __( 'L1 (Bachelor  1st year)', 'lab-directory' ),
+			'L2' => __( 'L2 (Bachelor 2nd year)', 'lab-directory' ),
+			'L3' => __( 'L3 (Bachelor 3rd year)', 'lab-directory' ),
+			'M1' => __( 'M1 (Master 1st year)', 'lab-directory' ),
+			'M2' => __( 'M2 (Master 2nd year)', 'lab-directory' ),
+			'ING' => __( 'Engineering School', 'lab-directory' ) );
+		return $studying_levels;
+	}
+	
+	public function get_lab_directory_jury_functions() {
+	
+		// Define the list of function use in HDR and PHD jury and their translation
+		$jury_functions = array(
+			'guarantor' => __( 'HDR guarantor', 'lab-directory' ),
+			'chairman' => __( 'President', 'lab-directory' ),
+			'chairwoman' => __( 'President', 'lab-directory' ),
+			'director' => __( 'Directeur', 'lab-directory' ),
+			'directress' => __( 'Directrice', 'lab-directory' ),
+			'directors' => __( 'Directeurs', 'lab-directory' ),
+			'examiner' => __( 'Examinateur', 'lab-directory' ),
+			'examiner' => _x( 'Examiner', 'male', 'lab-directory' ),
+			'examiner_f' => _x( 'Examiner', 'female', 'lab-directory' ),
+			'examiners' => __( 'Examiners', 'lab-directory' ),
+			'referee' => _x( 'Referee', 'male', 'lab-directory' ),
+			'referee_f' => _x( 'Referee', 'female', 'lab-directory' ),
+			'referees' => __( 'Rapporteurs', 'lab-directory' ),
+			'invited' => _x( 'Invited', 'male', 'lab-directory' ),
+			'invited_f' => _x( 'Invited', 'female', 'lab-directory' ),
+			'invited_p' => _x( 'Invited', 'plural', 'lab-directory' ) );
+		return $jury_functions;
+	}
+	
+	static function initiate_staff_meta_fields() {
+		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
+	
+		// Add acronym tooltip in each metafield parameters
+		self::load_ld_acronyms();
+		foreach ( self::$acronyms as $acronym ) {
+			self::$staff_meta_fields[$acronym['slug']]['acronyms'][] = $acronym;
+		}
+	}
+	
+	static function load_ld_acronyms() {
+		self::$acronyms = get_option( 'lab_directory_translations_acronyms' );
+	}
+	
+	/*
+	 * $all = true retrieve all taxonomies
+	 * $all = false retrieve only used ones
+	 */
+	static function lab_directory_get_taxonomies( $all = false ) {
+		$taxonomies = array();
+	
+		$t1 = get_option( 'lab_directory_use_taxonomy1' );
+		$t2 = get_option( 'lab_directory_use_taxonomy2' );
+		if ( $t1 or $all ) {
+			// Taxonomy 1
+			$taxonomies['ld_taxonomy_team'] = array(
+				'hierarchical' => true,
+				'labels' => array(
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'name' => _x( 'Staff Teams', '1st taxonomy general name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'singular_name' => _x( 'Staff Team', '1st taxonomy singular name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'search_items' => __( 'Search Staff Teams', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'all_items' => __( 'All Staff Teams', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'parent_item' => __( 'Parent Staff Team', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'parent_item_colon' => __( 'Parent Staff Team :', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'edit_item' => __( 'Edit Staff Team', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'update_item' => __( 'Update Staff Team', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'add_new_item' => __( 'Add New Staff Team', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'new_item_name' => __( 'New Staff Team Name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-1 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'menu_name' => __( 'Staff Teams', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'team_manager' => __( 'Team manager', 'lab-directory' ) ),
+				'show_admin_column' => true,
+				'rewrite' => array(
+					'slug' => 'lab_directory_staff-teams',
+					'with_front' => false,
+					'hierarchical' => true ) );
+		}
+		if ( $t2 or $all ) {
+			// Taxonomy 2
+			$taxonomies['ld_taxonomy_laboratory'] = array(
+				'hierarchical' => true,
+				'labels' => array(
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'name' => _x( 'Laboratories', '2nd taxonomy general name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'singular_name' => _x( 'Laboratory', '2nd taxonomy singular name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'search_items' => __( 'Search Laboratories', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'all_items' => __( 'All Laboratories', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'parent_item' => __( 'Parent Laboratory', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'parent_item_colon' => __( 'Parent Laboratory :', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'edit_item' => __( 'Edit Laboratory', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'update_item' => __( 'Update Laboratory', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'add_new_item' => __( 'Add Laboratory', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'new_item_name' => __( 'New Laboratory Name', 'lab-directory' ),
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'menu_name' => __( 'Staff Laboratories', 'lab-directory' ) ,
+					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
+					'laboratory_manager' => __( 'Laboratory manager', 'lab-directory' ) ),
+				'rewrite' => array(
+					'slug' => 'lab_directory_staff-laboratories',
+					'with_front' => false,
+					'hierarchical' => true ) );
+		}
+		return $taxonomies;
+	}
+	
+	static function lab_directory_post_type_link( $url, $post ) {
+		if ( 'lab_directory_staff' == get_post_type( $post ) ) {
+			$url = Lab_Directory_Common::get_ld_permalink('staff',$post->post_name, 0, false);
+		}
+		return $url;
+	}
+	
+
+
+	/*
+	 * This function convert a value depending on its multivalue type
+	 */
+	function ld_value_to_something( &$value = false, $multivalue = false, $to = 'display' ) {
+		// TODO common function for admin/frontend
+		switch ( $to ) {
+			case 'display' :
+				// prepare metafield value for displaying ( with <br> instead fo line breaks)
+				if ( ! $value ) {
+					return;
+				}
+				switch ( $multivalue ) {
+					case 'SV' :
+						// nothing to do
+						break;
+					case 'CR' :
+					case 'MV' :
+						$value = nl2br( $value );
+						break;
+					case ',' :
+						$value = str_replace( ',', '<br />', ( $value ) );
+						break;
+					case ';' :
+						$value = str_replace( ';', '<br />', ( $value ) );
+						break;
+					case '|' :
+						$value = str_replace( '|', '<br />', ( $value ) );
+						break;
+					case '/' :
+						$value = str_replace( '/', '<br />', ( $value ) );
+						break;
+				}
+				return;
+				break;
+			case 'array' :
+				if ( ! $value ) {
+					$value = array();
+					return;
+				}
+				switch ( $multivalue ) {
+					case 'special' :
+					case 'SV' :
+						$value = array( $value );
+						break;
+					case 'MV' :
+					case ';' :
+						$value = explode( ';', $value );
+						break;
+					case ',' :
+						$value = explode( ',', $value );
+						break;
+					case '|' :
+						$value = explode( '|', $value );
+						break;
+					case '/' :
+						$value = explode( '/', $value );
+						break;
+					case 'CR' :
+						$value = explode( "\n", $value );
+						break;
+				}
+				return;
+				break;
+		}
+		return;
+	}
+	
+	static function ld_network_icon( $key ) {
+		switch ( $key ) {
+			case 'orcid' :
+				return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/academia.png" />';
+				break;
+			case 'academia' :
+				return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/orcid_32x32.png" />';
+				break;
+			case 'research-gate' :
+				return '<img class="fa" src="' . LAB_DIRECTORY_URL . '/common/images/research_gate.png" />';
+				break;
+			default :
+				return '<i class="fa fa-' . $key . '"></i>';
+		}
+	}
+	static function initiate_default_meta_field_names() {
+		$lang1 = ' (' . get_option( 'lab_directory_lang1', true ) . ')';
+		$lang2 = ' (' . get_option( 'lab_directory_lang2', true ) . ')';
+	
+		self::$default_meta_field_names = array(
+			'firstname' => __( 'Firstname', 'lab-directory' ),
+			'name' => __( 'Name', 'lab-directory' ),
+			'position' => __( 'Position', 'lab-directory' ),
+			'login' => __( 'Login', 'lab-directory' ),
+			'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ),
+			'mails' => __( 'Mail', 'lab-directory' ),
+			'bio' => __( 'Biography', 'lab-directory' ),
+			'other_mails' => __( 'Other mails', 'lab-directory' ),
+			'idhal' => __( 'ID HAL', 'lab-directory' ),
+			'photo_url' => __( 'Photo URL', 'lab-directory' ),
+			'webpage' => __( 'Professionnal webpage', 'lab-directory' ),
+			'social_network' => __( 'Social Network', 'lab-directory' ),
+			'function' => __( 'Function', 'lab-directory' ),
+			'title' => __( 'Title', 'lab-directory' ),
+			'phone_number' => __( 'Phone number', 'lab-directory' ),
+			'fax_number' => __( 'Fax number', 'lab-directory' ),
+			'office' => __( 'Office', 'lab-directory' ),
+			'team' => __( 'Team', 'lab-directory' ),
+			'exit_date' => __( 'End activity date', 'lab-directory' ),
+			'hdr_subject' => __( 'HDR subject', 'lab-directory' ),
+			'hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ) . $lang1,
+			'hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ) . $lang2,
+			'hdr_date' => __( 'HDR defense date', 'lab-directory' ),
+			'hdr_location' => __( 'HDR defense location', 'lab-directory' ),
+			'hdr_jury' => __( 'HDR jury', 'lab-directory' ),
+			'hdr_resume' => __( 'HDR resume', 'lab-directory' ),
+			'hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ) . $lang1,
+			'hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ) . $lang2,
+			'phd_start_date' => __( 'PHD start date', 'lab-directory' ),
+			'phd_subject' => __( 'PHD subject', 'lab-directory' ),
+			'phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ) . $lang1,
+			'phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ) . $lang2,
+			'phd_date' => __( 'PHD defense date', 'lab-directory' ),
+			'phd_location' => __( 'PHD defense location', 'lab-directory' ),
+			'phd_jury' => __( 'PHD jury', 'lab-directory' ),
+			'phd_resume' => __( 'PHD resume', 'lab-directory' ),
+			'phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ) . $lang1,
+			'phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ) . $lang2,
+			'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ),
+			'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ),
+			'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ),
+			'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ) . $lang1,
+			'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ) . $lang2,
+			'internship_start_date' => __( 'Internship start date', 'lab-directory' ),
+			'internship_end_date' => __( 'Internship end date', 'lab-directory' ),
+			'internship_subject' => __( 'Internship subject', 'lab-directory' ),
+			'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ) . $lang1,
+			'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ) . $lang2,
+			'internship_resume' => __( 'Internship resume', 'lab-directory' ),
+			'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ) . $lang1,
+			'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ) . $lang2,
+			'studying_school' => __( 'Trainee Studying school', 'lab-directory' ),
+			'studying_level' => __( 'Trainee Studying level', 'lab-directory' ),
+			'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ),
+			'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ),
+			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ),
+			'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ) . $lang1,
+			'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ) . $lang2,
+			'invited_position' => __( 'Contractant Position', 'lab-directory' ),
+			'invited_origin' => __( 'Invited origin', 'lab-directory' ),
+			/* translators Fixed term contract information */
+			'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
+			/* translators Fixed term contract information */
+			'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
+			/* translators Fixed term contract information */
+			'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
+			'cdd_goal_lang1' => __( 'Contract goal', 'lab-directory' ) . $lang1,
+			'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ) . $lang2,
+			/* translators Fixed term contract information */
+			'cdd_position' => __( 'Occupied position', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_2' => __( 'custom_field_2', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_3' => __( 'custom_field_3', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_4' => __( 'custom_field_4', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_5' => __( 'custom_field_5', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_6' => __( 'custom_field_6', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_7' => __( 'custom_field_7', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_8' => __( 'custom_field_8', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
+			/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */
+			'custom_field_10' => __( 'custom_field_10', 'lab-directory' ),
+				
+			// Others shortcodes requiring translation
+			'name_firstname' => __( 'Name Firstname', 'lab-directory' ),
+			'firstname_name' => __( 'Firstname Name', 'lab-directory' ) )
+	
+			;
+	}
+	
+	
+	static function register_fontawesome() {
+		// Used for social icons (Some plugin may load  (have already loaded) another fontawesome but this can't be avoided)
+		wp_register_style(
+			'font-awesome',
+			'//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+			array(),
+			'4.0.3' );
+	}
 }
+	
+	

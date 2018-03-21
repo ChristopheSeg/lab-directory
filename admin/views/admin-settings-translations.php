@@ -65,7 +65,7 @@ jQuery(document).ready(function($){
 		<tr>
 		<td>
 			<?php  echo self:: lab_directory_create_select('lab_directory_translations_metafields_slugs[]',
-				Lab_Directory::$default_meta_field_names, $translation['slug'], false, 'input-in-td'); 
+				Lab_Directory_Common::$default_meta_field_names, $translation['slug'], false, 'input-in-td'); 
 			?>
 		</td>
 		<td><input type="text" name="lab_directory_translations_slugs[]" class="input-in-td" 
@@ -87,7 +87,7 @@ jQuery(document).ready(function($){
         <tr id="new-acronym">
 		<td>
 			<?php echo self:: lab_directory_create_select('lab_directory_translations_metafields_slugs[]', 
-              		Lab_Directory::$default_meta_field_names, '', false, 'input-in-td'); 
+              		Lab_Directory_Common::$default_meta_field_names, '', false, 'input-in-td'); 
 			?>
 		</td>
 		<td><input type="text" name="lab_directory_translations_slugs[]" class="input-in-td" 

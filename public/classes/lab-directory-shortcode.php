@@ -32,7 +32,6 @@ class Lab_Directory_Shortcode {
 		// Custom field translation filter
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'initiate_translations' ) );
 		add_filter( 'gettext', array( 'Lab_Directory_Shortcode', 'lab_directory_custom_translations' ), 10, 3 );
-		add_filter( 'pll_get_post_types',array( 'Lab_Directory_Shortcode',  'add_cpt_to_pll'), 10, 2);
 		
 		// Templating 
 		// load single-page/profile template
@@ -56,6 +55,12 @@ class Lab_Directory_Shortcode {
         add_shortcode( 'lab_directory_staff_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_staff_loop_shortcode' ) );
         add_shortcode( 'lab_directory_hdr_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_hdr_loop_shortcode' ) );
         add_shortcode( 'lab_directory_phd_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_phd_loop_shortcode' ) );
+        
+        // Delete wpautop after shortcode are loaded
+        // http://sww.co.nz/solution-to-wordpress-adding-br-and-p-tags-around-shortcodes/
+        remove_filter( 'the_content', 'wpautop' );
+        // TODO Delaying is not enough !! Question: Does removing wpautop breaking some page/post ???
+        // add_filter( 'the_content', 'wpautop' , 220);
         
         //List of other shortcode tags (they should use the ld_ suffix)
         $other_shortcodes = array(
@@ -81,8 +86,8 @@ class Lab_Directory_Shortcode {
         
         // Add shortcodes for all metafields, link to function ld_{$code}_shortcode
         // Or default function ld_meta_shortcode
-         if ( !empty( Lab_Directory::$staff_meta_fields) ) {
-            foreach ( Lab_Directory::$staff_meta_fields as $field ) {
+         if ( !empty( Lab_Directory_Common::$staff_meta_fields) ) {
+            foreach ( Lab_Directory_Common::$staff_meta_fields as $field ) {
                 
             	// for xx_lang1 xx_lang2 slugs, call xx_shortcode shortcode
             	$base_slug = $field['slug'];
@@ -99,10 +104,9 @@ class Lab_Directory_Shortcode {
                 }
             }
         }
-       
-        
-        //load default stylesheet
-        wp_enqueue_style( 'default.css', LAB_DIRECTORY_URL . '/public/css/default.css' );
+
+        //Register default stylesheet for conditionnal loading if Lab-Direcotry shortcode are used
+        wp_register_style( 'lab-directory-default-css', LAB_DIRECTORY_URL . '/public/css/default.css' );
 
 	}
 
@@ -123,7 +127,7 @@ class Lab_Directory_Shortcode {
         (  ! isset($atts['label']) OR ($atts['label'] !== false AND $atts['label'] != 'false'  ) ) )
         {
     		$label = ' with_label';
-    		$output ='<span class="label_field">' . __(lab_directory::$default_meta_field_names[substr($tag,3)], 'lab-directory') . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
+    		$output ='<span class="label_field">' . __(Lab_Directory_Common::$default_meta_field_names[substr($tag,3)], 'lab-directory') . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
     	}
     	if ( isset($atts['add_div']) AND ($atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
     		return '<div class=" '. $tag . $label . ' ld_field">' . $output . '</div>';
@@ -164,7 +168,7 @@ class Lab_Directory_Shortcode {
     	$slug = substr($tag,3);
     	$to_translate = false;
     	// Return if meta field is hidden in frontend
-    	if (Lab_Directory::$staff_meta_fields[$slug]['show_frontend'] != '1') {
+    	if (Lab_Directory_Common::$staff_meta_fields[$slug]['show_frontend'] != '1') {
     		return null;
     	}
     	 
@@ -196,10 +200,10 @@ class Lab_Directory_Shortcode {
     	}
     	 
     	// add tooltips when required 
-    	Lab_Directory::add_tooltips($meta_value, Lab_Directory::$staff_meta_fields[$slug]);
+    	self::add_tooltips($meta_value, Lab_Directory_Common::$staff_meta_fields[$slug]);
     	 
     	// convert multivalues when required 
-    	Lab_Directory::ld_value_to_something( $meta_value, Lab_Directory::$staff_meta_fields[$slug]['multivalue']);   	 
+    	Lab_Directory_Common::ld_value_to_something( $meta_value, Lab_Directory_Common::$staff_meta_fields[$slug]['multivalue']);   	 
     	
     	// Add link
     	self::add_staff_profile_link ($meta_value, $atts);
@@ -526,7 +530,7 @@ class Lab_Directory_Shortcode {
     	), $atts);
      	
     	// Return if photo is hidden in frontend
-     	if (Lab_Directory::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
+     	if (Lab_Directory_Common::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
      		return null;
      	}
      	
@@ -579,7 +583,7 @@ class Lab_Directory_Shortcode {
         ), $atts);
         
         // Return if photo is hidden in frontend
-     	if (Lab_Directory::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
+     	if (Lab_Directory_Common::$staff_meta_fields['photo_url']['show_frontend'] != '1') {
      		return null;
      	}
      	$photo_url = self::ld_photo_url_shortcode(array('add_div' => false, 'label' => 'false',) );
@@ -596,7 +600,7 @@ class Lab_Directory_Shortcode {
     static function ld_bio_shortcode( $atts, $content = NULL, $tag = '' ){
         
         // Return if Bio is hidden in frontend
-     	if (Lab_Directory::$staff_meta_fields['bio']['show_frontend'] != '1') {
+     	if (Lab_Directory_Common::$staff_meta_fields['bio']['show_frontend'] != '1') {
      		return null;
      	}
      	
@@ -654,7 +658,13 @@ class Lab_Directory_Shortcode {
         ), $atts);
         
         $output = get_the_term_list( get_the_ID() , 'ld_taxonomy_team' , '' , ' | ' , '' );
-        $output = strip_tags( $output );
+        if ( ! is_wp_error( $output ) ) {
+        	$output = strip_tags( $output );
+        } else {
+        	$output ='';
+        }
+						
+        
         return self::div_it($output, $tag, $atts);
     }
 
@@ -672,7 +682,7 @@ class Lab_Directory_Shortcode {
     static function ld_categories_nav_shortcode($atts, $content = NULL, $tag = '' ){
         
 		global $post; 
-		$taxonomies=lab_directory::lab_directory_get_taxonomies(); 
+		$taxonomies=Lab_Directory_Common::lab_directory_get_taxonomies(); 
 		$output =''; 
         
        if  ($taxonomies) {
@@ -698,7 +708,7 @@ class Lab_Directory_Shortcode {
     static function ld_phd_jury_shortcode($atts, $content = NULL, $tag = '' ){
     
     	// Return if Bio is hidden in frontend
-     	if (Lab_Directory::$staff_meta_fields['phd_jury']['show_frontend'] != '1') {
+     	if (Lab_Directory_Common::$staff_meta_fields['phd_jury']['show_frontend'] != '1') {
      		return null;
      	}
      	return self::ld_jury_shortcode($atts, $content, $tag);
@@ -706,7 +716,7 @@ class Lab_Directory_Shortcode {
     static function ld_hdr_jury_shortcode($atts, $content = NULL, $tag = '' ){
     
     	// Return if Bio is hidden in frontend
-    	if (Lab_Directory::$staff_meta_fields['hdr_jury']['show_frontend'] != '1') {
+    	if (Lab_Directory_Common::$staff_meta_fields['hdr_jury']['show_frontend'] != '1') {
     		return null;
     	}
     	return self::ld_jury_shortcode($atts, $content, $tag);
@@ -763,7 +773,10 @@ class Lab_Directory_Shortcode {
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	$params = shortcode_atts( self::$lab_directory_main_shortcode_default_params, $params);
     	
-    	/*
+    	// Enqueue style 
+    	wp_enqueue_style( 'lab-directory-default-css');
+    	wp_enqueue_style( 'font-awesome');
+    	 /*
     	 * 
     	echo "<br>========= lab_directory_main_shortcode =================";
     	
@@ -1353,7 +1366,7 @@ class Lab_Directory_Shortcode {
     				
     			foreach ( $post_categories as $category ) {
     				$output = '';
-    				foreach ( Lab_Directory::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
+    				foreach ( Lab_Directory_Common::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
     					echo "";
     					if ( $term = get_term_by( 'name', $category->name, $slug ) ) {
     						$term_meta = get_option( 'taxonomy_term_' . $term->term_taxonomy_id );
@@ -1362,9 +1375,9 @@ class Lab_Directory_Shortcode {
     							foreach ( $term_meta['manager_ids'] as $id ) {
     								$mails = get_post_meta( $id, 'mails', true );
     								$name = get_post_field( 'post_name', $id);
-    								Lab_Directory::ld_value_to_something(
+    								Lab_Directory_Common::ld_value_to_something(
     									$mails,
-    									Lab_Directory::$staff_meta_fields['mails']['multivalue'],
+    									Lab_Directory_Common::$staff_meta_fields['mails']['multivalue'],
     									'display' );
     
     									$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Common::get_ld_permalink('staff', $name ) .
@@ -1441,6 +1454,32 @@ class Lab_Directory_Shortcode {
     	}
     
     	return $original;
+    }
+    
+    function add_tooltips( &$meta_value, $field ) {
+    	if ( ! $meta_value ) {
+    		return;
+    	}
+    	if ( ! isset( $field['acronyms'] ) ) {
+    		return;
+    	}
+    
+    	foreach ( $field['acronyms'] as $acronym ) {
+    			
+    		if ( strpos( $meta_value, $acronym['acronym'] ) !== false ) {
+    
+    			$link = '';
+    			if ( $acronym['link'] ) {
+    				$replace = '<a  title="' . $acronym['translation'] . '" href="' . $acronym['link'] . '">' .
+    					$acronym['translation'] . '</a>';
+    			} else {
+    				$replace = '<acronym title="' . $acronym['translation'] . '">' . $acronym['acronym'] . '</acronym>';
+    			}
+    
+    			$meta_value = str_replace( $acronym['acronym'], $replace, $meta_value );
+    		}
+    	}
+    	return;
     }
     
 }

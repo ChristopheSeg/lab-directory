@@ -1,12 +1,12 @@
 <?php
 
 class Lab_Directory_Admin {
-	static function register_admin_menu_items() {
-		add_action( 'admin_menu', array( 'Lab_Directory_Admin', 'add_admin_menu_items' ) );
+	static function register_admin_menu_items_old() {
+		// add_action( 'admin_menu', array( 'Lab_Directory_Admin', 'add_admin_menu_items' ) );
 		
 	}
 
-	static function add_admin_menu_items() {
+	static function add_admin_menu_items_old() {
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
 		add_action('load-' . $ld_admin_page,  array( 'Lab_Directory_Admin', 'ld_admin_help_tab_settings'));
@@ -24,9 +24,9 @@ class Lab_Directory_Admin {
 		
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
+		
 		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
 		
-		// ()
 		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
 		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
 		add_action('load-post.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_staff'));
@@ -351,6 +351,15 @@ class Lab_Directory_Admin {
 	}
    
 	static function settings() {
+		
+		// Enqueue style and scripts
+		wp_enqueue_script( 'jquery-ui-tabs' );
+		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_script( 'custom-tabs' );
+		wp_enqueue_script( 'timepicker-addon' );
+		wp_enqueue_style( 'timepicker-addon-css' );
+		wp_enqueue_style( 'lab-directory-admin-ui-css' );
+		
 		$current_tab = ( ! empty( $_GET['tab'] ) ) ? esc_attr( $_GET['tab'] ) : 'general';
 	
 		$tabs = array(
@@ -551,6 +560,8 @@ class Lab_Directory_Admin {
 		
 	static function settings_general() {
 
+		wp_enqueue_style( 'font-awesome');
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
 		$locale = Lab_Directory_Common::$default_post_language; //string(5) "fr_FR"
@@ -565,7 +576,7 @@ class Lab_Directory_Admin {
 			}
 		}
 		
-		$taxonomies = Lab_Directory::lab_directory_get_taxonomies(true);
+		$taxonomies = Lab_Directory_Common::lab_directory_get_taxonomies(true);
 			
 		// Check $_POST and _wpnonce
 		if(isset($_POST['admin-settings-general'])) {

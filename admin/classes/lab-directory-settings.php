@@ -54,7 +54,7 @@ class Lab_Directory_Settings {
 			usort( $meta_fields, __NAMESPACE__ . '\compare_order' );
 			update_option( 'lab_directory_staff_meta_fields', $meta_fields );
 			// Renew static variable
-			Lab_Directory::initiate_staff_meta_fields();
+			Lab_Directory_Common::initiate_staff_meta_fields();
 		}
 		return;
 	}
@@ -120,7 +120,7 @@ class Lab_Directory_Settings {
 		update_option( 'lab_directory_staff_meta_fields', $meta_fields_array );
 
 		// Update static variable
-		Lab_Directory::$staff_meta_fields = $meta_fields_array;
+		Lab_Directory_Common::$staff_meta_fields = $meta_fields_array;
 	}
 	
 	//
@@ -461,7 +461,7 @@ class Lab_Directory_Settings {
 				}
 				
 				$mails = $champ_valeurs['mails'];
-				Lab_Directory::ld_value_to_something( $mails, 
+				Lab_Directory_Common::ld_value_to_something( $mails, 
 					$synced_meta_fields['mails']['multivalue'], 
 					'array' );
 				// suppress duplicate email if both email metafields are used
@@ -865,7 +865,7 @@ class Lab_Directory_Settings {
 
 	static function get_lab_directory_custom_fields() {
 		$custom_fields = array();
-		foreach ( Lab_Directory::$default_meta_field_names as $key => $key_name ) {
+		foreach ( Lab_Directory_Common::$default_meta_field_names as $key => $key_name ) {
 			if ( strpos( $key, 'custom' ) !== false ) {
 				$custom_fields[$key] = $key_name;
 			}

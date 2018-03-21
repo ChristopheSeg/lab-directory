@@ -52,7 +52,7 @@ function show_group(group) {
 	    <button type="submit" name="admin-settings-taxonomies" class="button button-primary button-large" value="Save"><?php _e('Save')?></button>
     	
     	<?php   
-		$taxonomies = Lab_Directory::lab_directory_get_taxonomies(true);
+		$taxonomies = Lab_Directory_Common::lab_directory_get_taxonomies(true);
     	$t1 = get_option( 'lab_directory_use_taxonomy1' ) == '1' ? '' : ' ('. __('unactivated', 'lab-directory') . ') ' ; 
     	$t2 = get_option( 'lab_directory_use_taxonomy2' ) == '1' ? '' : ' ('. __('unactivated', 'lab-directory') . ') ' ; 
     	?>

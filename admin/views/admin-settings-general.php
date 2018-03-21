@@ -95,7 +95,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	$unused=''; 
 	
 	foreach ($possible_social_networks as $key =>$value ) {
-		$icon = ld_network_icon($key); 
+		$icon = Lab_Directory_Common::ld_network_icon($key); 
 		if (array_key_exists($key, $lab_directory_used_social_networks)) {
 			// used social network 
 			$used .= '<div style="float:left; width: 140px;" >';

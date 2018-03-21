@@ -2,12 +2,9 @@ DONE:
 
 TODO:
 ==================================
-separation: lab-directory ligne 2504  ==> fin 
-https://www.thewpcrowd.com/wordpress/enqueuing-scripts-only-when-widget-or-shortcode/
-
+pb permaliensedit  rompu dans admin
 separate admin/frontend
-	structure: https://developer.wordpress.org/plugins/the-basics/best-practices/#file-organization
- 
+	
 langue pas prévu: comment faire? 
 	utiliser /languages/plugin-name.po mo pot pour frontend ( le plus important) 
 	ajouter les fichiers .mo.po .pot pour la partie admin (prévoir load_text_domain)
@@ -20,6 +17,7 @@ conditionnal load de code php shortode??
 
 
 ==================================
+add social inetwork shortcode
 ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
 tester ordre traduction titre....
