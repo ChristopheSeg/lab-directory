@@ -28,10 +28,10 @@ if ( is_admin() ) {
     // Always load admin menus
 	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
 	Lab_Directory_Admin_Menus::register_admin_menu_items();
-		//TODO load text domain for admin menus separately from other admin ?? 
+	//TODO load text domain for admin menus separately from other admin ?? 
 	 
-	//TODO Solve this issue !! 
-	if (true OR Lab_Directory_Admin_Menus::$load_admin_class) {
+	//TODO Solve this issue !! (ie also load for lab-directory post !!)
+	if (Lab_Directory_Admin_Menus::$load_admin_class) {
 				
 		// Load admin classes if in lab-directory menu (not used in others cases). 
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-settings.php' );

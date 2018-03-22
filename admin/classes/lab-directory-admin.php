@@ -220,6 +220,7 @@ class Lab_Directory_Admin {
 	
 	
 	static function ld_admin_help_edit_staff() {
+
 		self::ld_admin_help_add_new_staff('edit');
 	}
 	
@@ -227,6 +228,7 @@ class Lab_Directory_Admin {
 		 * Edit != false used to generate edit staff help (use same translation)
 		 */
 	static function ld_admin_help_add_new_staff($edit=false) {
+		
 		$screen = get_current_screen();
 		if ($edit) { 
 		 	$content = '<p>' . __('This page is used to edit staff profile. Some fields may be locked depending on LDAP Syncing and user permissions.','lab-directory') . '</p>';

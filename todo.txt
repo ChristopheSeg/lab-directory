@@ -2,8 +2,9 @@ DONE:
 
 TODO:
 ==================================
-pb permaliensedit  rompu dans admin
-separate admin/frontend
+revoir timepicker-addon / jquery ???
+
+separation admin/frontend
 	
 langue pas prévu: comment faire? 
 	utiliser /languages/plugin-name.po mo pot pour frontend ( le plus important) 

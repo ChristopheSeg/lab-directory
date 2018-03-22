@@ -292,19 +292,19 @@ class Lab_Directory {
 		echo $out;
 	}
 	
-	// enqueue tabs script
+	// register tabs script
 	static function lab_directory_scripts_and_css_for_tabs() {
 		
-		wp_register_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js');
-		wp_register_script( 
+		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js')? "==========OK": "========NOK";;
+		wp_enqueue_script( 
 			'timepicker-addon', 
 			LAB_DIRECTORY_URL . '/admin/js/jquery.datetimepicker.js', 
 			array( 'jquery' ) );
 		
-		wp_register_style( 'timepicker-addon-css', LAB_DIRECTORY_URL . '/admin/css/jquery.datetimepicker.css' );
+		wp_enqueue_style( 'timepicker-addon-css', LAB_DIRECTORY_URL . '/admin/css/jquery.datetimepicker.css' );
 		
 		$wp_scripts = wp_scripts();
-		wp_register_style( 
+		wp_enqueue_style( 
 			'lab-directory-admin-ui-css', 
 			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver .
 				 '/themes/smoothness/jquery-ui.css', 
@@ -333,6 +333,16 @@ class Lab_Directory {
 	}
 
 	static function add_lab_directory_staff_custom_meta_boxes() {
+		
+		// Enqueue style and scripts
+		wp_enqueue_script( 'jquery-ui-tabs' );
+		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_script( 'custom-tabs' );
+		wp_enqueue_script( 'timepicker-addon' );
+		wp_enqueue_style( 'timepicker-addon-css' );
+		wp_enqueue_style( 'lab-directory-admin-ui-css' );
+		
+		
 		add_meta_box( 
 			'lab_directory_staff-meta-box', 
 			__( 'Staff Details', 'lab-directory' ), 
@@ -894,7 +904,7 @@ div.lab_directory_staff_meta {
 				
 				echo $label;
 				Lab_Directory_Common::ld_value_to_something( $value, $field['multivalue'], 'display' );
-				echo '<span class="value">' . $value . '</span>'; // echo $field['slug'];var_dump($value);
+				echo '<span class="value">' . $value . '</span>'; 
 				break;
 		}
 		echo '</div>';

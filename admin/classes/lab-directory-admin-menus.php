@@ -6,13 +6,21 @@ class Lab_Directory_Admin_Menus {
 	static function register_admin_menu_items() {
 		
 		// $load_admin_class is true if all admin class should be loaded
-		self::$load_admin_class = false !== strpos($_SERVER['REQUEST_URI'],'post_type=lab_directory_staff');  
+		
+		// WHEN URL contains post_type=lab_directory_staff
+		self::$load_admin_class = false !== strpos($_SERVER['REQUEST_URI'],'post_type=lab_directory_staff');
+		if (!self::$load_admin_class) {
+			if ( get_post_type($_GET['post']) == 'lab_directory_staff' ) {
+				// WHEN post_type=lab_directory_staff
+				self::$load_admin_class = true;
+			}
+		}
 		
 		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
 		
 		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'create_post_types' ) );
-		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'create_lab_directory_staff_taxonomies' ) );
 		
+		// Add an action lmink in LAb-Directory extension menu
 		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Admin_Menus',  'lab_directory_add_action_links')  );
 				
 	}
@@ -90,13 +98,9 @@ class Lab_Directory_Admin_Menus {
 		return array_merge( $links, $mylinks );
 	}
 	
-	static function create_lab_directory_staff_taxonomies() {
-		$taxonomies = Lab_Directory_Common::lab_directory_get_taxonomies();
-		foreach ( $taxonomies as $key => $taxonomie ) {
-			register_taxonomy( $key, 'lab_directory_staff', $taxonomie );
-		}
-	}
-	
+
 	
 
 }
+
+

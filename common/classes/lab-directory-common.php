@@ -37,11 +37,16 @@ class Lab_Directory_Common {
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
+		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_lab_directory_textdomain' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_staff_meta_fields' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_ld_acronyms' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_default_meta_field_names' ) );
+		
+		// Add Query_vars and Tags
+		add_filter( 'query_vars', array( 'Lab_Directory_Common', 'lab_directory_add_query_vars' ) );
+		add_action( 'init', array( 'Lab_Directory_Common', 'lab_directory_add_rewrite_tags' ) , 10, 0);
 		
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
@@ -450,6 +455,37 @@ class Lab_Directory_Common {
 			'//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 			array(),
 			'4.0.3' );
+	}
+	static function lab_directory_add_query_vars( $qvars ) {
+	
+		/* without replacement this equal:
+		 $qvars[] = 'staff_grid';
+		 $qvars[] = 'staff_list';
+		 $qvars[] = 'staff_trombi';
+		 $qvars[] = 'staff';
+		 $qvars[] = 'staff_phd';
+		 $qvars[] = 'staff_hdr';
+		 */
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			$qvars[] =$slug_replacement;
+		}
+	
+		return $qvars;
+	}
+	
+	static function lab_directory_add_rewrite_tags() {
+	
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
+			add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
+		}
+	}
+	
+	static function create_lab_directory_staff_taxonomies() {
+		$taxonomies = self::lab_directory_get_taxonomies();
+		foreach ( $taxonomies as $key => $taxonomie ) {
+			register_taxonomy( $key, 'lab_directory_staff', $taxonomie );
+		}
 	}
 }
 	

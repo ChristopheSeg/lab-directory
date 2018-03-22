@@ -33,18 +33,13 @@ class Lab_Directory_Shortcode {
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'initiate_translations' ) );
 		add_filter( 'gettext', array( 'Lab_Directory_Shortcode', 'lab_directory_custom_translations' ), 10, 3 );
 		
-		// Templating 
 		// load single-page/profile template
 		add_filter( 'single_template', array( 'Lab_Directory_Shortcode', 'load_profile_template' ) );
 		
 		// add single post content hook (title and content )
 		add_filter( 'the_content', array( 'Lab_Directory_Shortcode', 'ld_content_filter' ) );
 		add_filter( 'posts_results', array( 'Lab_Directory_Shortcode', 'ld_posts_results_filter' ) );
-		
-		// Add Query_vars and Tags 
-		add_filter( 'query_vars', array( 'Lab_Directory_Shortcode', 'lab_directory_add_query_vars' ) );
-		add_action( 'init', array( 'Lab_Directory_Shortcode', 'lab_directory_add_rewrite_tags' ) , 10, 0);
-		
+				
 		// add the pll_translation_url filter
 		add_filter( 'pll_translation_url', array( 'Lab_Directory_Shortcode', 'filter_pll_translation_url' ), 10, 3 );
 		
@@ -684,7 +679,7 @@ class Lab_Directory_Shortcode {
 		global $post; 
 		$taxonomies=Lab_Directory_Common::lab_directory_get_taxonomies(); 
 		$output =''; 
-        
+       
        if  ($taxonomies) {
 			
 		  foreach ($taxonomies  as $key => $taxonomy ) {
@@ -783,7 +778,7 @@ class Lab_Directory_Shortcode {
     	echo "<br>========= lab_directory_main_shortcode =================<br>";
     	 */
     	
-    	 // If some query_vars exists set tmpalte and staff or cat filter
+    	 // If some query_vars exists set template and staff or cat filter
 	  	 if ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']]) ) {
        		$template = 'staff_trombi';
        		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']];     
@@ -1259,33 +1254,7 @@ class Lab_Directory_Shortcode {
     }
     /******************************/
 
-    static function lab_directory_add_query_vars( $qvars ) {
-    
-    	/* without replacement this equal:
-    		$qvars[] = 'staff_grid';
-    		$qvars[] = 'staff_list';
-    		$qvars[] = 'staff_trombi';
-    		$qvars[] = 'staff';
-    		$qvars[] = 'staff_phd';
-    		$qvars[] = 'staff_hdr';
-    		*/
-    
-    	foreach (Lab_Directory_Common::$lab_directory_url_slugs as $slug => $slug_replacement) {
-    		$qvars[] =$slug_replacement;
-    	}
-    		
-    	return $qvars;
-    }
-    
-    static function lab_directory_add_rewrite_tags() {
-    
-    	foreach (Lab_Directory_Common::$lab_directory_url_slugs as $slug => $slug_replacement) {
-    		add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
-    		add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
-    	}
-    
-    
-    }
+
     /* add a pll_translation_url filter (only called when pll is in use)
      *
      */
@@ -1432,6 +1401,7 @@ class Lab_Directory_Shortcode {
     //TODO Rename to get template url
     static function load_profile_template( $original ) {
     
+    	return $original; //TODOTODO DEPRECATED !!
     	// get_page_templates
     	if ( is_singular( 'lab_directory_staff' ) ) {
     		$original = get_page_template();
