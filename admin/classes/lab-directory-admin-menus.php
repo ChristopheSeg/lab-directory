@@ -19,6 +19,7 @@ class Lab_Directory_Admin_Menus {
 		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
 		
 		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'create_post_types' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin_Menus', 'load_lab_directory_admin_menus_textdomain' ) );
 		
 		// Add an action lmink in LAb-Directory extension menu
 		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Admin_Menus',  'lab_directory_add_action_links')  );
@@ -96,6 +97,22 @@ class Lab_Directory_Admin_Menus {
 			'<a href="' . admin_url( 'edit.php?post_type=lab_directory_staff&page=lab-directory-settings' ) . '">Settings</a>',
 		);
 		return array_merge( $links, $mylinks );
+	}
+	
+	static function load_lab_directory_admin_menus_textdomain() {
+		
+		$domain = 'lab-directory'; 
+		$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );
+		
+		$mofile = $domain . '-admin_menus-' . $locale . '.mo';
+		
+		// Try to load from the languages directory first.
+		if ( load_textdomain( $domain, WP_LANG_DIR . '/plugins/' . $mofile ) ) {
+			return;
+		}
+		
+		// Else load from language dir 
+		return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
 	}
 	
 

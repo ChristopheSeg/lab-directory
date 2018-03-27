@@ -31,6 +31,7 @@ class Lab_Directory_Shortcode {
 
 		// Custom field translation filter
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'initiate_translations' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'load_lab_directory_frontend_textdomain' ) );
 		add_filter( 'gettext', array( 'Lab_Directory_Shortcode', 'lab_directory_custom_translations' ), 10, 3 );
 		
 		// load single-page/profile template
@@ -1424,6 +1425,22 @@ class Lab_Directory_Shortcode {
     	}
     
     	return $original;
+    }
+    
+    static function load_lab_directory_frontend_textdomain() {
+    
+    	$domain = 'lab-directory';
+    	$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );
+    
+    	$mofile = $domain . '-frontend-' . $locale . '.mo';
+    
+    	// Try to load from the languages directory first.
+    	if ( load_textdomain( $domain, WP_LANG_DIR . '/plugins/' . $mofile ) ) {
+    		return;
+    	}
+    
+    	// Else load from plugin language dir
+    	return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
     }
     
     function add_tooltips( &$meta_value, $field ) {

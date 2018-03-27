@@ -1,5 +1,9 @@
 <?php
 /*
+ * 
+ * TODO march 27 2018 This procedure in not compatible with polylang which only load one pot file per plugin (ie per domain)!! 
+ * 
+ * 
 IMPORTANT DON'T USE OLD TRANSLATIONS when switching to splitted pot files !! 
 	If your plugin was using a single pot file and you decided to split your single pot files, older translation must also be splitted...
 	You MUST apply this procedure before switching to splitted pot files

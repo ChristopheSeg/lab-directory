@@ -16,6 +16,18 @@ define( 'LAB_DIRECTORY_DIR', dirname( __FILE__ ) );
 define( 'LAB_DIRECTORY_TEMPLATES', LAB_DIRECTORY_DIR . "/templates" );
 define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 
+function log_mo_file_load($domain, $mofile){
+	if ($domain =='lab-directory' ) {
+		if (!is_readable( $mofile )) {
+		echo '<br><B>loaded  file "' . $mofile . '"</b>';
+	} else {
+		echo '<br>Failed  file "' . $mofile . '"';
+		}	
+}
+	// or whatever else you'd like to do here.
+}
+
+add_action( 'load_textdomain', 'log_mo_file_load' ,10,2);
 
 // Load Common classes
 require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );
@@ -25,7 +37,7 @@ Lab_Directory_Common::register_common_filters_and_actions();
 if ( is_admin() ) {
     // Load Admin classes 
     
-    // Always load admin menus
+    // Always load admin menus (and corresponding languages pot file
 	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
 	Lab_Directory_Admin_Menus::register_admin_menu_items();
 	//TODO load text domain for admin menus separately from other admin ?? 

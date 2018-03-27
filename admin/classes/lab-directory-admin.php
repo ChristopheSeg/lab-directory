@@ -30,6 +30,7 @@ class Lab_Directory_Admin {
 		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
 		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
 		add_action('load-post.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_staff'));
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin', 'load_lab_directory_admin_textdomain' ) );
 		
 	}
 
@@ -1079,6 +1080,22 @@ class Lab_Directory_Admin {
 			'staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
 			'staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
 		);
+	}
+	
+	static function load_lab_directory_admin_textdomain() {
+		
+		$domain = 'lab-directory'; 
+		$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );
+		
+		$mofile = $domain . '-admin-' . $locale . '.mo';
+		
+		// Try to load from the languages directory first.
+		if ( load_textdomain( $domain, WP_LANG_DIR . '/plugins/' . $mofile ) ) {
+			return;
+		}
+		
+		// Else load from language dir 
+		return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
 	}
 
 }

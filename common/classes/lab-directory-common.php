@@ -118,7 +118,20 @@ class Lab_Directory_Common {
 	}
 	
 	static function load_lab_directory_textdomain() {
-		load_plugin_textdomain( 'lab-directory',false, '/lab-directory/languages/' );
+		
+		$domain = 'lab-directory';
+		$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );
+		
+		$mofile = $domain . '-' . $locale . '.mo';
+		
+		// Try to load from the languages directory first.
+		if ( load_textdomain( $domain, WP_LANG_DIR . '/plugins/' . $mofile ) ) {
+			return;
+		}
+		
+		// Else load from language dir
+		return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
+		
 	}
 	
 	public function get_lab_directory_studying_levels() {
@@ -487,6 +500,8 @@ class Lab_Directory_Common {
 			register_taxonomy( $key, 'lab_directory_staff', $taxonomie );
 		}
 	}
+	
+
 }
 	
 	
