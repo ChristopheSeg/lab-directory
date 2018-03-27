@@ -7,7 +7,7 @@ IMPORTANT DON'T USE OLD TRANSLATIONS when switching to splitted pot files !!
 	copy the original plugin_name-xx_YY.pot file to plugin_name-admin-xx_YY.pot plugin_name-frontend-xx_YY.pot 
 	for all standalone pot files, copy the original plugin_name-xx_YY.pot to plugin_name-slug_extension-xx_YY.pot
 	repeat this for all languages
-	Update each copied .po file, from .pot source and save
+	Update each copied .po file, from .pot source, suppress old translation and save
 	Compile each new .po file  
 
 IMPORTANT when switching back to one single pot file !!

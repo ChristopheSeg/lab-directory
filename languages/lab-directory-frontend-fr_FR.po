@@ -1,0 +1,103 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Lab Directory\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lab-directory\n"
+"POT-Creation-Date: 2018-03-27 15:00+0200\n"
+"PO-Revision-Date: 2018-03-27 15:02+0200\n"
+"Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
+"Language-Team: French (France)\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: public/classes/lab-directory-shortcode.php:364
+msgid "Search by name or firstname"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:389
+msgid "Sorry, there is no staff corresponding to this request !"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:435
+msgid "Sorry, there is no information about this staff HDR !"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:436
+msgid "whether our website is not up-to-date"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:437
+msgid "whether this staff has no HDR"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:481
+msgid "Sorry, there is no information about this PHD !"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:565
+msgid "Unknown date"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:566
+msgid "PHD"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:1312
+msgid "%s directory"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:1313
+msgid "Directory"
+msgstr ""
+
+#. translators: This is used in pages and posts footer to display contact, %s
+#. is the team or laboratory (one categeory)
+#: public/classes/lab-directory-shortcode.php:1367
+msgid "%s contact : "
+msgstr ""
+
+#. translators: This is used in pages and posts footer to display manager, %s
+#. is the team or laboratory (one categeory)
+#: public/classes/lab-directory-shortcode.php:1375
+msgid "%s manager : "
+msgstr "manageur %s :"
+
+#. translators: This title should be short to stay on one line when appearing
+#. in sidebar widget.
+#: public/classes/ld_widget_defenses.php:23
+msgid "Future Defenses list"
+msgstr ""
+
+#: public/classes/ld_widget_defenses.php:26
+msgid "This widget displays a compact list of defenses"
+msgstr ""
+
+#: public/classes/ld_widget_defenses.php:49
+msgid "Next Defenses"
+msgstr ""
+
+#: public/classes/ld_widget_defenses.php:57
+msgid "Title:"
+msgstr ""
+
+#: public/classes/ld_widget_defenses.php:62
+msgid "List for time period :"
+msgstr ""
+
+#. translators: for all defenses
+#: public/classes/ld_widget_defenses.php:64
+msgid "all"
+msgstr ""
+
+#. translators: for future defenses
+#: public/classes/ld_widget_defenses.php:65
+msgid "future"
+msgstr ""
+
+#. translators: for past defenses
+#: public/classes/ld_widget_defenses.php:66
+msgid "past"
+msgstr ""
