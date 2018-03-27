@@ -2,17 +2,19 @@ DONE:
 
 TODO:
 ==================================
-revoir timepicker-addon / jquery ???
+traduction JS
 
 separation admin/frontend
+	A F C
 	
 langue pas prévu: comment faire? 
 	utiliser /languages/plugin-name.po mo pot pour frontend ( le plus important) 
 	ajouter les fichiers .mo.po .pot pour la partie admin (prévoir load_text_domain)
 	ou partie admin faire 2 admin-help, en français ou anglais selon langue
+	ne pas traduire pages help FR + en par défault (avec choix dans menu settings ??
 	
 frontend: faut-il séparer widget du reste? Comment?  => classe
-conditionnal load de code php shortode?? 
+	conditionnal load de code php shortode?? 
 	identifier les shotrtcode appelés en premier [lab-directory, widegt, hdr loop phdloop 
 	la fonction d'appel charge la classe puis appelle une fonction secondaire 
 

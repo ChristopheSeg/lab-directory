@@ -63,7 +63,7 @@ class Lab_Directory_Admin_Menus {
 					'singular_name' => __( 'Staff', 'lab-directory' ),
 					'add_new' => __( 'New staff', 'lab-directory' ),
 					'add_new_item' => __( 'Add a new staff', 'lab-directory' ),
-					'edit_item' => __( 'Edit staff details', 'lab-directory' ),
+					'edit_item' => __( 'Edit staff profile', 'lab-directory' ),
 					'new_item' => __( 'New staff', 'lab-directory' ),
 					'view_item' => _x( 'View staff', 'single', 'lab-directory' ),
 					'view_items' => _x( 'View staff', 'plural', 'lab-directory' ),
