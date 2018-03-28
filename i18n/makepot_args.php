@@ -1,7 +1,8 @@
 <?php
 /*
  * 
- * TODO march 27 2018 This procedure in not compatible with polylang which only load one pot file per plugin (ie per domain)!! 
+ * Polylang compatibility: see at the end if this file
+ * TODO Other multilang plugin compatibility: not checked
  * 
  * 
 IMPORTANT DON'T USE OLD TRANSLATIONS when switching to splitted pot files !! 
@@ -65,7 +66,7 @@ Parameter $makepot_args array structure
 $makepot_args = array(
 		// These files are common to admin and frontend
 		'common' => array(
-                'slug_extension' =>'', 
+                'slug_extension' =>'common', 
                 'excludes' => array(),
 				'includes' => array('common/.*', 'lab-directory\.php'),
 		),
@@ -82,8 +83,8 @@ $makepot_args = array(
 				'includes' => array('admin/.*'),
 		),
 		/* This correspond to a standalone pot file which can result on some phrases duplication
-		 * Admin menus are loaded alone when lab-directory is not called in admin
-		 * This results in some messages duplicated 
+		 * Admin_menus po file is loaded alone when lab-directory is not called in admin
+		 * (lab_directory plugin is never used or called by other plugin)
 		 */
 		'admin_menus' => array(
                 'slug_extension' =>'admin_menus', 
@@ -94,3 +95,13 @@ $makepot_args = array(
 			
 		),
 ); 
+
+/* Polylang can only load one pot file per plugin (ie per domain) so calling load_textdomain multiple times can be broken depending on action hook used. 
+ * Polylang will always load plugin_name-xx_YY.mo file for frontend and admin pages so splitting pot file is not usefull if the common file is called plugin_name-xx_YY.mo and you don't want to load it every times. 
+ *
+ * In order to use splitted pot files with Polylang you have to: 
+ * rename common pot/mo file plugin_name-xx_YY.mo to something else such as plugin_name-common-xx_YY.mo (this is not required if you want to load common mo file every times))
+ * for frontend replace add_action( 'plugins_loaded', load_my_plugin_frontend_textdomain' ) by add_action( 'pll_translate_labels', load_my_plugin_frontend_textdomain' ) so that this action is fired after polylang removes its filter 'load_textdomain_mofile'
+ * add similar action for every .mo file using  'pll_translate_labels' for  frontend and 'plugins_loaded' for backend
+ */ 
+ 

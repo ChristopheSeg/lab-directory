@@ -39,7 +39,13 @@ class Lab_Directory_Common {
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
 		
-		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_lab_directory_textdomain' ) );
+		if (! defined( 'POLYLANG_DIR' ) )
+			// Unneccesary if pll used!!
+			add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_lab_directory_textdomain' ) );
+		
+		// Load text_domain after Polylang removed filter 'load_textdomain_mofile'
+		add_action( 'pll_translate_labels', array( 'Lab_Directory_Common', 'load_lab_directory_textdomain' ) );
+		
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_staff_meta_fields' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_ld_acronyms' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_default_meta_field_names' ) );
@@ -122,7 +128,7 @@ class Lab_Directory_Common {
 		$domain = 'lab-directory';
 		$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );
 		
-		$mofile = $domain . '-' . $locale . '.mo';
+		$mofile = $domain . '-common-' . $locale . '.mo';
 		
 		// Try to load from the languages directory first.
 		if ( load_textdomain( $domain, WP_LANG_DIR . '/plugins/' . $mofile ) ) {

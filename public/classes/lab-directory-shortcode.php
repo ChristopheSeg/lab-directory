@@ -31,7 +31,14 @@ class Lab_Directory_Shortcode {
 
 		// Custom field translation filter
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'initiate_translations' ) );
-		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'load_lab_directory_frontend_textdomain' ) );
+		
+		if (! defined( 'POLYLANG_DIR' ) )
+			// Unneccesary if pll used!!
+			add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'load_lab_directory_frontend_textdomain' ) );
+	
+		// Load text_domain after Polylang removed filter 'load_textdomain_mofile'
+		add_action( 'pll_translate_labels', array( 'Lab_Directory_Shortcode', 'load_lab_directory_frontend_textdomain' ) );
+		
 		add_filter( 'gettext', array( 'Lab_Directory_Shortcode', 'lab_directory_custom_translations' ), 10, 3 );
 		
 		// load single-page/profile template

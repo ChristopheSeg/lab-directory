@@ -1,35 +1,15 @@
 <?php
 
 class Lab_Directory_Admin {
-	static function register_admin_menu_items_old() {
-		// add_action( 'admin_menu', array( 'Lab_Directory_Admin', 'add_admin_menu_items' ) );
-		
-	}
 
-	static function add_admin_menu_items_old() {
-		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
-			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) );
-		add_action('load-' . $ld_admin_page,  array( 'Lab_Directory_Admin', 'ld_admin_help_tab_settings'));
 
-		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Taxonomies', 'Taxonomies', 'publish_posts',
-			'lab-directory-taxonomies', array( 'Lab_Directory_Admin', 'taxonomies' ) );
-		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_taxonomies'));
-		
-		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Translations', 'Translations', 'publish_posts',
-			'lab-directory-translations', array( 'Lab_Directory_Admin', 'translations' ) );
-		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin',  'ld_admin_help_tab_translations'));
-		
-		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Help', 'Help', 'publish_posts',
-			'lab-directory-help', array( 'Lab_Directory_Admin', 'help' ) );
-		
-		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
-			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
-		
-		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
+	static function add_admin_actions() {
 		
 		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
 		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
 		add_action('load-post.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_staff'));
+		
+		// Load text_domain for admin
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin', 'load_lab_directory_admin_textdomain' ) );
 		
 	}

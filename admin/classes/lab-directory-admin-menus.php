@@ -19,6 +19,8 @@ class Lab_Directory_Admin_Menus {
 		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
 		
 		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'create_post_types' ) );
+
+		// Load text_domain for admin menus
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin_Menus', 'load_lab_directory_admin_menus_textdomain' ) );
 		
 		// Add an action lmink in LAb-Directory extension menu
@@ -47,10 +49,6 @@ class Lab_Directory_Admin_Menus {
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
 
 		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
-
-		add_action('load-post-new.php', array( 'Lab_Directory_Admin', 'ld_admin_help_add_new_staff'));
-		add_action('load-edit-tags.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_taxonomies'));
-		add_action('load-post.php', array( 'Lab_Directory_Admin', 'ld_admin_help_edit_staff'));
 		
 	}
 	

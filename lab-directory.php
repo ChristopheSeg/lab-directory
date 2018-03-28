@@ -16,19 +16,6 @@ define( 'LAB_DIRECTORY_DIR', dirname( __FILE__ ) );
 define( 'LAB_DIRECTORY_TEMPLATES', LAB_DIRECTORY_DIR . "/templates" );
 define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 
-function log_mo_file_load($domain, $mofile){
-	if ($domain =='lab-directory' ) {
-		if (!is_readable( $mofile )) {
-		echo '<br><B>loaded  file "' . $mofile . '"</b>';
-	} else {
-		echo '<br>Failed  file "' . $mofile . '"';
-		}	
-}
-	// or whatever else you'd like to do here.
-}
-
-add_action( 'load_textdomain', 'log_mo_file_load' ,10,2);
-
 // Load Common classes
 require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );
 Lab_Directory_Common::register_common_filters_and_actions();
@@ -50,8 +37,8 @@ if ( is_admin() ) {
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin.php' );
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory.php' );
     	Lab_Directory::register_post_types();
-
     	Lab_Directory::set_default_meta_fields_if_necessary();
+    	Lab_Directory_Admin::add_admin_actions();
     	
     	
     	if ( Lab_Directory::show_import_message() ) {
