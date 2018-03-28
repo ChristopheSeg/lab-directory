@@ -2,7 +2,7 @@
  .input-in-td{ width:100%; padding-left:0; padding-right:0; }
 </style>
 
-<?php echo_form_messages($form_messages); ?>
+<?php if (isset ($form_messages)) echo_form_messages($form_messages); ?>
 
 
 <form method="post">

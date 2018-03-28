@@ -297,7 +297,7 @@ class Lab_Directory_Admin {
 		}
 		$html .= '</h2>';
 		echo $html;
-		
+		$language_list['acronyms']['native_name']=null; // acronyms is not a language!! 
 		Lab_Directory_Admin::settings_translations($current_tab, $language_list[$current_tab]['native_name'], 
 				$locale, $language_list[$locale]['native_name']);
 	
@@ -356,7 +356,7 @@ class Lab_Directory_Admin {
 				'third'  => __('About'),
 		);
 		
-		$html .= '<h4 class="nav-tab-wrapper">';
+		$html = '<h4 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current_tab ) ? 'nav-tab-active' : '';
 			$html .= '<a class="nav-tab ' . $class . '" href="edit.php?post_type=lab_directory_staff&page=lab-directory-settings&tab=' . $tab . '">' . $name . '</a>';
@@ -438,7 +438,7 @@ class Lab_Directory_Admin {
 			$form_messages = array('form_saved' => false);
 		
 			// Check $_POST and _wpnonce
-			if ($_POST['admin-settings-translations']) {
+			if (isset($_POST['admin-settings-translations']) AND $_POST['admin-settings-translations']) {
 				if ( ($_POST['admin-settings-translations']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-translations' )){
 					$lang = $_POST['lab_directory_translations_for'];
 					$slugs = $_POST['lab_directory_translations_slugs'];
@@ -666,7 +666,7 @@ class Lab_Directory_Admin {
 		$form_messages = array('form_saved' => false); 
 
 		// Check $_POST and _wpnonce	
-		if ($_POST['admin-settings-fields']) {
+		if (isset($_POST['admin-settings-fields']) AND $_POST['admin-settings-fields'] ) {
 			if ( ($_POST['admin-settings-fields']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-fields' )){
 	
 				// Process/save form fields
@@ -740,7 +740,7 @@ class Lab_Directory_Admin {
 	static function settings_groups() {
 		
 		$default_group_names = Lab_Directory::get_lab_directory_default_group_names();
-		
+		$group_activations = get_option( 'lab_directory_group_activations' );
 		if (!is_array($group_activations)) {
 			//Initiate $group_activations (fist use)
 			$group_activations = array();
@@ -770,9 +770,6 @@ class Lab_Directory_Admin {
 		// Always activate CV
 		$group_activations['CV'] = true;
 			update_option( 'lab_directory_group_activations', $group_activations);
-		} else {
-			// Form initialisation 
-			$group_activations = get_option( 'lab_directory_group_activations' ) ;		
 		}
 		
 			
@@ -806,7 +803,7 @@ class Lab_Directory_Admin {
 				
 			if ( ($_POST['admin-settings-permissions']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-permissions' )){
 				// Process form
-				foreach (Lab_Directory::$capabilities as $capability_key => $capability){
+				foreach (self::$capabilities as $capability_key => $capability){
 					foreach ($all_wp_roles as $role_key => $role) {
 						$name = 'wp_' . $role_key. '_'. $capability_key;
 						$ld_permissions[$name] =  isset($_POST[$name])? '1':'0';  
@@ -819,7 +816,7 @@ class Lab_Directory_Admin {
 				$form_messages['form_saved'] = true;
 			} elseif  ( ($_POST['admin-settings-permissions']=='Reset') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-permissions' )){
 				// Resetting-permissions
-				$ld_permissions =  Lab_Directory::get_lab_directory_default_permissions();
+				$ld_permissions =  self::get_lab_directory_default_permissions();
 				$form_messages['warning'][] = 'Fields have been reset to default settings ';
 			}else{
 				// Error
@@ -828,7 +825,7 @@ class Lab_Directory_Admin {
 			}
 				update_option( 'lab_directory_permissions', $ld_permissions);
 				// Update static $ld_permissions used in this form 
-				Lab_Directory::$ld_permissions = $ld_permissions;
+				self::$ld_permissions = $ld_permissions;
 		} else {
 			// Form initialisation 
 			$ld_permissions = get_option( 'lab_directory_permissions');

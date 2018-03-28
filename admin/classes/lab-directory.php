@@ -102,7 +102,23 @@ class Lab_Directory {
 		add_action( 
 			'add_meta_boxes_lab_directory_staff', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
+		// https://wordpress.org/support/topic/save_post-not-working-getting-called/#post-2335557
+		// add_action( 'pre_post_update', array( 'Lab_Directory', 'save_meta_boxes' ) );
+		
 		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
+	// =====TEMP ============	
+	add_action( 'save_post', 'yysave_meta_boxes' );
+		function yysave_meta_boxes () {
+			echo "<br><br><br>========================== save_meta_boxes fired";
+			
+		}
+		add_action( 'init', 'zzsave_meta_boxes' );
+		function zzsave_meta_boxes () {
+			echo "<br><br><br>========================== _POST<br>";
+			echo "<br>=========================";var_dump($_POST);
+			echo "<br>========================== _POST";
+		}
+		// =====TEMP ============
 		
 		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory', 'lab_directory_admin_bar_render' ) );
 		
@@ -295,7 +311,7 @@ class Lab_Directory {
 	// register tabs script
 	static function lab_directory_scripts_and_css_for_tabs() {
 		
-		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js')? "==========OK": "========NOK";;
+		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js');
 		wp_enqueue_script( 
 			'timepicker-addon', 
 			LAB_DIRECTORY_URL . '/admin/js/jquery.datetimepicker.js', 
@@ -309,7 +325,7 @@ class Lab_Directory {
 			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver .
 				 '/themes/smoothness/jquery-ui.css', 
 				false, 
-				PLUGIN_VERSION, 
+				'', 
 				false );
 	}
 
@@ -371,6 +387,7 @@ class Lab_Directory {
 			}
 		}
 		// Set activated statuss to true
+		echo "<br> =====================save statuss";
 		return update_post_meta( $post_ID, 'staff_statuss', $meta_value );
 	}
 
@@ -411,8 +428,8 @@ class Lab_Directory {
 			return;
 		}
 		
-		$statuss = Lab_Directory::get_lab_directory_default_statuss();
-		$staff_statuss = Lab_Directory::get_staff_statuss( $post->ID );
+		$statuss = self::get_lab_directory_default_statuss();
+		$staff_statuss = self::get_staff_statuss( $post->ID );
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		
 		foreach ( $statuss as $key => $status ) {
@@ -473,7 +490,7 @@ class Lab_Directory {
 		$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
 		$studying_levels = Lab_Directory_Common::get_lab_directory_studying_levels();
 		$jury_functions = Lab_Directory_Common::get_lab_directory_jury_functions();
-		$staff_statuss = Lab_Directory::get_staff_statuss( $post->ID );
+		$staff_statuss = self::get_staff_statuss( $post->ID );
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		$used_groups = Lab_Directory_Settings::get_used_groups( 
 			$active_meta_fields, 
@@ -625,7 +642,7 @@ div.lab_directory_staff_meta {
 		<?php
 	}
 
-	function lab_directory_staff_meta_box_render_input( 
+	static function lab_directory_staff_meta_box_render_input( 
 		$post, 
 		$field, 
 		$field_name, 
@@ -743,7 +760,7 @@ div.lab_directory_staff_meta {
 				break;
 			case 'editor' :
 				$name = 'lab_directory_staff_meta_' . $field['slug'];
-				wp_editor( $value, $name, $editor_args );
+				wp_editor( $value, $name, null); //TODO add $editor_args );
 				break;
 			case 'date' :
 				echo $label;
@@ -916,18 +933,23 @@ div.lab_directory_staff_meta {
 
 	static function save_meta_boxes( $post_id ) {
 		global $wpdb;
+		
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		
+		echo "<br>====================save_meta_boxes==".$_POST['save']. '=='.$_POST['lab_directory_staff_meta_box_nonce'];
+		var_dump($_POST); 
 		if ( ! isset( $_POST['lab_directory_staff_meta_box_nonce'] ) || ! wp_verify_nonce( 
 			$_POST['lab_directory_staff_meta_box_nonce'], 
 			'lab_directory_staff_meta_box_nonce_action' ) ) {
 			return;
 		}
+		echo "<br>====================save_meta_boxes==".$_POST['save'];
+		
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
+		echo "<br>====================save_meta_boxes==".$_POST['save'];
 		
 		if ( get_post_status( $post_id ) == 'draft' ) {
 			// Add New staff
@@ -945,17 +967,18 @@ div.lab_directory_staff_meta {
 			clean_post_cache( $post_id );
 		} else {
 			// Edit staff
-			$ldap_synced = ( get_post_meta( $post->ID, 'ldap', true ) != '0' );
+			$ldap_synced = ( get_post_meta( $post_id, 'ldap', true ) != '0' );
 		}
 		
+		echo "<br>===================".$_POST['save'];
 		if ( $_POST['save'] == 'Update_Status' ) {
 			// Update staff status
-			$statuss = Lab_Directory::get_lab_directory_default_statuss();
+			$statuss = self::get_lab_directory_default_statuss();
 			$staff_statuss = array();
 			foreach ( $statuss as $key => $status ) {
 				$staff_statuss[$key] = isset( $_POST['status_' . $key] );
 			}
-			Lab_Directory::update_staff_statuss( $post_id, $staff_statuss );
+			self::update_staff_statuss( $post_id, $staff_statuss );
 			return;
 		}
 		
@@ -963,7 +986,7 @@ div.lab_directory_staff_meta {
 		if ( $_POST['save'] == 'Update' ) {
 			
 			$active_meta_fields = Lab_Directory_Settings::get_active_meta_fields();
-			$staff_statuss = Lab_Directory::get_staff_statuss( $post_id );
+			$staff_statuss = self::get_staff_statuss( $post_id );
 			
 			$group_activations = get_option( 'lab_directory_group_activations' );
 			$used_groups = Lab_Directory_Settings::get_used_groups( 
@@ -999,7 +1022,7 @@ div.lab_directory_staff_meta {
 						}
 						if ( $field_type != 'disabled' ) {
 							// echo "<br> ". $field['group'] . ' '. $field['slug']. " $field_type";
-							Lab_Directory::lab_directory_save_meta_boxes_save_meta( 
+							self::lab_directory_save_meta_boxes_save_meta( 
 								$post_id, 
 								$field, 
 								Lab_Directory_Common::$default_meta_field_names[$field['slug']] );
@@ -2435,7 +2458,7 @@ div.lab_directory_staff_meta {
 		return $permissions;
 	}
 
-	public function get_lab_directory_meta_field_types() {
+	static function get_lab_directory_meta_field_types() {
 		
 		// Define the default type text to use for field name and their internationalisation
 		$default_type_texts = array( 
@@ -2454,7 +2477,7 @@ div.lab_directory_staff_meta {
 		return $default_type_texts;
 	}
 
-	function get_lab_directory_default_group_names() {
+	static function get_lab_directory_default_group_names() {
 		
 		// Define the default groups used for meta field grouping
 		$groups = array(
@@ -2464,7 +2487,7 @@ div.lab_directory_staff_meta {
 		return $groups;
 	}
 
-	function get_lab_directory_default_group_names2() {
+	static function get_lab_directory_default_group_names2() {
 		
 		// Define the default groups used for meta field grouping
 		$groups = array(
@@ -2481,7 +2504,7 @@ div.lab_directory_staff_meta {
 		return $groups;
 	}
 
-	function get_lab_directory_default_statuss() {
+	static function get_lab_directory_default_statuss() {
 		
 		// Define the default groups used for meta field grouping
 		$statuss = array(
@@ -2492,7 +2515,7 @@ div.lab_directory_staff_meta {
 		return $statuss;
 	}
 
-	public function get_lab_directory_multivalues() {
+	static function get_lab_directory_multivalues() {
 		
 		// Define the list of option related to single and multivalue of fields
 		$default_multivalue = array( 
@@ -2509,7 +2532,7 @@ div.lab_directory_staff_meta {
 		return $default_multivalue;
 	}
 
-	public function get_lab_directory_multivalues_names() {
+	static function get_lab_directory_multivalues_names() {
 		
 		// Explain the list of option related to single and multivalue of fields
 		$note1 = ' (' .
@@ -2726,13 +2749,20 @@ div.lab_directory_staff_meta {
 	// A callback function to add a custom field to our "ld_taxonomy_laboratory" taxonomy
 	static function ld_taxonomy_laboratory_custom_fields( $tag ) {
 		// Check for existing taxonomy meta for the term you're editing
+		// Form also used for tax creation ==>notice
+		/* TODOTODO  
+		 *     NOTICE: wp-content/plugins/lab-directory/admin/classes/lab-directory.php:2753 - Trying to get property of non-object
+    
+		 var_dump($tag); string(22) "ld_taxonomy_laboratory" 
+		 */
+		
 		$t_id = $tag->term_id; // Get the ID of the term you're editing
 		$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
 		
 		if ( ! $term_meta['display_style'] ) {
 			$term_meta['display_style'] = 'Manager';
 		}
-		if ( ! $term_meta['manager_ids'] ) {
+		if ( ! isset($term_meta['manager_ids']) ) {
 			$term_meta['manager_ids'] = array();
 		}
 		
@@ -2788,7 +2818,7 @@ div.lab_directory_staff_meta {
 		
 		$output = '';
 		$my_query = null;
-		$my_query = new WP_Query( $args );
+		$my_query = new WP_Query( );
 		if ( $results ) {
 			$output .= '<select multiple name="' . $name . '" id="' . $name . '" >';
 			$output .= '<option value="" disabled ' . ( $current_staff_ids ? 'selected=""' : '' ) . '>' .

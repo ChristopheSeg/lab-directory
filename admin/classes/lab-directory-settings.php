@@ -127,26 +127,10 @@ class Lab_Directory_Settings {
 	// getters
 	//
 
-	public function get_lab_directory_staff_meta_fields() {
+	static function get_lab_directory_staff_meta_fields() {
 		return get_option( 'lab_directory_staff_meta_fields', array() );
 	}
 
-	
-	//
-	// delete functions
-	//
-	public function delete_custom_template( $index = null ) {
-		if ( $index != null ) {
-			$custom_templates = $this->get_custom_lab_directory_staff_templates();
-			$new_custom_templates == array();
-			foreach ( $custom_templates as $template ) {
-				if ( $template['index'] != $index ) {
-					$new_custom_templates[] = $template;
-				}
-			}
-			$this->update_custom_lab_directory_staff_templates( $new_custom_templates );
-		}
-	}
 
 	/*
 	 * Fonction permettant d'importer OU de tester l'import LDAP
@@ -782,7 +766,7 @@ class Lab_Directory_Settings {
 	 * }
 	 *
 	 */
-	function get_active_meta_fields() {
+	static function get_active_meta_fields() {
 		$active_meta_fields = array();
 		foreach ( get_option( 'lab_directory_staff_meta_fields' ) as $field ) {
 			if ( $field['activated'] ) {
@@ -792,7 +776,7 @@ class Lab_Directory_Settings {
 		return $active_meta_fields;
 	}
 
-	function get_synced_meta_fields() {
+	static function get_synced_meta_fields() {
 		$synced_meta_fields = array();
 		foreach ( get_option( 'lab_directory_staff_meta_fields' ) as $field ) {
 			if ( $field['activated'] AND $field['ldap_attribute']) {
@@ -834,7 +818,7 @@ class Lab_Directory_Settings {
 	/*
 	 * Cette fonction retourne la liste des groupes utilisés dans l'affichage des fiches personnelles;
 	 */
-	function get_used_groups( $active_meta_fields = null, $staff_statuss = null, $bio = false ) {
+	static function get_used_groups( $active_meta_fields = null, $staff_statuss = null, $bio = false ) {
 		if ( ! $active_meta_fields ) {
 			return false;
 		}
@@ -854,7 +838,7 @@ class Lab_Directory_Settings {
 		foreach ( $active_meta_fields as $active_meta_field ) {
 			$group = $active_meta_field['group'];
 			
-			if ( $group and ( $group != 'BIO' ) and $staff_statuss[$group] and ! array_key_exists( 
+			if ( $group and ( $group != 'BIO' ) and (isset($staff_statuss[$group]) AND $staff_statuss[$group]) and ! array_key_exists( 
 				$group, 
 				$used_groups ) ) {
 				$used_groups[$group] = $group_names[$group];
@@ -975,9 +959,9 @@ function echo_form_messages( $form_messages = null ) {
 		return;
 	}
 	
-	if ( $form_messages['ok'] or $form_messages['form_saved'] ) {
+	if ( isset($form_messages['ok']) or isset($form_messages['form_saved']) ) {
 		echo ( '<div id="message" class="updated notice notice-success is-dismissible below-h2 -success-message">' );
-		if ( $form_messages['ok'] ) {
+		if ( isset($form_messages['ok']) ) {
 			foreach ( $form_messages['ok'] as $message ) {
 				echo ( '<p>' . $message . '</p>' );
 			}
@@ -987,7 +971,7 @@ function echo_form_messages( $form_messages = null ) {
 		echo '</div>';
 	}
 	
-	if ( $form_messages['warning'] ) {
+	if ( isset($form_messages['warning']) ) {
 		echo ( '<div id="warning" class="notice notice-warning  is-dismissible below-h2 -error-message"' );
 		foreach ( $form_messages['warning'] as $message ) {
 			echo ( '<p>' . $message . '</p>' );
@@ -995,7 +979,7 @@ function echo_form_messages( $form_messages = null ) {
 		echo '</div>';
 	}
 	
-	if ( $form_messages['erreur'] ) {
+	if ( isset($form_messages['erreur']) ) {
 		echo ( '<div id="error" class="updated error is-dismissible below-h2 -error-message"' );
 		foreach ( $form_messages['erreur'] as $message ) {
 			echo ( '<p>' . $message . '</p>' );

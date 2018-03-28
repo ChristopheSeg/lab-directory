@@ -31,7 +31,7 @@ Splitting pot files goals
 	provide the hability to deal with special pot file loaded alone by the plugin
 		
 Proposed Splitted pot file
-	common phrases: keep the original pot file name, contains all phrases found in common php files and all phrases duplicate in frontend and admi
+	common phrases: plugin_name-common.pot (skip the original pot file name for polylang compatibility) contains all phrases found in common php files and all phrases duplicate in frontend and admi
 	frontend phrases: plugin_name-frontend.pot contains frontend phrases not found in common pot file
 	admin phrases: plugin_name-admin.pot contains admin phrase not found in common pot file
 	others phrases: plugin_name-????.pot which is a standalone pot file that can be loaded alone. Note that using standalone pot file can result in phrase duplication

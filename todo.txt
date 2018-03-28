@@ -2,25 +2,19 @@ DONE:
 
 TODO:
 ==================================
-traduction JS
 
-separation admin/frontend
-	A F C
-	
-langue pas prévu: comment faire? 
-	utiliser /languages/plugin-name.po mo pot pour frontend ( le plus important) 
-	ajouter les fichiers .mo.po .pot pour la partie admin (prévoir load_text_domain)
-	ou partie admin faire 2 admin-help, en français ou anglais selon langue
-	ne pas traduire pages help FR + en par défault (avec choix dans menu settings ??
 	
 frontend: faut-il séparer widget du reste? Comment?  => classe
 	conditionnal load de code php shortode?? 
 	identifier les shotrtcode appelés en premier [lab-directory, widegt, hdr loop phdloop 
 	la fonction d'appel charge la classe puis appelle une fonction secondaire 
 
-
+admin add staff onglet différents de edit staff !!
 ==================================
-add social inetwork shortcode
+add social network shortcode
+
+admin revoir dans edit staff title !!!
+
 ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
 tester ordre traduction titre....

@@ -108,7 +108,7 @@ function show_group(group) {
 				value="<?php echo $original_translation; ?>"/>
 			</td>
 			<td><input type="text" name="lab_directory_taxonomies_translations[]" class="input-in-td" 
-				value="<?php echo $translations[$original_translation]; ?>"/>
+				value="<?php echo isset($translations[$original_translation])? $translations[$original_translation]: ''; ?>"/>
 			</td>
 			<?php if ($lang_name!=$locale_name)  {?>
 				<td>

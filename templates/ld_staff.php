@@ -7,6 +7,7 @@
 	[ld_mails]
 	[ld_other_mails] 
 	[ld_phone_number]
+	[ld_social_link]
 	[ld_fax_number]
 	[ld_webpage]
 	[ld_bio]

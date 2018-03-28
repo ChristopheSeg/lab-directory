@@ -72,10 +72,10 @@ jQuery(document).ready(function($){
 			value="<?php echo $translation['acronym']; // slug of the acronym ?>"/>
 		</td>		
 		<td><input type="text" name="lab_directory_translations_translations[]" class="input-in-td" 
-			value="<?php echo $translation['translation']; ?>"/>
+			value="<?php echo isset($translation['translation']) ? $translation['translation']:''; ?>"/>
 		</td>
 		<td><input type="text" name="lab_directory_translations_links[]" class="input-in-td" 
-			value="<?php echo $translation['link']; ?>"/>
+			value="<?php echo isset($translation['link']) ? $translation['link']: ''; ?>"/>
 		</td>
 		</tr>
 		<?php } // } ?>
@@ -140,7 +140,7 @@ jQuery(document).ready(function($){
 			value="custom_group"/>
 		</td>
 		<td><input type="text" name="lab_directory_translations_translations[]" class="input-in-td" 
-			value="<?php echo $translations['custom_group']; ?>"/>
+			value="<?php echo isset($translations['custom_group'])? $translations['custom_group']: ''; ?>"/>
 		</td>
 		<?php if ($lang_name!=$locale_name)  {?>
 		<td>
@@ -158,11 +158,11 @@ jQuery(document).ready(function($){
 			value="<?php echo $slug; ?>"/>
 		</td>
 		<td><input type="text" name="lab_directory_translations_translations[]" class="input-in-td" 
-			value="<?php echo $translations[$slug]; ?>"/>
+			value="<?php echo isset($translations[$slug])? $translations[$slug] : ''; ?>"/>
 		</td>
 		<?php if ($lang_name!=$locale_name)  {?>
 		<td>
-			<?php echo $locale_translations[$slug]? $locale_translations[$slug] : $slug_name; ?>
+			<?php echo isset($locale_translations[$slug])? $locale_translations[$slug] : $slug_name; ?>
 		</td>
 		<?php } ?>
 		</tr>

@@ -140,7 +140,7 @@ class Lab_Directory_Common {
 		
 	}
 	
-	public function get_lab_directory_studying_levels() {
+	static function get_lab_directory_studying_levels() {
 	
 		// Define the list of studying levels and their translation
 		$studying_levels = array(
@@ -154,7 +154,7 @@ class Lab_Directory_Common {
 		return $studying_levels;
 	}
 	
-	public function get_lab_directory_jury_functions() {
+	static function get_lab_directory_jury_functions() {
 	
 		// Define the list of function use in HDR and PHD jury and their translation
 		$jury_functions = array(
@@ -284,7 +284,7 @@ class Lab_Directory_Common {
 	/*
 	 * This function convert a value depending on its multivalue type
 	 */
-	function ld_value_to_something( &$value = false, $multivalue = false, $to = 'display' ) {
+	static function ld_value_to_something( &$value = false, $multivalue = false, $to = 'display' ) {
 		// TODO common function for admin/frontend
 		switch ( $to ) {
 			case 'display' :

@@ -1,0 +1,568 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Lab Directory\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/{slug}\n"
+"POT-Creation-Date: 2018-03-27 14:55+0200\n"
+"PO-Revision-Date: 2018-03-27 15:03+0200\n"
+"Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
+"Language-Team: French (France)\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: admin/classes/lab-directory-admin-menus.php:64
+#: admin/classes/lab-directory-admin-menus.php:67
+msgid "New staff"
+msgstr ""
+
+#: admin/classes/lab-directory-admin-menus.php:66
+msgid "Edit staff profile"
+msgstr "Editer la fiche personnelle"
+
+#: admin/classes/lab-directory-admin-menus.php:74
+msgid "Staff photo"
+msgstr ""
+
+#: public/classes/lab-directory-shortcode.php:551
+msgid "HDR"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Lab Directory"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+#. Author URI of the plugin/theme
+msgid "http://www.nourl.yet"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Allows Wordpress to keep track of your lab_directory_staff directory for "
+"your website. Good for"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Christophe Seguinot"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:192
+msgctxt "1st taxonomy singular name"
+msgid "Staff Team"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:212
+msgid "Team manager"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:225
+msgctxt "2nd taxonomy general name"
+msgid "Laboratories"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:247
+msgid "Laboratory manager"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:352
+msgid "Firstname"
+msgstr "Prénom"
+
+#: common/classes/lab-directory-common.php:353
+msgid "Name"
+msgstr "Nom"
+
+#: common/classes/lab-directory-common.php:354
+msgid "Position"
+msgstr "Fonction"
+
+#: common/classes/lab-directory-common.php:355
+msgid "Login"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:356
+msgid "Wordpress user ID"
+msgstr "ID utilisateur Wordpress"
+
+#: common/classes/lab-directory-common.php:357
+msgid "Mail"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:358
+msgid "Biography"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:359
+msgid "Other mails"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:360
+msgid "ID HAL"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:361
+msgid "Photo URL"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:362
+msgid "Professionnal webpage"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:363
+msgid "Social Network"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:364
+msgid "Function"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:365
+msgid "Title"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:366
+msgid "Phone number"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:367
+msgid "Fax number"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:368
+msgid "Office"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:369
+msgid "Team"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:370
+msgid "End activity date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:371
+#: common/classes/lab-directory-common.php:372
+#: common/classes/lab-directory-common.php:373
+msgid "HDR subject"
+msgstr "Sujet de HDR"
+
+#: common/classes/lab-directory-common.php:374
+msgid "HDR defense date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:375
+msgid "HDR defense location"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:376
+msgid "HDR jury"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:377
+#: common/classes/lab-directory-common.php:378
+#: common/classes/lab-directory-common.php:379
+msgid "HDR resume"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:380
+msgid "PHD start date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:381
+#: common/classes/lab-directory-common.php:382
+#: common/classes/lab-directory-common.php:383
+msgid "PHD subject"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:384
+msgid "PHD defense date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:385
+msgid "PHD defense location"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:386
+msgid "PHD jury"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:387
+#: common/classes/lab-directory-common.php:388
+#: common/classes/lab-directory-common.php:389
+msgid "PHD resume"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:390
+msgid "Post Doct. start date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:391
+msgid "Post Doct. end date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:392
+#: common/classes/lab-directory-common.php:393
+#: common/classes/lab-directory-common.php:394
+msgid "Post Doct. subject"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:395
+msgid "Internship start date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:396
+msgid "Internship end date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:397
+#: common/classes/lab-directory-common.php:398
+#: common/classes/lab-directory-common.php:399
+msgid "Internship subject"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:400
+#: common/classes/lab-directory-common.php:401
+#: common/classes/lab-directory-common.php:402
+msgid "Internship resume"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:403
+msgid "Trainee Studying school"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:404
+msgid "Trainee Studying level"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:405
+msgid "Invitation Start date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:406
+msgid "Invitation End date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:407
+#: common/classes/lab-directory-common.php:408
+#: common/classes/lab-directory-common.php:409
+msgid "Invitation goal"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:410
+msgid "Contractant Position"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:411
+msgid "Invited origin"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:413
+msgid "Contract start date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:415
+msgid "Contract end date"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:417
+#: common/classes/lab-directory-common.php:418
+#: common/classes/lab-directory-common.php:419
+msgid "Contract goal"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:421
+msgid "Occupied position"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:423
+msgid "custom_field_1"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:425
+msgid "custom_field_2"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:427
+msgid "custom_field_3"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:429
+msgid "custom_field_4"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:431
+msgid "custom_field_5"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:433
+msgid "custom_field_6"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:435
+msgid "custom_field_7"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:437
+msgid "custom_field_8"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:439
+msgid "custom_field_9"
+msgstr ""
+
+#. translators: Do not translate.  Translation must be set in Lab Directory
+#. backend depending on custom fields usage.
+#: common/classes/lab-directory-common.php:441
+msgid "custom_field_10"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:444
+msgid "Name Firstname"
+msgstr "Nom Prénom"
+
+#: common/classes/lab-directory-common.php:445
+msgid "Firstname Name"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:129
+msgid "L1 (Bachelor  1st year)"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:130
+msgid "L2 (Bachelor 2nd year)"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:131
+msgid "L3 (Bachelor 3rd year)"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:132
+msgid "M1 (Master 1st year)"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:133
+msgid "M2 (Master 2nd year)"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:134
+msgid "Engineering School"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:142
+msgid "HDR guarantor"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:143
+#: common/classes/lab-directory-common.php:144
+msgid "President"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:145
+msgid "Directeur"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:146
+msgid "Directrice"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:147
+msgid "Directeurs"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:148
+msgid "Examinateur"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:149
+msgctxt "male"
+msgid "Examiner"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:150
+msgctxt "female"
+msgid "Examiner"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:151
+msgid "Examiners"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:152
+msgctxt "male"
+msgid "Referee"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:153
+msgctxt "female"
+msgid "Referee"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:154
+msgid "Rapporteurs"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:155
+msgctxt "male"
+msgid "Invited"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:156
+msgctxt "female"
+msgid "Invited"
+msgstr ""
+
+#: common/classes/lab-directory-common.php:157
+msgctxt "plural"
+msgid "Invited"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:190
+msgctxt "1st taxonomy general name"
+msgid "Staff Teams"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:194
+msgid "Search Staff Teams"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:196
+msgid "All Staff Teams"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:198
+msgid "Parent Staff Team"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:200
+msgid "Parent Staff Team :"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:202
+msgid "Edit Staff Team"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:204
+msgid "Update Staff Team"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:206
+msgid "Add New Staff Team"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:208
+msgid "New Staff Team Name"
+msgstr ""
+
+#. translators: this is related to taxonomy-1 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:210
+msgid "Staff Teams"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:227
+msgctxt "2nd taxonomy singular name"
+msgid "Laboratory"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:229
+msgid "Search Laboratories"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:231
+msgid "All Laboratories"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:233
+msgid "Parent Laboratory"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:235
+msgid "Parent Laboratory :"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:237
+msgid "Edit Laboratory"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:239
+msgid "Update Laboratory"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:241
+msgid "Add Laboratory"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:243
+msgid "New Laboratory Name"
+msgstr ""
+
+#. translators: this is related to taxonomy-2 messages. This translation could
+#. be overrided depending on Lab-Directory settings..
+#: common/classes/lab-directory-common.php:245
+msgid "Staff Laboratories"
+msgstr ""

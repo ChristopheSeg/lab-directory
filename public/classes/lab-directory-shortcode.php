@@ -78,7 +78,8 @@ class Lab_Directory_Shortcode {
         	'ld_laboratory',
         	'ld_categories_nav',
         	'ld_widget_hdr_link', 
-        	'ld_widget_phd_link', 
+        	'ld_widget_phd_link',
+        	'ld_social_link',
         );
 
         //Add shortcodes for all $predefined_shortcodes, link to function by
@@ -616,11 +617,30 @@ class Lab_Directory_Shortcode {
          * $bio = str_replace( ']]>', ']]&gt;', $bio );
          * 
          */
-        
-       
-        
+   
     }
 
+    static function ld_social_link_shortcode($atts, $content = NULL, $tag = '' ){
+    
+    	$atts = shortcode_atts( array(
+    		'add_div' => true,
+    	), $atts);
+    	
+    	$social_networks = get_post_meta( get_the_ID(), 'social_network', true );
+    	var_dump($social_network); 
+    	$temp = array();
+    	if (!empty($social_networks)) {
+    		foreach ( $social_networks as $key => $url ) {
+	    		if ( $url ) {
+	    			$temp[$key] = esc_url( $url );
+	    		}
+    		}
+    	}
+    	
+    	return self::div_it($output, $tag, $atts);
+    	
+    }
+    	
     static function ld_profile_link_shortcode($atts, $content = NULL, $tag = '' ){
 
         global $wp_query; 
