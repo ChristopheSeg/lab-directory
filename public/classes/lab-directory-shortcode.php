@@ -108,8 +108,12 @@ class Lab_Directory_Shortcode {
                 }
             }
         }
+        add_action( 'wp_enqueue_scripts', array( 'Lab_Directory_shortcode', 'register_ld_default_style' ) );
 
-        //Register default stylesheet for conditionnal loading if Lab-Direcotry shortcode are used
+	}
+	
+	static function register_ld_default_style() {
+		//Register default stylesheet for conditionnal loading if Lab-Direcotry shortcode are used
         wp_register_style( 'lab-directory-default-css', LAB_DIRECTORY_URL . '/public/css/default.css' );
 
 	}
@@ -179,7 +183,7 @@ class Lab_Directory_Shortcode {
     	// translation of  _resume _goal _subject suffixed metafields
     	
     	// search for xx_lang1 xx_lang2 suffixed tags
-    	$lang == '';
+    	$lang = '';
     	if (strlen($tag)>5 AND strrpos($slug, '_lang', -4) >0) {
     		$to_translate=true;
     		$base_slug = substr($slug, -6, 6);
@@ -198,7 +202,7 @@ class Lab_Directory_Shortcode {
     		$meta_value = self::translate($base_slug, $tag, $lang, $atts);
     	} else {
     		// get meta field value
-    		$meta_key = 'ld_' . $field['slug'];
+    		$meta_key = 'ld_' . $slug;
     		$meta_value = get_post_meta( get_the_ID(), $slug, true );
     	
     	}
@@ -282,7 +286,8 @@ class Lab_Directory_Shortcode {
  
     static function lab_directory_staff_loop_shortcode( $atts, $content = NULL ) {
  
-    	global $lang;
+    	global $lang; $post;
+    	$use_staff_search = false; 
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -385,7 +390,8 @@ class Lab_Directory_Shortcode {
                 $query->the_post();
                 // Save the edit staff url 
                 if ($query->post_count==1) {
-                	Lab_Directory_Common::$main_ld_permalink['edit_staff_url'] = get_edit_post_link($posts[0]->ID);
+           
+                	Lab_Directory_Common::$main_ld_permalink['edit_staff_url'] = get_edit_post_link(get_the_ID());
                 }
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
                 
@@ -627,7 +633,8 @@ class Lab_Directory_Shortcode {
     	), $atts);
     	
     	$social_networks = get_post_meta( get_the_ID(), 'social_network', true );
-    	var_dump($social_network); 
+    	var_dump($social_networks); 
+    	$output = 'test'; 
     	$temp = array();
     	if (!empty($social_networks)) {
     		foreach ( $social_networks as $key => $url ) {
@@ -1011,6 +1018,7 @@ class Lab_Directory_Shortcode {
 				$cats_query['relation'] = $params['cat_relation'];
 			}
 	
+			//TODO OBSOLETE rewrite for new categories!! 
 			foreach ($cats as $cat) {
 				$cats_query[] = array(
 					'taxonomy' => 'lab_category',
@@ -1115,6 +1123,7 @@ class Lab_Directory_Shortcode {
 				$cats_query['relation'] = $params['cat_relation'];
 			}
 	
+			//TODO OBSOLETE rewrite for new categories!! 
 			foreach ($cats as $cat) {
 				$cats_query[] = array(
 					'taxonomy' => 'lab_category',
@@ -1331,12 +1340,13 @@ class Lab_Directory_Shortcode {
     			} elseif ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']] ) ) {
     				$taxonomy = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']] ;
     			}
-    			if ( isset( $taxonomy) ) {
+    			if ( isset( $taxonomy) AND $taxonomy !='') {
+    				
     				$term = get_term_by('slug', $taxonomy, 'ld_taxonomy_team');
-    				if (! $term->name) {
+    				if ((! $term) OR ! $term->name) {
     					$term = get_term_by('slug', $taxonomy, 'ld_taxonomy_laboratory');
     				}
-    				$posts[0]->post_title = $term->name ?
+    				$posts[0]->post_title = ( $term AND $term->name)  ?
     				sprintf( __( "%s directory", 'lab-directory' ), $term->name  ) :
     				__( "Directory", 'lab-directory' );
     			}
@@ -1470,7 +1480,7 @@ class Lab_Directory_Shortcode {
     	return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
     }
     
-    function add_tooltips( &$meta_value, $field ) {
+    static function add_tooltips( &$meta_value, $field ) {
     	if ( ! $meta_value ) {
     		return;
     	}

@@ -60,11 +60,13 @@ if ($test_user_id) {
    				'selected'=> $test_user_id
    		)); 
    
-   }?>
+   }
+   ?>
     &nbsp;&nbsp;&nbsp;&nbsp;
     
 
   	</p>
+  	
   	<table class="widefat fixed striped wp_permissions_table" cellspacing="0" 
   		style="display: block;" id="lab_directory_staff-meta-fields">
 	<thead>
@@ -95,7 +97,7 @@ if ($test_user_id) {
 	<tr>
 		<?php if ($test_user_id) { ?>
 		<td scope="col" >
-			<?php echo ld_user_can($capability_key, $test_user_id)? 
+			<?php echo Lab_Directory::ld_user_can($capability_key, $test_user_id)? 
 			'<i class="fa fa-check-square" aria-hidden="true"></i>': 
 			'<i class="fa fa-square-o" aria-hidden="true"></i>'; ?>
 		</td>
@@ -154,7 +156,7 @@ if ($test_user_id) {
 	<tr>
 		<?php if ($test_user_id) { ?>
 		<td scope="col" >
-			<?php echo ld_user_can($capability_key, $test_user_id)? 
+			<?php echo Lab_Directory::ld_user_can($capability_key, $test_user_id)? 
 			'<i class="fa fa-check-square" aria-hidden="true"></i>': 
 			'<i class="fa fa-square-o" aria-hidden="true"></i>'; ?>
 		</td>

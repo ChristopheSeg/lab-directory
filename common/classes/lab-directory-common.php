@@ -36,6 +36,8 @@ class Lab_Directory_Common {
 		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
+		add_action( 'init', array( 'Lab_Directory_Common', 'register_ld_post_type' ) );
+
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
 		
@@ -68,12 +70,12 @@ class Lab_Directory_Common {
 		global $wpdb,$lang, $wp_query;
 		self::$main_ld_permalink = array();
 		$ld_posts = $wpdb->get_results("SELECT ID,guid FROM $wpdb->posts WHERE post_content like '%[lab-directory]%'");
-		if (count(ldposts) == 0) {
+		if (count($ld_posts) == 0) {
 			self::$main_ld_permalink = '';
 			return;
 		}
 	
-		if (count(ldposts) >= 1) {
+		if (count($ld_posts) >= 1) {
 			//Save first post in $main_ld_permalink[0] (in case lang is not found) but this can be in any languages!
 			self::$main_ld_permalink[0]['ID']= $ld_posts[0]->ID;
 			self::$main_ld_permalink[0]['permalink']= get_permalink($ld_posts[0]->ID);
@@ -82,7 +84,7 @@ class Lab_Directory_Common {
 		$current_url = trim($_SERVER['SCRIPT_URI'], '/'). $_SERVER['QUERY_STRING'];
 	
 		// Polylang case
-		if (function_exists (pll_languages_list) ) {
+		if (function_exists ('pll_languages_list') ) {
 			$languages = pll_languages_list('slug');
 			foreach ($languages as $language){
 				self::$main_ld_permalink[$language]['ID'] = pll_get_post(self::$main_ld_permalink[0]['ID'], $language);
@@ -121,6 +123,45 @@ class Lab_Directory_Common {
 		 
 		return $permalink;
 	
+	}
+	
+	/* 
+	 * Register ld_post_type
+	 */
+	static function register_ld_post_type() {
+	
+		register_post_type(
+			'lab_directory_staff',
+			array(
+				'labels' => array(
+					'name' => __( 'Lab Directory staff', 'lab-directory' ),
+					'singular_name' => __( 'Staff', 'lab-directory' ),
+					'add_new' => __( 'New staff', 'lab-directory' ),
+					'add_new_item' => __( 'Add a new staff', 'lab-directory' ),
+					'edit_item' => __( 'Edit staff profile', 'lab-directory' ),
+					'new_item' => __( 'New staff', 'lab-directory' ),
+					'view_item' => _x( 'View staff', 'single', 'lab-directory' ),
+					'view_items' => _x( 'View staff', 'plural', 'lab-directory' ),
+					'search_items' => __( 'Search staff', 'lab-directory' ),
+					'not_found' => __( 'No staff found.', 'lab-directory' ),
+					'not_found_in_trash' => __( 'No staff in Trash.', 'lab-directory' ),
+					'all_items' => __( 'Staff list', 'lab-directory' ),
+					'featured_image' => __( 'Staff photo', 'lab-directory' ),
+					'set_featured_image' => __( 'Set staff photo', 'lab-directory' ),
+					'remove_featured_image' => __( 'Remove staff photo', 'lab-directory' ),
+					'use_featured_image' => __( 'Use a staff photo', 'lab-directory' ),
+					'filter_items_list' => __( 'Filter staff list', 'lab-directory' ),
+					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ),
+					'items_list' => __( 'Staff list', 'lab-directory' ) ),
+	
+				'supports' => array( 'title',
+					// 'editor',
+					'thumbnail' ),  // disabled for ldap=1
+	
+				'public' => true,
+				'has_archive' => false,
+				'menu_icon' => 'dashicons-id',
+			) );
 	}
 	
 	static function load_lab_directory_textdomain() {
@@ -461,9 +502,9 @@ class Lab_Directory_Common {
 				
 			// Others shortcodes requiring translation
 			'name_firstname' => __( 'Name Firstname', 'lab-directory' ),
-			'firstname_name' => __( 'Firstname Name', 'lab-directory' ) )
-	
-			;
+			'firstname_name' => __( 'Firstname Name', 'lab-directory' ),
+			'social_link' =>  __( 'Social link', 'lab-directory' ),
+			);
 	}
 	
 	

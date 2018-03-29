@@ -8,6 +8,7 @@
   }
 </style>
 
+<!-- TODO OBSOLETE rewrite for new categories   -->
 <div id="lab_directory_staff-categories-wrapper">
   <label for="lab_directory_staff-category">Staff Category</label>
   <select name="lab_directory_staff-category">

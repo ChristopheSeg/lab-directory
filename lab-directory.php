@@ -22,22 +22,21 @@ Lab_Directory_Common::register_common_filters_and_actions();
 
 
 if ( is_admin() ) {
-    // Load Admin classes 
     
-    // Always load admin menus (and corresponding languages pot file
+    // Always load admin menus and corresponding languages mo file
 	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
 	Lab_Directory_Admin_Menus::register_admin_menu_items();
-	//TODO load text domain for admin menus separately from other admin ?? 
 	 
-	//TODO Solve this issue !! (ie also load for lab-directory post !!)
+	//TODO conditional load for admin settings OR edit staff (need ad'hoc separation in 2 classes!! 
 	if (Lab_Directory_Admin_Menus::$load_admin_class) {
 				
 		// Load admin classes if in lab-directory menu (not used in others cases). 
+    	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory.php' );
+    	Lab_Directory::register_actions_and_filters();
+    	Lab_Directory::set_default_meta_fields_if_necessary();
+    	
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-settings.php' );
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin.php' );
-    	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory.php' );
-    	Lab_Directory::register_post_types();
-    	Lab_Directory::set_default_meta_fields_if_necessary();
     	Lab_Directory_Admin::add_admin_actions();
     	
     	

@@ -504,7 +504,7 @@ class Lab_Directory_Admin {
 		$form_messages = array('form_saved' => false);
 	
 		// Check $_POST and _wpnonce
-		if ($_POST['admin-settings-taxonomies']) {
+		if (isset($_POST['admin-settings-taxonomies']) AND $_POST['admin-settings-taxonomies']) {
 			if ( ($_POST['admin-settings-taxonomies']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomies' )){
 				$lang = $_POST['lab_directory_taxonomies_for'];
 				$slugs = $_POST['lab_directory_taxonomies_slugs'];
@@ -780,6 +780,7 @@ class Lab_Directory_Admin {
 	
 	static function settings_permissions() {
 		global $current_user;
+		wp_enqueue_style( 'font-awesome');
 		
 		$form_messages = array('form_saved' => false);
 	    $wp_roles = new WP_Roles();
@@ -803,7 +804,7 @@ class Lab_Directory_Admin {
 				
 			if ( ($_POST['admin-settings-permissions']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-permissions' )){
 				// Process form
-				foreach (self::$capabilities as $capability_key => $capability){
+				foreach (Lab_Directory::$capabilities as $capability_key => $capability){
 					foreach ($all_wp_roles as $role_key => $role) {
 						$name = 'wp_' . $role_key. '_'. $capability_key;
 						$ld_permissions[$name] =  isset($_POST[$name])? '1':'0';  
@@ -825,7 +826,7 @@ class Lab_Directory_Admin {
 			}
 				update_option( 'lab_directory_permissions', $ld_permissions);
 				// Update static $ld_permissions used in this form 
-				self::$ld_permissions = $ld_permissions;
+				Lab_Directory::$ld_permissions = $ld_permissions;
 		} else {
 			// Form initialisation 
 			$ld_permissions = get_option( 'lab_directory_permissions');
@@ -994,56 +995,57 @@ class Lab_Directory_Admin {
 	}
 	
 	/* 
- * Create a select input from value list 
- * 
- * $allow_none: text for 'no selection' or false
- */static function lab_directory_create_select($name=false, $values, $current_value= null, $multiple=false, $class=null, $allow_none=false, $disabled=false) {
-	
-	if (($name == false) OR ($values == false)) {
-		return '';
-	}
-	
-	
-	if ($allow_none !== false) {
-		if ($allow_none === true) {
-			$no_selection= __('no selection', 'lab-directory');
-		} else {
-			$no_selection = $allow_none;
+	 * Create a select input from value list 
+	 * 
+	 * $allow_none: text for 'no selection' or false
+	 */
+	static function lab_directory_create_select($name=false, $values, $current_value= null, $multiple=false, $class=null, $allow_none=false, $disabled=false) {
+		
+		if (($name == false) OR ($values == false)) {
+			return '';
 		}
-	} else {
-			$no_selection = '';
-	}
-	
-	$select_options = '';
-	
-	// Convert single current_value to array 
-	if (! is_array($current_value) ) {
-		$current_value = array($current_value); 
-	}
-	$current_values = ''; 
-   	foreach( $values as $key => $value) {
-   		if (in_array($key, $current_value, true) ) {
-   			$noselection=false;
-   			$current_values .= $values[$key];
-   			$select_options .='<option value="' . $key . '" selected="selected">' . $value . '</option>';
-   		} else {
-   			$select_options .='<option value="' . $key . '">' . $value . '</option>';
-   			 
-   		}
-    }
-	
-	$select = '<select ' . ($disabled? 'hidden ':'') . ($multiple? 'multiple size="3" ': '') . ' class="' . $class . '"name="' . $name . ($multiple? '[]': '') . '">';
-	if ($allow_none!== false) {
-		$select .='<option value="none" ' . (in_array('note', $current_value, true)? 'selected="selected"':'') . '>'. $no_selection . '</option>';
-	}
-	$select .= $select_options . '</select>';
-	if ($disabled){
-		// When select is hidden, only current value(s) is displayed
-		$select .= $current_values;
-	
-	}
-	
-    return $select;
+		
+		
+		if ($allow_none !== false) {
+			if ($allow_none === true) {
+				$no_selection= __('no selection', 'lab-directory');
+			} else {
+				$no_selection = $allow_none;
+			}
+		} else {
+				$no_selection = '';
+		}
+		
+		$select_options = '';
+		
+		// Convert single current_value to array 
+		if (! is_array($current_value) ) {
+			$current_value = array($current_value); 
+		}
+		$current_values = ''; 
+	   	foreach( $values as $key => $value) {
+	   		if (in_array($key, $current_value, true) ) {
+	   			$noselection=false;
+	   			$current_values .= $values[$key];
+	   			$select_options .='<option value="' . $key . '" selected="selected">' . $value . '</option>';
+	   		} else {
+	   			$select_options .='<option value="' . $key . '">' . $value . '</option>';
+	   			 
+	   		}
+	    }
+		
+		$select = '<select ' . ($disabled? 'hidden ':'') . ($multiple? 'multiple size="3" ': '') . ' class="' . $class . '" name="' . $name . ($multiple? '[]': '') . '">';
+		if ($allow_none!== false) {
+			$select .='<option value="none" ' . (in_array('note', $current_value, true)? 'selected="selected"':'') . '>'. $no_selection . '</option>';
+		}
+		$select .= $select_options . '</select>';
+		if ($disabled){
+			// When select is hidden, only current value(s) is displayed
+			$select .= $current_values;
+		
+		}
+		
+	    return $select;
 		
 	}
 	
@@ -1073,6 +1075,17 @@ class Lab_Directory_Admin {
 		
 		// Else load from language dir 
 		return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
+	}
+	
+	static function get_default_social_networks() {
+		$networks = array(
+			'twitter' => 'Twitter',
+			'linkedin' => 'Linkedin',
+			'academia' => 'Academia',
+			'orcid' => 'Orcid',
+			'research-gate' => 'Research Gate',
+			'viadeo' => 'Viadeo' );
+		return $networks;
 	}
 
 }

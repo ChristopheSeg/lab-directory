@@ -80,12 +80,12 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<?php 
 	wp_enqueue_style('social-icons-css', LAB_DIRECTORY_URL . '/common/css/social_icons.css');
 	
-	$possible_social_networks= get_possible_social_networks();
+	$possible_social_networks= Lab_Directory::get_possible_social_networks();
 	
 	$lab_directory_used_social_networks = get_option ('lab_directory_used_social_networks', false );
 	$use_default_social_networks = $lab_directory_used_social_networks? false :true; 
 	if ($use_default_social_networks) {
-		$lab_directory_used_social_networks = get_default_social_networks();
+		$lab_directory_used_social_networks = self::get_default_social_networks();
 		$checkhed =' ';
 	} else {
 		$checkhed = ' checked="checked" ';

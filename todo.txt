@@ -1,8 +1,16 @@
 DONE: 
+move all functions inside classes
+Add: missing fontawesome on some admin pages
+Fixed: typo in admin page input and multiple PHP Notices
+Fixed: metabox not saving after code split admin/frontend 
 
 TODO:
 ==================================
+//TODO OBSOLETE rewrite for new categories!! 
+			
+self::$default_meta_field_names défini dans adlmin!! 
 
+modifier admin "Article mis à jour. Voir l’article" pour staff
 	
 frontend: faut-il séparer widget du reste? Comment?  => classe
 	conditionnal load de code php shortode?? 

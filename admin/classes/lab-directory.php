@@ -73,13 +73,10 @@ class Lab_Directory {
 	//
 	// Init custom post types
 	//
-	static function register_post_types() {
+	static function register_actions_and_filters() {
 
 		
-		
-		//TODO only do that on admin change,  
-		
-		add_action( 'init', array( 'Lab_Directory', 'lab_directory_flush_rewrite_rules'), 20 );
+		// add_action( 'init', array( 'Lab_Directory', 'lab_directory_flush_rewrite_rules'), 20 );
 		
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_ld_permissions' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory', 'initiate_capabilities' ) );
@@ -102,24 +99,9 @@ class Lab_Directory {
 		add_action( 
 			'add_meta_boxes_lab_directory_staff', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
-		// https://wordpress.org/support/topic/save_post-not-working-getting-called/#post-2335557
-		// add_action( 'pre_post_update', array( 'Lab_Directory', 'save_meta_boxes' ) );
 		
-		add_action( 'save_post', array( 'Lab_Directory', 'save_meta_boxes' ) );
-	// =====TEMP ============	
-	add_action( 'save_post', 'yysave_meta_boxes' );
-		function yysave_meta_boxes () {
-			echo "<br><br><br>========================== save_meta_boxes fired";
-			
-		}
-		add_action( 'init', 'zzsave_meta_boxes' );
-		function zzsave_meta_boxes () {
-			echo "<br><br><br>========================== _POST<br>";
-			echo "<br>=========================";var_dump($_POST);
-			echo "<br>========================== _POST";
-		}
-		// =====TEMP ============
-		
+		add_action( 'save_post_lab_directory_staff', array( 'Lab_Directory', 'save_meta_boxes' ) );
+	
 		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory', 'lab_directory_admin_bar_render' ) );
 		
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
@@ -470,7 +452,7 @@ class Lab_Directory {
 		?>
 <p>
 	<button name="save" class="button button-primary button-large"
-		id="publish2" value="Update_Status" type="submit"><?php _e('Update staff status', 'lab-directory')?></button>
+		id="publish2" value="Update" type="submit"><?php _e('Update staff status', 'lab-directory')?></button>
 </p>
 <p>Note: Staff details and staff status cannot be modified at the same
 	time. Please, first modify staff status, then modify staff details.</p>
@@ -496,6 +478,7 @@ class Lab_Directory {
 			$active_meta_fields, 
 			$staff_statuss, 
 			$group_activations['BIO'] );
+		wp_enqueue_style( 'font-awesome');
 		
 		?>
 <script type="text/javascript">
@@ -732,7 +715,7 @@ div.lab_directory_staff_meta {
 			case 'url' :
 			case 'phone_number' :
 				echo $label;
-				// $required is ponly used for name and firstname
+				// $required is only used for name and firstname
 				?>
 <input type="text"
 	name="lab_directory_staff_meta_<?php echo $field['slug']; ?>"
@@ -809,7 +792,7 @@ div.lab_directory_staff_meta {
 			<th id="columnname" scope="col" style="width: 5%;">Order</th>
 			<th id="columnname" scope="col" style="width: 20%;">Function</th>
 			<th id="columnname" scope="col" style="width: 25%;">Name</th>
-			<th id="columnname" scope="col"">Title, University, enterprise</th>
+			<th id="columnname" scope="col">Title, University, enterprise</th>
 		</tr>
 	</thead>
 	<tfoot>
@@ -885,7 +868,7 @@ div.lab_directory_staff_meta {
 				break;
 			case 'social_network' :
 				echo $label;
-				$possible_social_networks = get_possible_social_networks();
+				$possible_social_networks = self::get_possible_social_networks();
 				$lab_directory_used_social_networks = get_option( 'lab_directory_used_social_networks', false );
 				if ( empty( $lab_directory_used_social_networks ) ) {
 					// This should not be the case but...
@@ -937,20 +920,16 @@ div.lab_directory_staff_meta {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		echo "<br>====================save_meta_boxes==".$_POST['save']. '=='.$_POST['lab_directory_staff_meta_box_nonce'];
-		var_dump($_POST); 
 		if ( ! isset( $_POST['lab_directory_staff_meta_box_nonce'] ) || ! wp_verify_nonce( 
 			$_POST['lab_directory_staff_meta_box_nonce'], 
 			'lab_directory_staff_meta_box_nonce_action' ) ) {
 			return;
 		}
-		echo "<br>====================save_meta_boxes==".$_POST['save'];
 		
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
-		echo "<br>====================save_meta_boxes==".$_POST['save'];
-		
+
 		if ( get_post_status( $post_id ) == 'draft' ) {
 			// Add New staff
 			$ldap_synced = false;
@@ -970,8 +949,7 @@ div.lab_directory_staff_meta {
 			$ldap_synced = ( get_post_meta( $post_id, 'ldap', true ) != '0' );
 		}
 		
-		echo "<br>===================".$_POST['save'];
-		if ( $_POST['save'] == 'Update_Status' ) {
+		if ( $_POST['save'] == 'Update' ) { // Now we save all at the same time if ( $_POST['save'] == 'Update_Status' ) {
 			// Update staff status
 			$statuss = self::get_lab_directory_default_statuss();
 			$staff_statuss = array();
@@ -1058,10 +1036,10 @@ div.lab_directory_staff_meta {
 				$value = esc_textarea( $value );
 				break;
 			case 'date' :
-				$value = lab_directory_strtotime( $value, "Y-m-d" );
+				$value = self::lab_directory_strtotime( $value, "Y-m-d" );
 				break;
 			case 'datetime' :
-				$value = lab_directory_strtotime( $value, "Y-m-d h:m" );
+				$value = self::lab_directory_strtotime( $value, "Y-m-d h:m" );
 				break;
 			case 'mail' :
 				$value = sanitize_email( $value );
@@ -1093,7 +1071,8 @@ div.lab_directory_staff_meta {
 					}
 					$index++;
 				}
-				usort( $value, __NAMESPACE__ . '\ld_compare_jury_order' );
+				//TODO is self OK?  
+				usort( $value, __NAMESPACE__ . '\self::ld_compare_jury_order' );
 				break;
 			case 'social_network' :
 				$social_networks = $_POST[lab_directory_staff_used_social_networks];
@@ -1948,6 +1927,7 @@ div.lab_directory_staff_meta {
 		}
 	}
 
+	// OBSOLETE Keep it for a futeure import from CSV 
 	static function import_old_lab_directory_staff() {
 		global $wpdb;
 		
@@ -2143,19 +2123,24 @@ div.lab_directory_staff_meta {
 		global $post_type;
 		
 		if ( $post_type == 'lab_directory_staff' ) {
-			
-			$lab_category_args = array( 
-				'show_option_all' => 'All Staff Categories', 
-				'orderby' => 'ID', 
-				'order' => 'ASC', 
-				'name' => 'lab_category_admin_filter', 
-				'taxonomy' => 'lab_category' );
-			
-			if ( isset( $_GET['lab_category_admin_filter'] ) ) {
-				$lab_category_args['selected'] = sanitize_text_field( $_GET['lab_category_admin_filter'] );
+			foreach ( Lab_Directory_Common::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
+				
+				$filter_name = $slug.'_filter';
+				$lab_category_args = array(
+					'show_option_all' => $ld_taxonomy['labels']['all_items'],
+					'orderby' => 'ID',
+					'order' => 'ASC',
+					'name' => $filter_name,
+					'taxonomy' => $slug );
+					
+				if ( isset( $_GET[$filter_name] ) ) {
+					$lab_category_args['selected'] = sanitize_text_field( $_GET[$filter_name] );
+				}
+					
+				wp_dropdown_categories( $lab_category_args );
 			}
 			
-			wp_dropdown_categories( $lab_category_args );
+
 		}
 	}
 
@@ -2165,7 +2150,9 @@ div.lab_directory_staff_meta {
 		if ( $pagenow == 'edit.php' && $post_type == 'lab_directory_staff' ) {
 			if ( isset( $_GET['lab_category_admin_filter'] ) ) {
 				
-				$post_format = sanitize_text_field( $_GET['lab_category_admin_filter'] );
+			//TODO OBSOLETE rewrite for new categories!! 
+			// Filter name changed see above !!
+			$post_format = sanitize_text_field( $_GET['lab_category_admin_filter'] );
 				
 				if ( $post_format != 0 ) {
 					$query->query_vars['tax_query'] = array( 
@@ -2670,13 +2657,15 @@ div.lab_directory_staff_meta {
 			$term_meta = get_option( "taxonomy_term_$term_id" );
 			
 			$content = array();
-			foreach ( $term_meta['manager_ids'] as $ID ) {
-				$row = $wpdb->get_row( 
-					"SELECT post_title FROM $wpdb->posts
-					WHERE post_type = 'lab_directory_staff' AND ID = '$ID'", 
-					'OBJECT' );
-				if ( $row ) {
-					$content[] = $row->post_title;
+			if ($term_meta) {
+				foreach ( $term_meta['manager_ids'] as $ID ) {
+					$row = $wpdb->get_row( 
+						"SELECT post_title FROM $wpdb->posts
+						WHERE post_type = 'lab_directory_staff' AND ID = '$ID'", 
+						'OBJECT' );
+					if ( $row ) {
+						$content[] = $row->post_title;
+					}
 				}
 			}
 			$content = implode( '<br>', $content );
@@ -2709,14 +2698,20 @@ div.lab_directory_staff_meta {
 	// A callback function to add a custom field to our "ld_taxonomy_team" taxonomy
 	static function ld_taxonomy_team_custom_fields( $tag ) {
 		// Check for existing taxonomy meta for the term you're editing
-		$t_id = $tag->term_id; // Get the ID of the term you're editing
-		$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
-		
-		if ( ! $term_meta['display_style'] ) {
-			$term_meta['display_style'] = 'Manager';
-		}
-		if ( ! $term_meta['manager_ids'] ) {
-			$term_meta['manager_ids'] = array();
+		if (is_object($tag) AND get_class($tag) == 'WP_Term') {
+			$t_id = $tag->term_id; // Get the ID of the term you're editing
+			$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
+			$term_meta_manager_ids = $term_meta['manager_ids'];
+			$term_meta_display_style = $term_meta['display_style'];
+			if ( ! $term_meta['display_style'] ) {
+				$term_meta_display_style = 'Manager';
+			}
+			if ( ! $term_meta['manager_ids'] ) {
+				$term_meta_manager_ids = array();
+			}
+		} else {
+			$term_meta_manager_ids = array();
+			$term_meta_display_style = 'Manager';
 		}
 		?>
 
@@ -2724,7 +2719,7 @@ div.lab_directory_staff_meta {
 	<th scope="row" valign="top"><label for="manager_ids"><?php _e('Team manager', 'lab_directory'); ?></label>
 	</th>
 	<td>  
-	            <?php echo self::staff_select('term_meta[manager_ids][]', $term_meta['manager_ids']); ?><br />
+	            <?php echo self::staff_select('term_meta[manager_ids][]', $term_meta_manager_ids); ?><br />
 		<span class="description"><?php _e('Team manager is used for displaying a contact at the end of pages and posts having the same taxonomy name that the present one.', 'lab_directory'); ?></span>
 	</td>
 </tr>
@@ -2734,11 +2729,11 @@ div.lab_directory_staff_meta {
 	<td><select name="term_meta[display_style]"
 		id="term_meta[display_style]">
 			<option value="None"
-				<?php echo $term_meta['display_style']=='None'? 'selected=""':''; ?>><?php _e('Do not display', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='None'? 'selected=""':''; ?>><?php _e('Do not display', 'lab_directory'); ?></option>
 			<option value="Contact"
-				<?php echo $term_meta['display_style']=='Contact'? 'selected=""':''; ?>><?php _e('Contact', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='Contact'? 'selected=""':''; ?>><?php _e('Contact', 'lab_directory'); ?></option>
 			<option value="Team manager"
-				<?php echo $term_meta['display_style']=='Manager'? 'selected=""':''; ?>><?php _e('Manager', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='Manager'? 'selected=""':''; ?>><?php _e('Manager', 'lab_directory'); ?></option>
 	</select><br /> <span class="description"><?php _e('For each category you can choose to hide manager, or to display as a contact.', 'lab_directory'); ?></span>
 	</td>
 </tr>
@@ -2749,29 +2744,28 @@ div.lab_directory_staff_meta {
 	// A callback function to add a custom field to our "ld_taxonomy_laboratory" taxonomy
 	static function ld_taxonomy_laboratory_custom_fields( $tag ) {
 		// Check for existing taxonomy meta for the term you're editing
-		// Form also used for tax creation ==>notice
-		/* TODOTODO  
-		 *     NOTICE: wp-content/plugins/lab-directory/admin/classes/lab-directory.php:2753 - Trying to get property of non-object
-    
-		 var_dump($tag); string(22) "ld_taxonomy_laboratory" 
-		 */
-		
-		$t_id = $tag->term_id; // Get the ID of the term you're editing
-		$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
-		
-		if ( ! $term_meta['display_style'] ) {
-			$term_meta['display_style'] = 'Manager';
-		}
-		if ( ! isset($term_meta['manager_ids']) ) {
-			$term_meta['manager_ids'] = array();
-		}
+		if (is_object($tag) AND get_class($tag) == 'WP_Term') {
+			$t_id = $tag->term_id; // Get the ID of the term you're editing
+			$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
+			$term_meta_manager_ids = $term_meta['manager_ids'];
+			$term_meta_display_style = $term_meta['display_style'];
+			if ( ! $term_meta['display_style'] ) {
+				$term_meta_display_style = 'Manager';
+			}
+			if ( ! $term_meta['manager_ids'] ) {
+				$term_meta_manager_ids = array();
+			}
+		} else {
+			$term_meta_manager_ids = array();
+			$term_meta_display_style = 'Manager';
+		}		
 		
 		?>
 
 <tr class="form-field">
 	<th scope="row" valign="top"><label for="manager_ids"><?php _e('Laboratory manager', 'lab_directory'); ?></label>
 	</th>
-	<td><?php echo self::staff_select('term_meta[manager_ids][]', $term_meta['manager_ids']); ?><br />
+	<td><?php echo self::staff_select('term_meta[manager_ids][]', $term_meta_manager_ids); ?><br />
 		<span class="description"><?php _e('Laboratory manager is used for displaying a contact at the end of pages and posts having the same taxonomy name that the present one.', 'lab_directory'); ?></span>
 	</td>
 </tr>
@@ -2781,11 +2775,11 @@ div.lab_directory_staff_meta {
 	<td><select name="term_meta[display_style]"
 		id="term_meta[display_style]">
 			<option value="None"
-				<?php echo $term_meta['display_style']=='None'? 'selected=""':''; ?>><?php _e('Do not display', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='None'? 'selected=""':''; ?>><?php _e('Do not display', 'lab_directory'); ?></option>
 			<option value="Contact"
-				<?php echo $term_meta['display_style']=='Contact'? 'selected=""':''; ?>><?php _e('Contact', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='Contact'? 'selected=""':''; ?>><?php _e('Contact', 'lab_directory'); ?></option>
 			<option value="Laboratory manager"
-				<?php echo $term_meta['display_style']=='Manager'? 'selected=""':''; ?>><?php _e('Manager', 'lab_directory'); ?></option>
+				<?php echo $term_meta_display_style=='Manager'? 'selected=""':''; ?>><?php _e('Manager', 'lab_directory'); ?></option>
 	</select><br /> <span class="description"><?php _e('For each category you can choose to hide manager, or to display as a contact.', 'lab_directory'); ?></span>
 	</td>
 </tr>
@@ -2835,228 +2829,115 @@ div.lab_directory_staff_meta {
 	}
 
 
-	static function initiate_default_meta_field_names() {
-		$lang1 = ' (' . get_option( 'lab_directory_lang1', true ) . ')';
-		$lang2 = ' (' . get_option( 'lab_directory_lang2', true ) . ')';
-		
-		self::$default_meta_field_names = array( 
-			'firstname' => __( 'Firstname', 'lab-directory' ), 
-			'name' => __( 'Name', 'lab-directory' ), 
-			'position' => __( 'Position', 'lab-directory' ), 
-			'login' => __( 'Login', 'lab-directory' ), 
-			'wp_user_id' => __( 'Wordpress user ID', 'lab-directory' ), 
-			'mails' => __( 'Mail', 'lab-directory' ), 
-			'bio' => __( 'Biography', 'lab-directory' ), 
-			'other_mails' => __( 'Other mails', 'lab-directory' ), 
-			'idhal' => __( 'ID HAL', 'lab-directory' ), 
-			'photo_url' => __( 'Photo URL', 'lab-directory' ), 
-			'webpage' => __( 'Professionnal webpage', 'lab-directory' ), 
-			'social_network' => __( 'Social Network', 'lab-directory' ), 
-			'function' => __( 'Function', 'lab-directory' ), 
-			'title' => __( 'Title', 'lab-directory' ), 
-			'phone_number' => __( 'Phone number', 'lab-directory' ), 
-			'fax_number' => __( 'Fax number', 'lab-directory' ), 
-			'office' => __( 'Office', 'lab-directory' ), 
-			'team' => __( 'Team', 'lab-directory' ), 
-			'exit_date' => __( 'End activity date', 'lab-directory' ), 
-			'hdr_subject' => __( 'HDR subject', 'lab-directory' ), 
-			'hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ) . $lang1, 
-			'hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ) . $lang2, 
-			'hdr_date' => __( 'HDR defense date', 'lab-directory' ), 
-			'hdr_location' => __( 'HDR defense location', 'lab-directory' ), 
-			'hdr_jury' => __( 'HDR jury', 'lab-directory' ), 
-			'hdr_resume' => __( 'HDR resume', 'lab-directory' ), 
-			'hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ) . $lang1, 
-			'hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ) . $lang2, 
-			'phd_start_date' => __( 'PHD start date', 'lab-directory' ), 
-			'phd_subject' => __( 'PHD subject', 'lab-directory' ), 
-			'phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ) . $lang1, 
-			'phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ) . $lang2, 
-			'phd_date' => __( 'PHD defense date', 'lab-directory' ), 
-			'phd_location' => __( 'PHD defense location', 'lab-directory' ), 
-			'phd_jury' => __( 'PHD jury', 'lab-directory' ), 
-			'phd_resume' => __( 'PHD resume', 'lab-directory' ), 
-			'phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ) . $lang1, 
-			'phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ) . $lang2, 
-			'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ), 
-			'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ), 
-			'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ), 
-			'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ) . $lang1, 
-			'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ) . $lang2, 
-			'internship_start_date' => __( 'Internship start date', 'lab-directory' ), 
-			'internship_end_date' => __( 'Internship end date', 'lab-directory' ), 
-			'internship_subject' => __( 'Internship subject', 'lab-directory' ), 
-			'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ) . $lang1, 
-			'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ) . $lang2, 
-			'internship_resume' => __( 'Internship resume', 'lab-directory' ), 
-			'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ) . $lang1, 
-			'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ) . $lang2, 
-			'studying_school' => __( 'Trainee Studying school', 'lab-directory' ), 
-			'studying_level' => __( 'Trainee Studying level', 'lab-directory' ), 
-			'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ), 
-			'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ), 
-			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ), 
-			'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ) . $lang1, 
-			'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ) . $lang2, 
-			'invited_position' => __( 'Contractant Position', 'lab-directory' ), 
-			'invited_origin' => __( 'Invited origin', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_start_date' => __( 'Contract start date', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
-				/* translators Fixed term contract information */
-				'cdd_goal' => __( 'Contract goal', 'lab-directory' ), 
-			'cdd_goal_lang1' => __( 'Contract goal', 'lab-directory' ) . $lang1, 
-			'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ) . $lang2, 
-		 		/* translators Fixed term contract information */
-				'cdd_position' => __( 'Occupied position', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_1' => __( 'custom_field_1', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_2' => __( 'custom_field_2', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_3' => __( 'custom_field_3', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_4' => __( 'custom_field_4', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_5' => __( 'custom_field_5', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_6' => __( 'custom_field_6', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_7' => __( 'custom_field_7', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_8' => __( 'custom_field_8', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_9' => __( 'custom_field_9', 'lab-directory' ),
-				/* translators: Do not translate.  Translation must be set in Lab Directory backend depending on custom fields usage. */ 
-				'custom_field_10' => __( 'custom_field_10', 'lab-directory' ), 
-			
-			// Others shortcodes requiring translation
-			'name_firstname' => __( 'Name Firstname', 'lab-directory' ), 
-			'firstname_name' => __( 'Firstname Name', 'lab-directory' ) )
-
-		;
+	/*
+	 * public function to ger user permission
+	 * $capability: capability key
+	 */
+	static function ld_user_can( $capability, $user_id = null ) {
+		global $current_user;
+		if ( ! $capability ) {
+			return false;
+		}
+		if ( $user_id ) {
+			$user = get_userdata( $user_id );
+			if ( $user ) {
+				return self::ld_user_can_by_user( $capability, $user );
+			} else {
+				return false;
+			}
+		} else {
+			return self::ld_user_can_by_user( $capability, $current_user );
+		}
 	}
 	
+	static function ld_user_can_by_user( $capability, $user ) {
+	
+		if (in_array('administrator', $user->roles)) { return true;};
+		if ( ! $user->id ) {
+			return false;
+		}
+	
+		$scope = Lab_Directory::$capabilities[$capability]['scope'];
+		// unvalid scope (capability)
+		if ( ! $scope ) {
+			return false;
+		}
+	
+		// scope = all, capability based on WP groups
+		if ( $scope == 'all' ) {
+			foreach ( $user->roles as $role_key => $role ) {
+				$capability_key = 'wp_' . $role . '_' . $capability;
+					
+				if ( Lab_Directory::$ld_permissions[$capability_key] == true ) {
+					return true;
+				}
+			}
+		}
+	
+		// the rest need link between WP and LD??
+		$user_ld_id = false;
+	
+		// TODO temporary return capability calculation not completed;
+		return false;
+		// query select staff_id from staf / wp_user_id= $current_user->id;
+	
+		if ( ! $user_ld_id ) {
+			return false;
+		}
+	
+		// scope = owner capability based on WP groups
+	
+		return false;
+	
+		// scope = all capability based on LD groups
+	
+		// scope = owner capability based on LD groups
+		return false;
+	}
+	
+	static function get_possible_social_networks() {
+		$networks = array(
+			'twitter' => 'Twitter',
+			'linkedin' => 'Linkedin',
+			'academia' => 'Academia',
+			'orcid' => 'Orcid',
+			'research-gate' => 'Research Gate',
+			'viadeo' => 'Viadeo',
+			'vimeo' => 'Vimeo',
+			'github' => 'Github',
+			'vine' => 'Vine',
+			'facebook' => 'Facebook',
+			'instagram' => 'Instagram',
+			'google-plus' => 'Google Plus',
+			'heart' => 'Blogovin',
+			'pinterest' => 'Pinterest',
+			'youtube' => 'YouTube',
+			'tumblr' => 'Tumblr',
+			'rss' => 'rss',
+			'envelope' => 'Email' );
+	
+		return $networks;
+	}
+	
+	static function ld_compare_jury_order( $a, $b ) {
+		return (int) $a['order'] - (int) $b['order'];
+	}
 
+	static function lab_directory_strtotime( $time, $format = "Y-m-d" ) {
+		$out = '';
+		if ( $time ) {
+			$out = date( $format, strtotime( $time ) );
+		}
+		return $out;
+	}
 	
 	
 } // End of class 
 
-//TODO move this inside class
 
 
-function lab_directory_strtotime( $time, $format = "Y-m-d" ) {
-	$out = '';
-	if ( $time ) {
-		$out = date( $format, strtotime( $time ) );
-	}
-	return $out;
-}
 
-function ld_compare_jury_order( $a, $b ) {
-	return (int) $a['order'] - (int) $b['order'];
-}
 
-/*
- * public function to ger user permission
- * $capability: capability key
- */
-function ld_user_can( $capability, $user_id = null ) {
-	global $current_user;
-	if ( ! $capability ) {
-		return false;
-	}
-	if ( $user_id ) {
-		$user = get_userdata( $user_id );
-		if ( $user ) {
-			return ld_user_can_by_user( $capability, $user );
-		} else {
-			return false;
-		}
-	} else {
-		return ld_user_can_by_user( $capability, $current_user );
-	}
-}
 
-function ld_user_can_by_user( $capability, $user ) {
-	
-	// if (in_array('administrator', $user->roles)) { return true;};
-	if ( ! $user->id ) {
-		return false;
-	}
-	
-	$scope = Lab_Directory::$capabilities[$capability]['scope'];
-	// unvalid scope (capability)
-	if ( ! $scope ) {
-		return false;
-	}
-	
-	// scope = all, capability based on WP groups
-	if ( $scope == 'all' ) {
-		foreach ( $user->roles as $role_key => $role ) {
-			$capability_key = 'wp_' . $role . '_' . $capability;
-			// echo ($capability_key); echo '<pre>';var_dump(Lab_Directory::$ld_permissions);echo '</pre>';die();
-			
-			if ( Lab_Directory::$ld_permissions[$capability_key] == true ) {
-				return true;
-			}
-		}
-	}
-	
-	// the rest need link between WP and LD??
-	$user_ld_id = false;
-	
-	// TODO temporary return capability calculation not completed;
-	return false;
-	// query select staff_id from staf / wp_user_id= $current_user->id;
-	
-	if ( ! $user_ld_id ) {
-		return false;
-	}
-	
-	// scope = owner capability based on WP groups
-	
-	return false;
-	
-	// scope = all capability based on LD groups
-	
-	// scope = owner capability based on LD groups
-	return false;
-}
 
-function get_possible_social_networks() {
-	$networks = array( 
-		'twitter' => 'Twitter', 
-		'linkedin' => 'Linkedin', 
-		'academia' => 'Academia', 
-		'orcid' => 'Orcid', 
-		'research-gate' => 'Research Gate', 
-		'viadeo' => 'Viadeo', 
-		'vimeo' => 'Vimeo', 
-		'github' => 'Github', 
-		'vine' => 'Vine', 
-		'facebook' => 'Facebook', 
-		'instagram' => 'Instagram', 
-		'google-plus' => 'Google Plus', 
-		'heart' => 'Blogovin', 
-		'pinterest' => 'Pinterest', 
-		'youtube' => 'YouTube', 
-		'tumblr' => 'Tumblr', 
-		'rss' => 'rss', 
-		'envelope' => 'Email' );
-
-	return $networks;
-}
-
-function get_default_social_networks() {
-	$networks = array( 
-		'twitter' => 'Twitter', 
-		'linkedin' => 'Linkedin', 
-		'academia' => 'Academia', 
-		'orcid' => 'Orcid', 
-		'research-gate' => 'Research Gate', 
-		'viadeo' => 'Viadeo' );
-	return $networks;
-}
 
