@@ -16,20 +16,24 @@ define( 'LAB_DIRECTORY_DIR', dirname( __FILE__ ) );
 define( 'LAB_DIRECTORY_TEMPLATES', LAB_DIRECTORY_DIR . "/templates" );
 define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 
-// Load Common classes
-require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );
-Lab_Directory_Common::register_common_filters_and_actions();
+/* Always load admin menus and corresponding languages mo file
+ * This also regiter post_type lab_Directory_Staff
+ */
+
+require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
+Lab_Directory_Admin_Menus::register_admin_menu_items();
 
 
 if ( is_admin() ) {
-    
-    // Always load admin menus and corresponding languages mo file
-	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
-	Lab_Directory_Admin_Menus::register_admin_menu_items();
 	 
+	// Common classes are not needed for non lad directory staff pages 
 	//TODO conditional load for admin settings OR edit staff (need ad'hoc separation in 2 classes!! 
 	if (Lab_Directory_Admin_Menus::$load_admin_class) {
 				
+		// Load Common classes
+		require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );
+		Lab_Directory_Common::register_common_filters_and_actions();
+		
 		// Load admin classes if in lab-directory menu (not used in others cases). 
     	require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory.php' );
     	Lab_Directory::register_actions_and_filters();
@@ -45,6 +49,10 @@ if ( is_admin() ) {
     	} 
     }
 } else {
+	// Load Common classes
+	require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );
+	Lab_Directory_Common::register_common_filters_and_actions();
+
 	// Load Frontend classes
 	require_once ( dirname( __FILE__ ) . '/public/classes/lab-directory-shortcode.php' );
 	Lab_Directory_Shortcode::register_shortcode();

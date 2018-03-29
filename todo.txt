@@ -1,15 +1,10 @@
 DONE: 
-move all functions inside classes
-Add: missing fontawesome on some admin pages
-Fixed: typo in admin page input and multiple PHP Notices
-Fixed: metabox not saving after code split admin/frontend 
 
 TODO:
 ==================================
 //TODO OBSOLETE rewrite for new categories!! 
-			
-self::$default_meta_field_names défini dans adlmin!! 
-
+ photo staff où???? 
+ 			
 modifier admin "Article mis à jour. Voir l’article" pour staff
 	
 frontend: faut-il séparer widget du reste? Comment?  => classe
@@ -17,18 +12,14 @@ frontend: faut-il séparer widget du reste? Comment?  => classe
 	identifier les shotrtcode appelés en premier [lab-directory, widegt, hdr loop phdloop 
 	la fonction d'appel charge la classe puis appelle une fonction secondaire 
 
-admin add staff onglet différents de edit staff !!
 ==================================
-add social network shortcode
-
-admin revoir dans edit staff title !!!
+http://local_wp_ircica.fr/wp-admin/post.php?post=957&action=edit supprimer bloc identifiant 
 
 ajouter un shortcode pour lien HDR / PHD
 admin ajouter <label<>:label pour input 
 tester ordre traduction titre....
 
 Adapter l'aide des shortcodes
-
 	 
 test taxonomy avec Premier étage seul, et nested cats
 

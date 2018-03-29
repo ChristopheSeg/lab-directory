@@ -19,12 +19,14 @@ class Lab_Directory_Admin_Menus {
 		}
 		// search post_type in $_GET (case opening an admin page)
 		if (!self::$load_admin_class) {
-			if ( $_GET AND get_post_type($_GET['post']) == 'lab_directory_staff' ) {
+			if ( $_GET AND isset($_GET['post']) AND (get_post_type($_GET['post']) == 'lab_directory_staff' ) ) {
 				// WHEN post_type=lab_directory_staff
 				self::$load_admin_class = true;
 			}
 		}
-		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
+add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'register_ld_post_type' ) );
+		
+add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
 		
 		// Load text_domain for admin menus
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin_Menus', 'load_lab_directory_admin_menus_textdomain' ) );
@@ -34,7 +36,49 @@ class Lab_Directory_Admin_Menus {
 				
 	}
 
+	/* 
+	 * Register ld_post_type
+	 */
+	static function register_ld_post_type() {
+	
+		register_post_type(
+			'lab_directory_staff',
+			array(
+				'labels' => array(
+					'name' => __( 'Lab Directory staff', 'lab-directory' ),
+					'singular_name' => __( 'Staff', 'lab-directory' ),
+					'add_new' => __( 'New staff', 'lab-directory' ),
+					'add_new_item' => __( 'Add a new staff', 'lab-directory' ),
+					'edit_item' => __( 'Edit staff profile', 'lab-directory' ),
+					'new_item' => __( 'New staff', 'lab-directory' ),
+					'view_item' => _x( 'View staff', 'single', 'lab-directory' ),
+					'view_items' => _x( 'View staff', 'plural', 'lab-directory' ),
+					'search_items' => __( 'Search staff', 'lab-directory' ),
+					'not_found' => __( 'No staff found.', 'lab-directory' ),
+					'not_found_in_trash' => __( 'No staff in Trash.', 'lab-directory' ),
+					'all_items' => __( 'Staff list', 'lab-directory' ),
+					'featured_image' => __( 'Staff photo', 'lab-directory' ),
+					'set_featured_image' => __( 'Set staff photo', 'lab-directory' ),
+					'remove_featured_image' => __( 'Remove staff photo', 'lab-directory' ),
+					'use_featured_image' => __( 'Use a staff photo', 'lab-directory' ),
+					'filter_items_list' => __( 'Filter staff list', 'lab-directory' ),
+					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ),
+					'items_list' => __( 'Staff list', 'lab-directory' ) ),
+	
+				'supports' => array( 'title',
+					// 'editor',
+					'thumbnail' ),  // disabled for ldap=1
+	
+				'public' => true,
+				'has_archive' => false,
+				'menu_icon' => 'dashicons-id',
+			) );
+	}
 	static function add_admin_menu_items() {
+		
+		/* About add_action: Lab_Directory_Admin is not loaded, 
+		 * but these action are only usefull when Lab_Directory_Admin will be loaded
+		 */
 		
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) ); 
@@ -53,7 +97,6 @@ class Lab_Directory_Admin_Menus {
 
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Import', 'Import Old Staff', 'publish_posts',
 			'lab-directory-import', array( 'Lab_Directory_Admin', 'import' ) );
-
 		add_action('load-' . $ld_admin_page, array( 'Lab_Directory_Admin', 'ld_admin_help_tab_import'));
 		
 	}

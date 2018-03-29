@@ -19,13 +19,13 @@ div.ld_field {
 	float:left; 
 	clear: left;
 	display:block;
-	margin-bottom:2px;
+	margin-bottom:4px;
 	min-width:70%; 
 }
 span.content_field { 
     float:left;
     display: inline-block;
-	margin: 2px 0px 2px 0px;
+	margin: 0px 0px 2px 0px;
 }
 
 @media screen and (min-width: 769px) {

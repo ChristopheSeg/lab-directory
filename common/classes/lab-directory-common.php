@@ -36,8 +36,6 @@ class Lab_Directory_Common {
 		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
-		add_action( 'init', array( 'Lab_Directory_Common', 'register_ld_post_type' ) );
-
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
 		
@@ -60,6 +58,8 @@ class Lab_Directory_Common {
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
 		
 		add_filter( 'post_type_link', array( 'Lab_Directory_Common', 'lab_directory_post_type_link'), 10, 2 );
+
+		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory_Common', 'lab_directory_admin_bar_render' ) );
 		
 	}
 	
@@ -125,44 +125,6 @@ class Lab_Directory_Common {
 	
 	}
 	
-	/* 
-	 * Register ld_post_type
-	 */
-	static function register_ld_post_type() {
-	
-		register_post_type(
-			'lab_directory_staff',
-			array(
-				'labels' => array(
-					'name' => __( 'Lab Directory staff', 'lab-directory' ),
-					'singular_name' => __( 'Staff', 'lab-directory' ),
-					'add_new' => __( 'New staff', 'lab-directory' ),
-					'add_new_item' => __( 'Add a new staff', 'lab-directory' ),
-					'edit_item' => __( 'Edit staff profile', 'lab-directory' ),
-					'new_item' => __( 'New staff', 'lab-directory' ),
-					'view_item' => _x( 'View staff', 'single', 'lab-directory' ),
-					'view_items' => _x( 'View staff', 'plural', 'lab-directory' ),
-					'search_items' => __( 'Search staff', 'lab-directory' ),
-					'not_found' => __( 'No staff found.', 'lab-directory' ),
-					'not_found_in_trash' => __( 'No staff in Trash.', 'lab-directory' ),
-					'all_items' => __( 'Staff list', 'lab-directory' ),
-					'featured_image' => __( 'Staff photo', 'lab-directory' ),
-					'set_featured_image' => __( 'Set staff photo', 'lab-directory' ),
-					'remove_featured_image' => __( 'Remove staff photo', 'lab-directory' ),
-					'use_featured_image' => __( 'Use a staff photo', 'lab-directory' ),
-					'filter_items_list' => __( 'Filter staff list', 'lab-directory' ),
-					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ),
-					'items_list' => __( 'Staff list', 'lab-directory' ) ),
-	
-				'supports' => array( 'title',
-					// 'editor',
-					'thumbnail' ),  // disabled for ldap=1
-	
-				'public' => true,
-				'has_archive' => false,
-				'menu_icon' => 'dashicons-id',
-			) );
-	}
 	
 	static function load_lab_directory_textdomain() {
 		
@@ -548,6 +510,20 @@ class Lab_Directory_Common {
 		}
 	}
 	
+	// add links/menus to the admin bar '<span class="dashicons dashicons-edit"></span>'.
+	static function lab_directory_admin_bar_render() {
+	
+		if (isset(Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) AND Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) {
+			global $wp_admin_bar;
+			$wp_admin_bar->add_menu( array(
+				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
+				'id' => 'edit', // this remove the previous edit link
+				'title' =>  __('modify staff profile'), // link title
+				'href' => Lab_Directory_Common::$main_ld_permalink['edit_staff_url'], // name of file
+				'meta' => array('class' => 'wp-admin-bar-edit') // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
+			));
+		}
+	}
 
 }
 	

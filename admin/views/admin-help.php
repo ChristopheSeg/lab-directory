@@ -32,9 +32,9 @@
     The following parameters are accepted for filtering and templating: 
     <ul>
       <li><code>id</code> - the ID for a single lab_directory_staff member. (Ex: [lab-directory id=4])</li>
-      <li><code>cat</code> - possibly category IDs or slugs. (Ex: [lab-directory cat=1,4] or [lab-directory cat="administration"])</li>
-      <li><code>cat_field</code> - used with cat. (Ex: [lab-directory cat="administration" cat_field="slug"])</li>
-      <li><code>cat_relation</code> - used with cat and cat_field. Possible values are "OR" and "AND". (Ex: [lab-directory cat="administration,corporate" cat_relation="OR"])</li>
+      <li>Not yet implemented <code>cat</code> - possibly category IDs or slugs. (Ex: [lab-directory cat=1,4] or [lab-directory cat="administration"])</li>
+      <li>Not yet implemented <code>cat_field</code> - used with cat. (Ex: [lab-directory cat="administration" cat_field="slug"])</li>
+      <li>Not yet implemented <code>cat_relation</code> - used with cat and cat_field. Possible values are "OR" and "AND". (Ex: [lab-directory cat="administration,corporate" cat_relation="OR"])</li>
       <li><code>orderby</code> - the attribute to use for ordering. Supported values are 'name' and 'ID'. (Ex: [lab-directory orderby=name])</li>
       <li><code>order</code> - the order in which to arrange the lab_directory_staff members. Supported values are 'asc' and 'desc'. (Ex: [lab-directory order=asc])</li>
       <li><code>staff_search</code> - for staff list, when true, add a staff filter above the list. (Ex: [lab-directory staff_search=true])</li>
@@ -63,7 +63,7 @@
       <li><code>[lab_directory_hdr_loop period=??]</code> (1) - this loop extract staff having a HDR profiles (used in defense list template)</li>
       <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
 		  <ul style ="padding-left:15px;">
-		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=PAST</code> <code>period=futur</code> <code>period=all</code> filter for defense date in the past futur or all (default = all).</li>
+		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=past</code> <code>period=futur</code> <code>period=all</code> filter for defense date in the past futur or all (default = all).</li>
 		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_search</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
 		  </ul>    
   </ul>  

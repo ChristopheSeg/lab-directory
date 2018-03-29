@@ -102,8 +102,6 @@ class Lab_Directory {
 		
 		add_action( 'save_post_lab_directory_staff', array( 'Lab_Directory', 'save_meta_boxes' ) );
 	
-		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory', 'lab_directory_admin_bar_render' ) );
-		
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
 		
 		add_action( 'init', array( 'Lab_Directory', 'init_tinymce_button' ) );
@@ -114,6 +112,7 @@ class Lab_Directory {
 		add_filter( 'post_row_actions', array( 'Lab_Directory', 'modify_quick_edit' ), 10, 1 );
 		add_filter( 'bulk_actions-edit-lab_directory_staff', array( 'Lab_Directory', 'modify_bulk_actions' ), 10, 1 );
 		
+		add_filter( 'disable_months_dropdown', array( 'Lab_Directory', 'ld_disable_months_dropdown' ), 10, 2 );
 		// remove description from taxonomies
 		add_filter( 
 			'manage_edit-ld_taxonomy_team_columns', 
@@ -208,20 +207,6 @@ class Lab_Directory {
 		return $post_types;
 	}
 	
-	// add links/menus to the admin bar '<span class="dashicons dashicons-edit"></span>'.
-	static function lab_directory_admin_bar_render() {
-		
-		if (isset(Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) AND Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) {
-			global $wp_admin_bar;
-			$wp_admin_bar->add_menu( array(
-				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
-				'id' => 'edit', // this remove the previous edit link
-				'title' =>  __('modify staff profile'), // link title
-				'href' => Lab_Directory_Common::$main_ld_permalink['edit_staff_url'], // name of file
-				'meta' => array('class' => 'wp-admin-bar-edit') // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
-			));
-		}		 
-	}
 	
 	static function ld_filter_excerpt( $excerpt ) {
 		global $post;
@@ -465,6 +450,17 @@ class Lab_Directory {
 	}
 
 	/*
+	 * Disble date filter for lab_directory_staff
+	 */
+	static function ld_disable_months_dropdown( $false , $post_type ) {
+	
+	if( $post_type =='lab_directory_staff')  {
+		return true;	
+	}
+	
+	return false;	
+}
+/*
 	 * Output the meta_box form content
 	 *
 	 */
@@ -891,7 +887,7 @@ div.lab_directory_staff_meta {
 						$used .= '<p class="social_networks">';
 						$used .= '<label  class="lab_directory_staff-label" >' . $icon . ' ' .
 							 $possible_social_networks[$key] . '</label>';
-						$used .= '<input name="lab_directory_staff_used_social_networks[' . $key . ']" value="' . $url .
+						$used .= '<input name="lab_directory_staff_meta_social_network[' . $key . ']" value="' . $url .
 							 '" type="text" size="60"></p>';
 						;
 					}
@@ -949,7 +945,7 @@ div.lab_directory_staff_meta {
 			$ldap_synced = ( get_post_meta( $post_id, 'ldap', true ) != '0' );
 		}
 		
-		if ( $_POST['save'] == 'Update' ) { // Now we save all at the same time if ( $_POST['save'] == 'Update_Status' ) {
+		if ( $_POST['save'] == 'Update' ) { // Now we save all (status + All tabs) at the same time if ( $_POST['save'] == 'Update_Status' ) {
 			// Update staff status
 			$statuss = self::get_lab_directory_default_statuss();
 			$staff_statuss = array();
@@ -957,7 +953,7 @@ div.lab_directory_staff_meta {
 				$staff_statuss[$key] = isset( $_POST['status_' . $key] );
 			}
 			self::update_staff_statuss( $post_id, $staff_statuss );
-			return;
+			// return; now we continue 
 		}
 		
 		// Else update staff entry
@@ -999,7 +995,6 @@ div.lab_directory_staff_meta {
 							$field_type = 'disabled';
 						}
 						if ( $field_type != 'disabled' ) {
-							// echo "<br> ". $field['group'] . ' '. $field['slug']. " $field_type";
 							self::lab_directory_save_meta_boxes_save_meta( 
 								$post_id, 
 								$field, 
@@ -1009,7 +1004,6 @@ div.lab_directory_staff_meta {
 				}
 			}
 		}
-		
 		return;
 	}
 
@@ -1075,9 +1069,9 @@ div.lab_directory_staff_meta {
 				usort( $value, __NAMESPACE__ . '\self::ld_compare_jury_order' );
 				break;
 			case 'social_network' :
-				$social_networks = $_POST[lab_directory_staff_used_social_networks];
+				
 				$temp = array();
-				foreach ( $social_networks as $key => $url ) {
+				foreach ( $value as $key => $url ) {
 					if ( $url ) {
 						$temp[$key] = esc_url( $url );
 					}
@@ -2148,15 +2142,17 @@ div.lab_directory_staff_meta {
 		global $post_type, $pagenow;
 		
 		if ( $pagenow == 'edit.php' && $post_type == 'lab_directory_staff' ) {
-			if ( isset( $_GET['lab_category_admin_filter'] ) ) {
-				
-			//TODO OBSOLETE rewrite for new categories!! 
-			// Filter name changed see above !!
-			$post_format = sanitize_text_field( $_GET['lab_category_admin_filter'] );
-				
-				if ( $post_format != 0 ) {
-					$query->query_vars['tax_query'] = array( 
-						array( 'taxonomy' => 'lab_category', 'field' => 'ID', 'terms' => array( $post_format ) ) );
+			
+			foreach ( Lab_Directory_Common::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
+			
+				$filter_name = $slug.'_filter';
+				if ( isset( $_GET[$filter_name] ) ) {
+				$post_format = sanitize_text_field( $_GET[$filter_name] );
+
+					if ( $post_format != 0 ) {
+						$query->query_vars['tax_query'] = array( 
+							array( 'taxonomy' => $slug, 'field' => 'ID', 'terms' => array( $post_format ) ) );
+					}
 				}
 			}
 		}

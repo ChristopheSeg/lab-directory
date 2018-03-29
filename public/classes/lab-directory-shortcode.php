@@ -633,16 +633,13 @@ class Lab_Directory_Shortcode {
     	), $atts);
     	
     	$social_networks = get_post_meta( get_the_ID(), 'social_network', true );
-    	var_dump($social_networks); 
-    	$output = 'test'; 
+    	$output = ''; 
     	$temp = array();
     	if (!empty($social_networks)) {
     		foreach ( $social_networks as $key => $url ) {
-	    		if ( $url ) {
-	    			$temp[$key] = esc_url( $url );
-	    		}
+	    		$output.= "<a href='" . esc_url( $url ) . "' target='_blank' title='" . $key . "'>" . Lab_Directory_Common::ld_network_icon($key)  . '</a>&nbsp;&nbsp;';
     		}
-    	}
+    	} 
     	
     	return self::div_it($output, $tag, $atts);
     	
@@ -1018,7 +1015,7 @@ class Lab_Directory_Shortcode {
 				$cats_query['relation'] = $params['cat_relation'];
 			}
 	
-			//TODO OBSOLETE rewrite for new categories!! 
+			//TODO OBSOLETE rewrite for new categories but 2 cats how to !! 
 			foreach ($cats as $cat) {
 				$cats_query[] = array(
 					'taxonomy' => 'lab_category',
@@ -1123,7 +1120,7 @@ class Lab_Directory_Shortcode {
 				$cats_query['relation'] = $params['cat_relation'];
 			}
 	
-			//TODO OBSOLETE rewrite for new categories!! 
+			//TODO OBSOLETE rewrite for new categories  but 2 cats how to !! 
 			foreach ($cats as $cat) {
 				$cats_query[] = array(
 					'taxonomy' => 'lab_category',
@@ -1493,7 +1490,7 @@ class Lab_Directory_Shortcode {
     		if ( strpos( $meta_value, $acronym['acronym'] ) !== false ) {
     
     			$link = '';
-    			if ( $acronym['link'] ) {
+    			if ( isset($acronym['link']) AND $acronym['link'] ) {
     				$replace = '<a  title="' . $acronym['translation'] . '" href="' . $acronym['link'] . '">' .
     					$acronym['translation'] . '</a>';
     			} else {
