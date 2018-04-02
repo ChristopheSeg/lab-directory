@@ -21,11 +21,6 @@ function show_group(group) {
  
 </script>
 <style type="text/css">
-			#new-acronym {display: none;}
-			label.lab_directory_staff-label {	
-				width: 150px;
-				display: inline-block;
-			}
 			.dashicons {
 			    font-size: 16px;
 			    }

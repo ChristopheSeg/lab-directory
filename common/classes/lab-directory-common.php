@@ -5,15 +5,12 @@
 class Lab_Directory_Common {
 
 	// The url of ld main page containing [lab-directory] exact shortcode without any parameter
-	static $main_ld_permalink =array();
+	static $main_ld_permalink ='';
 	
 	// Default language use in frontend
 	static $default_post_language = '';  //fr_FR
 	static $default_post_language_slug = ''; // 'fr'
 	
-	// url slug used for templates
-	static $lab_directory_url_slugs =array();
-
 	static $staff_meta_fields = null;
 	
 	static $acronyms = null;
@@ -33,7 +30,6 @@ class Lab_Directory_Common {
 		
 		self::$default_post_language = get_option('WPLANG')? get_option('WPLANG'): get_locale() ;
 		self::$default_post_language_slug = substr(self::$default_post_language, 0, 2)  ;
-		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
 		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
@@ -49,27 +45,25 @@ class Lab_Directory_Common {
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_staff_meta_fields' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'load_ld_acronyms' ) );
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Common', 'initiate_default_meta_field_names' ) );
-		
-		// Add Query_vars and Tags
-		add_filter( 'query_vars', array( 'Lab_Directory_Common', 'lab_directory_add_query_vars' ) );
-		add_action( 'init', array( 'Lab_Directory_Common', 'lab_directory_add_rewrite_tags' ) , 10, 0);
-		
+				
 		add_action( 'wp_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory_Common', 'register_fontawesome' ) );
 		
 		add_filter( 'post_type_link', array( 'Lab_Directory_Common', 'lab_directory_post_type_link'), 10, 2 );
 
 		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory_Common', 'lab_directory_admin_bar_render' ) );
-		
+
 	}
 	
+
+		
 	/*
 	 * This function search for the unique posts (many language) having the exact shortcode [lab-directory]
 	 */
 	static function initiate_main_ld_permalink() {
 		global $wpdb,$lang, $wp_query;
 		self::$main_ld_permalink = array();
-		$ld_posts = $wpdb->get_results("SELECT ID,guid FROM $wpdb->posts WHERE post_content like '%[lab-directory]%'");
+		$ld_posts = $wpdb->get_results("SELECT ID,guid FROM $wpdb->posts WHERE post_status = 'publish' AND post_content like '%[lab-directory]%'");
 		if (count($ld_posts) == 0) {
 			self::$main_ld_permalink = '';
 			return;
@@ -77,6 +71,7 @@ class Lab_Directory_Common {
 	
 		if (count($ld_posts) >= 1) {
 			//Save first post in $main_ld_permalink[0] (in case lang is not found) but this can be in any languages!
+			self::$main_ld_permalink['count'] = count($ld_posts); 
 			self::$main_ld_permalink[0]['ID']= $ld_posts[0]->ID;
 			self::$main_ld_permalink[0]['permalink']= get_permalink($ld_posts[0]->ID);
 		}
@@ -99,6 +94,8 @@ class Lab_Directory_Common {
 	}
 		
 	static function get_ld_permalink($slug='',$id='', $lang=0, $query_string_only= false) {
+		
+		if (!isset(self::$main_ld_permalink[$lang]['permalink']) ) return ' '; 
 		$permalink = self::$main_ld_permalink[$lang]['permalink'];
 		
 		$simple_url = (strpos($permalink, '?') !== false);
@@ -107,10 +104,10 @@ class Lab_Directory_Common {
 		}
 		if ($slug)  {
 			if ($simple_url) {
-				$permalink .=  '&'. self::$lab_directory_url_slugs[$slug];
+				$permalink .=  '&'. Lab_Directory_Admin_Menus::$lab_directory_url_slugs[$slug];
 			} else {
 				// Add a / if it does not exist in permalink ( permalink structure set to 'numeric'
-				$permalink = trim ($permalink, '/'). '/'. self::$lab_directory_url_slugs[$slug];
+				$permalink = trim ($permalink, '/'). '/'. Lab_Directory_Admin_Menus::$lab_directory_url_slugs[$slug];
 			}
 	
 			if ($id)  {
@@ -185,6 +182,8 @@ class Lab_Directory_Common {
 	
 		// Add acronym tooltip in each metafield parameters
 		self::load_ld_acronyms();
+		if (empty(self::$acronyms)) return; 
+		
 		foreach ( self::$acronyms as $acronym ) {
 			self::$staff_meta_fields[$acronym['slug']]['acronyms'][] = $acronym;
 		}
@@ -477,30 +476,6 @@ class Lab_Directory_Common {
 			'//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 			array(),
 			'4.0.3' );
-	}
-	static function lab_directory_add_query_vars( $qvars ) {
-	
-		/* without replacement this equal:
-		 $qvars[] = 'staff_grid';
-		 $qvars[] = 'staff_list';
-		 $qvars[] = 'staff_trombi';
-		 $qvars[] = 'staff';
-		 $qvars[] = 'staff_phd';
-		 $qvars[] = 'staff_hdr';
-		 */
-		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
-			$qvars[] =$slug_replacement;
-		}
-	
-		return $qvars;
-	}
-	
-	static function lab_directory_add_rewrite_tags() {
-	
-		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
-			add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
-			add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
-		}
 	}
 	
 	static function create_lab_directory_staff_taxonomies() {

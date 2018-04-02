@@ -39,9 +39,6 @@ function show_group(group) {
 
 <style type="text/css">
 
-  #new-field-template {
-    display: none;
-  }
  .input-in-td{ width: 100%;
  border:0; padding-left:0; padding-right:0;
  }
@@ -60,7 +57,7 @@ echo_form_messages($form_messages);
 $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
 $group_activations = get_option( 'lab_directory_group_activations' ) ;
 $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_names();
-       
+   
 ?>
 <form method="post">
     <h2><?php echo __('Lab Directory Settings','lab-directory'). ' : '; _e('Custom Fields','lab-directory'); ?></h2>

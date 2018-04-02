@@ -1,7 +1,16 @@
-DONE: 
+DONE:
+Plugin install: now default metafields settings are used
+Test plugin install, fix some PHP notices at install
+add remove button on HDR Thesis jurys
+Add remove button for now acronyms functionnal
+Add a label above tiny editor 
+Moves Add Query_vars and add Tags so that it its loaded even when lab-directory is not used (when flushing rewrite rules)
 
 TODO:
 ==================================
+Change classes name to ld_something (not used) 
+
+admin edit staff: titre désactiver 
 //TODO OBSOLETE rewrite for new categories!! 
  photo staff où???? 
  			

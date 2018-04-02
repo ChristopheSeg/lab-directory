@@ -803,40 +803,33 @@ class Lab_Directory_Shortcode {
     	// Enqueue style 
     	wp_enqueue_style( 'lab-directory-default-css');
     	wp_enqueue_style( 'font-awesome');
-    	 /*
-    	 * 
-    	echo "<br>========= lab_directory_main_shortcode =================";
-    	
-    	echo "<br>========= lab_directory_main_shortcode =================<br>";
-    	 */
-    	
     	 // If some query_vars exists set template and staff or cat filter
-	  	 if ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']]) ) {
+	  	 if ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_trombi']]) ) {
        		$template = 'staff_trombi';
-       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']];     
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_trombi']];     
        		
-	  	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_list']]) ) {
+	  	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_list']]) ) {
        		$template = 'staff_list';
-       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_list']];
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_list']];
        	
-       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_grid']]) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_grid']]) ) {
        		echo "<br> staff grid";
        		$template = 'staff_grid';
-       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_grid']];
+       		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_grid']];
        	
-       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff']]) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff']]) ) {
        		$template = 'staff';
-       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff']];
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff']];
        	
-       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_hdr']]) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_hdr']]) ) {
        		$template = 'staff_hdr';
-       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_hdr']];
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_hdr']];
        	
-       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_phd']]) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_phd']]) ) {
        		$template = 'staff_phd';
-       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_phd']];
+       		$params['staff_slug'] = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_phd']];
        		
-       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['defense_list']]) ) {
+       	}elseif ( isset($wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['defense_list']]) ) {
        		$template = 'defense_list';
        	
        	}
@@ -852,12 +845,11 @@ class Lab_Directory_Shortcode {
        	if ( isset($params['id']) AND ($params['id']!='') ) {
        		$template = 'staff'; 
        	}
-   
        	// Save template name for use in loop's div
        	self::$current_template = $template;  
         // Save $atts for using inside loop
         self::$lab_directory_main_shortcode_params = $params; 
-        
+         
         $output = self::retrieve_template_html($template); 
         // delete save atts before exiting loop 
         self::$lab_directory_main_shortcode_params = false;
@@ -867,7 +859,7 @@ class Lab_Directory_Shortcode {
 
     /*** End shortcode functions ***/
 	/*
-	 * $paramscontains used attribute in loop
+	 * $params contains used attribute in loop
 	 */
 	
 	static function lab_directory_staff_query( $params = null ) {
@@ -885,6 +877,7 @@ class Lab_Directory_Shortcode {
 			'label'	=> false,
 			'translate' => false,
 		);
+		
 		//TODO remove upper!! and load self::default ?? 
 		$params = shortcode_atts( $default_params, $params );
 		// make sure we aren't calling both id and cat at the same time
@@ -964,7 +957,6 @@ class Lab_Directory_Shortcode {
 		if ( isset( $params['meta_key'] ) && $params['meta_key'] != '' ) {
 			$query_args['meta_key'] = $params['meta_key'];
 		}
-		
 		$output = new WP_Query( $query_args );
 		
 		return $output;
@@ -1303,7 +1295,7 @@ class Lab_Directory_Shortcode {
     static function ld_posts_results_filter( $posts ) {
     	global $wp_query;
     
-    	if ( is_singular() and $posts[0] ) {
+    	if ( is_singular() and isset($posts[0]) ) {
     		if ( $posts[0]->post_type == 'lab_directory_staff' ) {
     			if ( $posts[0]->post_content == '' ) {
     				// add empty span to display hooked content on a page
@@ -1313,29 +1305,29 @@ class Lab_Directory_Shortcode {
     			// Modify title
     			global $wpdb;
     				
-    			if ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff']]) ) {
+    			if ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff']]) ) {
     				$posts[0]->post_title = $wpdb->get_var(
     					"SELECT post_title FROM $wpdb->posts WHERE post_name = '" .
-    					$wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff']] . "' AND post_type='lab_directory_staff'") ;
+    					$wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff']] . "' AND post_type='lab_directory_staff'") ;
     			}
-    			if ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_hdr']] ) ) {
+    			if ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_hdr']] ) ) {
     				$posts[0]->post_title = "HDR: " . $wpdb->get_var(
     					"SELECT post_title FROM $wpdb->posts WHERE post_name = '" .
-    					$wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_hdr']] . "' AND post_type='lab_directory_staff'") ;
+    					$wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_hdr']] . "' AND post_type='lab_directory_staff'") ;
     			}
-    			if ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_phd']] ) ) {
+    			if ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_phd']] ) ) {
     				$posts[0]->post_title = "PHD: " . $wpdb->get_var(
     					"SELECT post_title FROM $wpdb->posts WHERE post_name = '" .
-    					$wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_phd']] . "' AND post_type='lab_directory_staff'") ;
+    					$wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_phd']] . "' AND post_type='lab_directory_staff'") ;
     			}
     
     			// Set title  directory by team/laboratory (taxonomy)
-    			if ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_grid']] ) ) {
-    				$taxonomy = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_grid']] ;
-    			} elseif ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_list']] ) ) {
-    				$taxonomy = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_list']] ;
-    			} elseif ( isset( $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']] ) ) {
-    				$taxonomy = $wp_query->query_vars[Lab_Directory_Common::$lab_directory_url_slugs['staff_trombi']] ;
+    			if ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_grid']] ) ) {
+    				$taxonomy = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_grid']] ;
+    			} elseif ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_list']] ) ) {
+    				$taxonomy = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_list']] ;
+    			} elseif ( isset( $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_trombi']] ) ) {
+    				$taxonomy = $wp_query->query_vars[Lab_Directory_Admin_Menus::$lab_directory_url_slugs['staff_trombi']] ;
     			}
     			if ( isset( $taxonomy) AND $taxonomy !='') {
     				

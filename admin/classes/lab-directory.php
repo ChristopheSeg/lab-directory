@@ -104,6 +104,8 @@ class Lab_Directory {
 	
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
 		
+		add_action( 'admin_title', array( 'Lab_Directory', 'edit_page_title' ) );
+		
 		add_action( 'init', array( 'Lab_Directory', 'init_tinymce_button' ) );
 		
 		// TODO Ajax seems broken ?
@@ -184,30 +186,93 @@ class Lab_Directory {
 			'restrict_manage_posts', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_categories_admin_filter' ) );
 		add_action( 'pre_get_posts', array( 'Lab_Directory', 'filter_admin_lab_directory_staff_by_category' ) );
+	
+		add_filter( 'post_updated_messages', array( 'Lab_Directory', 'ld_profile_updated_messages' ) );
 		
+		add_action( 'admin_notices', array( 'Lab_Directory', 'ld_admin_notice__error') );
 	}
-
-
-
 	
 	/**
 	 * Flush rewrite rules if the previously added flag exists,
 	 * and then remove the flag (this is used in settings).
 	 */
-	static function lab_directory_flush_rewrite_rules() {
+	 static function lab_directory_flush_rewrite_rules() {
 		if ( get_option( 'lab_directory_flush_rewrite_rules_flag' ) ) {
 			flush_rewrite_rules();
 			delete_option( 'lab_directory_flush_rewrite_rules_flag' );
 		}
-	}
-	
-	static function add_cpt_to_pll($post_types, $hide) {
+	 }
+
+	 /*
+	  * This function issue a warning if no [lab-directory] shortcode is found in post/page
+	  */
+	 static function ld_admin_notice__error() {
+	 	if ( (isset (Lab_Directory_Common::$main_ld_permalink['count']))  AND 
+	 		Lab_Directory_Common::$main_ld_permalink['count'] > 1) {
+	 		// several post or page containing [lab-directory] are defined 
+	 		$class = 'notice notice-error is-dismissible';
+	 		$message = __('Important ! In order to use Lab-Directory, you must define one and only one page or post containing the lab directory shortcode [lab-directory] .', 'lab-directory' );
+	 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );	
+	 	}
+	 		
+	 	if (Lab_Directory_Common::$main_ld_permalink != '') return;
+	 	// $main_ld_permalink is not defined 
+	 	$class = 'notice notice-error is-dismissible';
+	 	$message = __('Important ! In order to use Lab-Directory, you must at least create a page or post containing the lab directory shortcode [lab-directory] .', 'lab-directory' );
+	 	printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+	 }
+	 
+	/* edit the admin page title for a particular custom post type */
+		static function edit_page_title() {
+			global $post, $title, $action, $current_screen;
+			if( isset( $current_screen->post_type ) && $current_screen->post_type == 'lab_directory_staff' && 
+				$action == 'edit' && get_post_type() == 'lab_directory_staff' ) {
+				/* this is the new page title */
+				$title = sprintf( __('%s profile', 'lab-directory'), $post->post_title);
+			} 
+			return $title;
+		}
+		
+		static function add_cpt_to_pll($post_types, $hide) {
 		// hides 'lab_directory_staff' from the list of custom post types in Polylang settings
 		unset($post_types['lab_directory_staff']);
 		return $post_types;
 	}
 	
+	/**
+	 * Staff profile update messages.
+	 * @return array Amended post update messages with new CPT update messages.
+	 */
+	static function ld_profile_updated_messages( $messages ) {
+		$post             = get_post();
+		$post_type        = get_post_type( $post );
+		$post_type_object = get_post_type_object( $post_type );
 	
+		$messages['lab_directory_staff'] = array(
+			0  => '', // Unused. Messages start at index 1.
+			1  => __( 'Staff profile updated.', 'lab-directory' ),
+			4  => __( 'Staff profile updated.', 'lab-directory' ),
+			6  => __( 'Staff profile published.', 'lab-directory' ),
+			7  => __( 'Staff profile saved.', 'lab-directory' ),
+			8  => __( 'Staff profile submitted.', 'lab-directory' ),
+		);
+	
+		if ( $post_type_object->publicly_queryable && 'lab_directory_staff' === $post_type ) {
+			$permalink = get_permalink( $post->ID );
+	
+			$view_link = sprintf( ' <a href="%s">%s</a>', esc_url( $permalink ), __( 'View staff profile', 'lab-directory' ) );
+			$messages[ $post_type ][1] .= $view_link;
+			$messages[ $post_type ][6] .= $view_link;
+	
+			$preview_permalink = add_query_arg( 'preview', 'true', $permalink );
+			$preview_link = sprintf( ' <a target="_blank" href="%s">%s</a>', esc_url( $preview_permalink ), __( 'View staff profile', 'lab-directory' ) );
+			$messages[ $post_type ][8]  .= $preview_link;
+	
+		}
+	
+		return $messages;
+	}
+		
 	static function ld_filter_excerpt( $excerpt ) {
 		global $post;
 		if ( $post->post_type == 'lab_directory_staff' ) {
@@ -278,7 +343,8 @@ class Lab_Directory {
 	// register tabs script
 	static function lab_directory_scripts_and_css_for_tabs() {
 		
-		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js');
+		wp_enqueue_script( 'custom-tabs', LAB_DIRECTORY_URL . '/admin/js/tabs.js', array( 'jquery' ));
+		wp_enqueue_script( 'input_datetime', LAB_DIRECTORY_URL . '/admin/js/input_datetime.js', array( 'jquery' ));
 		wp_enqueue_script( 
 			'timepicker-addon', 
 			LAB_DIRECTORY_URL . '/admin/js/jquery.datetimepicker.js', 
@@ -437,28 +503,23 @@ class Lab_Directory {
 		?>
 <p>
 	<button name="save" class="button button-primary button-large"
-		id="publish2" value="Update" type="submit"><?php _e('Update staff status', 'lab-directory')?></button>
+		id="publish2" value="Update" type="submit"><?php _e('Update')?></button>
 </p>
-<p>Note: Staff details and staff status cannot be modified at the same
-	time. Please, first modify staff status, then modify staff details.</p>
+<p>Note: Please, modify staff status before modifying staff details.</p>
 <p>
-	<span class="dashicons dashicons-lock"></span> This group is disabled
-	in general settings. Corresponding status is not available.
+	<span class="dashicons dashicons-lock"></span> When a lock is displayed before a status, it has been disabled
+	in general settings and is not available.
 </p>
 
 <?php
 	}
 
 	/*
-	 * Disble date filter for lab_directory_staff
+	 * Disble date filter for lab_directory_staff post
 	 */
 	static function ld_disable_months_dropdown( $false , $post_type ) {
 	
-	if( $post_type =='lab_directory_staff')  {
-		return true;	
-	}
-	
-	return false;	
+	 return ($post_type =='lab_directory_staff');	
 }
 /*
 	 * Output the meta_box form content
@@ -479,7 +540,6 @@ class Lab_Directory {
 		?>
 <script type="text/javascript">
 		jQuery(document).ready(function($){
-		
 			$('#add-new-jury-member').on('click', function(ev){
 				ev.preventDefault();
 				var tr = $('<tr/>');
@@ -487,10 +547,10 @@ class Lab_Directory {
 				$("#add-new-jury-member-row").before(tr);
 			});
 		
-				$(document).on('click', '.remove-field', function(ev){
-					ev.preventDefault();
-					$(this).parent().parent().remove();
-				});
+			$(document).on('click', '.remove-jury-member', function(ev){
+				ev.preventDefault();
+				$(this).parent().parent().remove();
+			});
 		});
 
 		function show_hide_social_networks() {
@@ -738,6 +798,7 @@ div.lab_directory_staff_meta {
 				echo $mv;
 				break;
 			case 'editor' :
+				echo $label;
 				$name = 'lab_directory_staff_meta_' . $field['slug'];
 				wp_editor( $value, $name, null); //TODO add $editor_args );
 				break;
@@ -789,6 +850,7 @@ div.lab_directory_staff_meta {
 			<th id="columnname" scope="col" style="width: 20%;">Function</th>
 			<th id="columnname" scope="col" style="width: 25%;">Name</th>
 			<th id="columnname" scope="col">Title, University, enterprise</th>
+			<td style="width: 5%;"></td>
 		</tr>
 	</thead>
 	<tfoot>
@@ -797,6 +859,7 @@ div.lab_directory_staff_meta {
 			<th id="columnname" scope="col">Function</th>
 			<th id="columnname" scope="col">Name</th>
 			<th id="columnname" scope="col">Title, University, enterprise</th>
+			<td></td>
 		</tr>
 	</tfoot>
 
@@ -819,7 +882,7 @@ div.lab_directory_staff_meta {
 						false, 
 						'input-in-td', 
 						' ' ); // TODO(true) ?>
-					</td>
+			</td>
 			<td><input type="text"
 				name="lab_directory_staff_meta_<?php echo $field['slug']; ?>_names[]"
 				class="input-in-td"
@@ -828,11 +891,14 @@ div.lab_directory_staff_meta {
 				name="lab_directory_staff_meta_<?php echo $field['slug']; ?>_titles[]"
 				class="input-in-td"
 				value="<?php echo $jury_member['title']; ?>" /></td>
+			<td>
+              <a href="#" class="normal remove-jury-member"><span class="dashicons dashicons-trash"></span></a>
+        	</td>
 		</tr>
 					<?php
 				}
 				?>
-					<tr id="add-new-jury-member-row" valign="top">
+		<tr id="add-new-jury-member-row" valign="top">
 			<td colspan="4"><a href="#" class="normal" id="add-new-jury-member">+
 					Add New jury member</a></td>
 		</tr>
@@ -845,18 +911,21 @@ div.lab_directory_staff_meta {
 				echo Lab_Directory_Admin::lab_directory_create_select( 
 					'lab_directory_staff_meta_' . $field['slug'] . '_functions[]', 
 					$jury_functions, 
-					$jury_member['function'], 
+					'', false, 
 					'input-in-td', 
-					true ); // TODO(true) ?>
+					' ' ); // TODO(true) ?>
 					</td>
 			<td><input type="text"
 				name="lab_directory_staff_meta_<?php echo $field['slug']; ?>_names[]"
 				class="input-in-td"
-				value="<?php echo $jury_member['firstname_name']; ?>" /></td>
+				value="" /></td>
 			<td><input type="text"
 				name="lab_directory_staff_meta_<?php echo $field['slug']; ?>_titles[]"
 				class="input-in-td"
-				value="<?php echo $jury_member['title']; ?>" /></td>
+				value="" /></td>
+			<td>
+              <a href="#" class="remove-jury-member"><span class="dashicons dashicons-trash"></span></a>
+        	</td>
 		</tr>
 	</tbody>
 </table>
@@ -1096,8 +1165,8 @@ div.lab_directory_staff_meta {
 	static function set_default_meta_fields_if_necessary() {
 		$current_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 		
-		if ( $current_meta_fields == null || $current_meta_fields = '' ) {
-			$default_meta_fields = array();
+		if ( $current_meta_fields === false || empty($current_meta_fields) ) {
+			$default_meta_fields = Lab_Directory::get_default_meta_fields();
 			update_option( 'lab_directory_staff_meta_fields', $default_meta_fields );
 		}
 	}
@@ -2049,7 +2118,6 @@ div.lab_directory_staff_meta {
 
 	static function register_tinymce_plugin( $plugin_array ) {
 		$plugin_array['lab_directory_button'] = LAB_DIRECTORY_URL . '/admin/js/shortcode.js';
-		;
 		
 		return $plugin_array;
 	}

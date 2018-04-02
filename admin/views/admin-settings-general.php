@@ -121,8 +121,8 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<b>Staff Taxonomies</b><br/>
  	<p><input name="lab_directory_use_taxonomy1" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy1' ) ); ?> /> Use Taxonomy 1 (<?php echo $taxonomies['ld_taxonomy_team']['labels']['name']; ?>)</p>
     <p><input name="lab_directory_use_taxonomy2" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy2' ) ); ?> /> Use Taxonomy 2 (<?php echo $taxonomies['ld_taxonomy_laboratory']['labels']['name']; ?>)</p>
-	<p><input name="lab_directory_use_ld_footer_pages" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_pages' ) ); ?> /> Display manager contact on each page.</p>
-	<p><input name="lab_directory_use_ld_footer_posts" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_posts' ) ); ?> /> Display manager contact on each post.</p>
+	<p><input name="lab_directory_use_ld_footer_pages" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_pages' ) ); ?> /> Display manager contact on pages.</p>
+	<p><input name="lab_directory_use_ld_footer_posts" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_posts' ) ); ?> /> Display manager contact on posts.</p>
 </div>
 <div class="mid_left">
 	<b>Title for staff pages</b><br/>
@@ -138,8 +138,8 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 	<label><input type="radio" name="lab_directory_default_template" value="staff_list" <?php checked('staff_list', $lab_directory_default_template); ?> />Compact list</label>
 	<label><input type="radio" name="lab_directory_default_template" value="staff_trombi" <?php checked('staff_trombi', $lab_directory_default_template); ?> />Photos</label>
 	</p>
-	<p><label><input name="lab_directory_use_format_switcher" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_format_switcher' ) ); ?> /> lab_directory_use_format_switcher</label></p> 
-	<p><label><input name="lab_directory_use_staff_search" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_staff_search' ) ); ?> /> lab_directory_use_staff search</label></p> 
+	<p><label><input name="lab_directory_use_format_switcher" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_format_switcher' ) ); ?> /> Use a format switcher on staff list</label></p> 
+	<p><label><input name="lab_directory_use_staff_search" type="checkbox"value="1" <?php checked( '1', get_option( 'lab_directory_use_staff_search' ) ); ?> />Display a staff search on staff list</label></p> 
 </div>
 
 <div class="both_columns">

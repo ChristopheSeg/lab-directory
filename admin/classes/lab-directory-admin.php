@@ -436,7 +436,7 @@ class Lab_Directory_Admin {
 		
 			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 			$form_messages = array('form_saved' => false);
-		
+			wp_enqueue_script( 'jquery-ui-tabs' );
 			// Check $_POST and _wpnonce
 			if (isset($_POST['admin-settings-translations']) AND $_POST['admin-settings-translations']) {
 				if ( ($_POST['admin-settings-translations']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-translations' )){
@@ -454,7 +454,7 @@ class Lab_Directory_Admin {
 						foreach ( $slugs as $slug ) {
 							$index++;
 							$metafields_slug = sanitize_text_field($metafields_slugs[$index]);
-							if ($metafields_slug AND ($post_translations[$index] OR $links[index])) {
+							if ($metafields_slug AND ($post_translations[$index] OR $links[$index])) {
 								$translations[$index] = array(); 
 								$translations[$index]['slug'] = $metafields_slug;
 								$translations[$index]['acronym'] = $slug;
@@ -502,7 +502,7 @@ class Lab_Directory_Admin {
 	static function settings_taxonomies($lang, $lang_name, $locale, $locale_name) {
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false);
-	
+		wp_enqueue_script( 'jquery-ui-tabs' );
 		// Check $_POST and _wpnonce
 		if (isset($_POST['admin-settings-taxonomies']) AND $_POST['admin-settings-taxonomies']) {
 			if ( ($_POST['admin-settings-taxonomies']=='Save') && wp_verify_nonce( $_POST['_wpnonce'], 'admin-settings-taxonomies' )){

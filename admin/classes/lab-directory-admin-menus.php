@@ -2,6 +2,8 @@
 class Lab_Directory_Admin_Menus {
 	
 	static $load_admin_class = false;
+	// url slug used for templates
+	static $lab_directory_url_slugs =array();
 	
 	static function register_admin_menu_items() {
 		
@@ -24,16 +26,21 @@ class Lab_Directory_Admin_Menus {
 				self::$load_admin_class = true;
 			}
 		}
-add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'register_ld_post_type' ) );
-		
-add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
+		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'register_ld_post_type' ) );
+				
+		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
 		
 		// Load text_domain for admin menus
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin_Menus', 'load_lab_directory_admin_menus_textdomain' ) );
 		
 		// Add an action lmink in Lab-Directory extension menu
 		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Admin_Menus',  'lab_directory_add_action_links')  );
-				
+		
+		// IMPORTANT Add Query_vars and Tags here. That it used when flushing permalink outside lab-directory
+		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
+		add_filter( 'query_vars', array( 'Lab_Directory_Admin_Menus', 'lab_directory_add_query_vars' ) );
+		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'lab_directory_add_rewrite_tags' ) , 10, 0);
+		
 	}
 
 	/* 
@@ -51,7 +58,7 @@ add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_it
 					'add_new_item' => __( 'Add a new staff', 'lab-directory' ),
 					'edit_item' => __( 'Edit staff profile', 'lab-directory' ),
 					'new_item' => __( 'New staff', 'lab-directory' ),
-					'view_item' => _x( 'View staff', 'single', 'lab-directory' ),
+					'view_item' => _x( 'View staff profile', 'single', 'lab-directory' ),
 					'view_items' => _x( 'View staff', 'plural', 'lab-directory' ),
 					'search_items' => __( 'Search staff', 'lab-directory' ),
 					'not_found' => __( 'No staff found.', 'lab-directory' ),
@@ -65,9 +72,7 @@ add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_it
 					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ),
 					'items_list' => __( 'Staff list', 'lab-directory' ) ),
 	
-				'supports' => array( 'title',
-					// 'editor',
-					'thumbnail' ),  // disabled for ldap=1
+				'supports' => array( /* 'title', 'editor', */ 'thumbnail' ),  // disabled for ldap=1
 	
 				'public' => true,
 				'has_archive' => false,
@@ -126,6 +131,25 @@ add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_it
 		// Else load from language dir 
 		return load_textdomain( $domain, LAB_DIRECTORY_DIR . '/languages/' . $mofile );
 	}
+	
+	static function lab_directory_add_query_vars( $qvars ) {
+	
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			// Why !! Without this test, query vars can be registered twice !!!
+			if (! in_array($slug_replacement, $qvars) ) $qvars[] = $slug_replacement;
+		}
+	
+		return $qvars;
+	}
+	
+	static function lab_directory_add_rewrite_tags() {
+	
+		foreach (self::$lab_directory_url_slugs as $slug => $slug_replacement) {
+			add_rewrite_tag("%$slug_replacement%", '([^&/]+)');
+			add_rewrite_endpoint( $slug_replacement, EP_PERMALINK | EP_PAGES  );
+		}
+	}
+	
 
 }
 

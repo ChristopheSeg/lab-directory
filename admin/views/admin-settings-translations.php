@@ -2,6 +2,7 @@
 jQuery(document).ready(function($){
 
 	$('#add-new-acronym').on('click', function(ev){
+		
 		ev.preventDefault();
 		var tr = $('<tr/>');
 		tr.html($('#new-acronym').html());
@@ -9,10 +10,10 @@ jQuery(document).ready(function($){
 		
 	});
 
-		$(document).on('click', '.remove-field', function(ev){
-			ev.preventDefault();
-			$(this).parent().parent().remove();
-		});
+	$(document).on('click', '.remove-acronym', function(ev){
+		ev.preventDefault();
+		$(this).parent().parent().remove();
+	});
 });
 </script>
 
@@ -45,8 +46,9 @@ jQuery(document).ready(function($){
 		<tr>
 		<th id="columnname" scope="col" >Meta field</th>
 		<th id="columnname" scope="col" ><?php _e('Acronym', 'lab-directory'); ?></th>
-		<th id="columnname" scope="col" style="width:40%;">Acronym description for tooltip</th>
-		<th id="columnname" scope="col" style="width:40%;">Link (Optional)</th>
+		<th id="columnname" scope="col" style="width:35%;">Acronym description for tooltip</th>
+		<th id="columnname" scope="col" style="width:35%;">Link (Optional)</th>
+		<td style="width:3%;"></td>
 		</tr>
 		</thead>
 		<tfoot>
@@ -55,6 +57,7 @@ jQuery(document).ready(function($){
 		<th id="columnname" scope="col"><?php _e('Acronym', 'lab-directory'); ?></th>
 		<th id="columnname" scope="col">Acronym description for tooltip</th>
 		<th id="columnname" scope="col">Link (Optional)</th>
+		<td></td>
 		</tr>
 		</tfoot>
 		
@@ -77,12 +80,16 @@ jQuery(document).ready(function($){
 		<td><input type="text" name="lab_directory_translations_links[]" class="input-in-td" 
 			value="<?php echo isset($translation['link']) ? $translation['link']: ''; ?>"/>
 		</td>
+		<td>
+              <a href="#" class="remove-field"><span class="dashicons dashicons-trash"></span></a>
+        </td>
 		</tr>
 		<?php } // } ?>
 		<tr id="add-new-acronym-row" valign="top">
-       	<td colspan=4>
+       	<td colspan=5>
        	<a href="#" class="normal" id="add-new-acronym">+ Add New acronym tooltip</a>
         </td>
+        
         </tr>
         <tr id="new-acronym">
 		<td>
@@ -99,6 +106,9 @@ jQuery(document).ready(function($){
 		<td><input type="text" name="lab_directory_translations_links[]" class="input-in-td" 
 			value=""/>
 		</td>
+		<td>
+              <a href="#" class="remove-acronym"><span class="dashicons dashicons-trash"></span></a>
+        </td>
 		</tr>			
         </tbody>
         </table>
