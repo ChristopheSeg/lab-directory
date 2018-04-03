@@ -17,18 +17,18 @@ define( 'LAB_DIRECTORY_TEMPLATES', LAB_DIRECTORY_DIR . "/templates" );
 define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 
 /* Always load admin menus and corresponding languages mo file
- * This also regiter post_type lab_Directory_Staff
+ * This also register post_type lab_Directory_Staff, add tags and rewrite rules
  */
 
-require_once ( dirname( __FILE__ ) . '/admin/classes/lab-directory-admin-menus.php' );
-Lab_Directory_Admin_Menus::register_admin_menu_items();
+require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-base.php' );
+Lab_Directory_Base::register_admin_menu_items();
 
 
 if ( is_admin() ) {
 	 
 	// Common classes are not needed for non lad directory staff pages 
 	//TODO conditional load for admin settings OR edit staff (need ad'hoc separation in 2 classes!! 
-	if (Lab_Directory_Admin_Menus::$load_admin_class) {
+	if (Lab_Directory_Base::$load_admin_class) {
 				
 		// Load Common classes
 		require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-common.php' );

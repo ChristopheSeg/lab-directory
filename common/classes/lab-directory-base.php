@@ -1,5 +1,5 @@
 <?php
-class Lab_Directory_Admin_Menus {
+class Lab_Directory_Base {
 	
 	static $load_admin_class = false;
 	// url slug used for templates
@@ -26,20 +26,20 @@ class Lab_Directory_Admin_Menus {
 				self::$load_admin_class = true;
 			}
 		}
-		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'register_ld_post_type' ) );
+		add_action( 'init', array( 'Lab_Directory_Base', 'register_ld_post_type' ) );
 				
-		add_action( 'admin_menu', array( 'Lab_Directory_Admin_Menus', 'add_admin_menu_items' ) );
+		add_action( 'admin_menu', array( 'Lab_Directory_Base', 'add_admin_menu_items' ) );
 		
 		// Load text_domain for admin menus
-		add_action( 'plugins_loaded', array( 'Lab_Directory_Admin_Menus', 'load_lab_directory_admin_menus_textdomain' ) );
+		add_action( 'plugins_loaded', array( 'Lab_Directory_Base', 'load_Lab_Directory_Base_textdomain' ) );
 		
 		// Add an action lmink in Lab-Directory extension menu
-		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Admin_Menus',  'lab_directory_add_action_links')  );
+		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Base',  'lab_directory_add_action_links')  );
 		
 		// IMPORTANT Add Query_vars and Tags here. That it used when flushing permalink outside lab-directory
 		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
-		add_filter( 'query_vars', array( 'Lab_Directory_Admin_Menus', 'lab_directory_add_query_vars' ) );
-		add_action( 'init', array( 'Lab_Directory_Admin_Menus', 'lab_directory_add_rewrite_tags' ) , 10, 0);
+		add_filter( 'query_vars', array( 'Lab_Directory_Base', 'lab_directory_add_query_vars' ) );
+		add_action( 'init', array( 'Lab_Directory_Base', 'lab_directory_add_rewrite_tags' ) , 10, 0);
 		
 	}
 
@@ -116,7 +116,7 @@ class Lab_Directory_Admin_Menus {
 		return array_merge( $links, $mylinks );
 	}
 	
-	static function load_lab_directory_admin_menus_textdomain() {
+	static function load_Lab_Directory_Base_textdomain() {
 		
 		$domain = 'lab-directory'; 
 		$locale = apply_filters( 'plugin_locale', is_admin() ? get_user_locale() : get_locale(), $domain );

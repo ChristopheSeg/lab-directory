@@ -67,7 +67,7 @@ $makepot_args = array(
 		// These files are common to admin and frontend
 		'common' => array(
                 'slug_extension' =>'common', 
-                'excludes' => array(),
+                'excludes' => array('common/classes/lab-directory-base\.php'),
 				'includes' => array('common/.*', 'lab-directory\.php'),
 		),
 		// Frontend part
@@ -79,8 +79,8 @@ $makepot_args = array(
 		// Admin part 
 		'admin' => array(
                 'slug_extension' =>'admin', 
-                'excludes' => array('admin/classes/lab-directory-admin-menus\.php'),
-				'includes' => array('admin/.*'),
+				'excludes' => array(),
+ 				'includes' => array('admin/.*'),
 		),
 		/* This correspond to a standalone pot file which can result on some phrases duplication
 		 * Admin_menus po file is loaded alone when lab-directory is not called in admin
@@ -89,7 +89,7 @@ $makepot_args = array(
 		'admin_menus' => array(
                 'slug_extension' =>'admin_menus', 
                 'excludes' => array(),
-				'includes' => array('admin/classes/lab-directory-admin-menus\.php'),
+				'includes' => array('common/classes/lab-directory-base\.php'),
 				// Set 'use_for_common' to true so that these language phrases are also found in common language file
 				'use_for_common' => true, 
 			

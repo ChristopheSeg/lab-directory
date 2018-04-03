@@ -12,16 +12,16 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: admin/classes/lab-directory-admin-menus.php:64
-#: admin/classes/lab-directory-admin-menus.php:67
+#: common/classes/lab-directory-base.php:64
+#: common/classes/lab-directory-base.php:67
 msgid "New staff"
 msgstr ""
 
-#: admin/classes/lab-directory-admin-menus.php:66
+#: common/classes/lab-directory-base.php:66
 msgid "Edit staff profile"
 msgstr ""
 
-#: admin/classes/lab-directory-admin-menus.php:74
+#: common/classes/lab-directory-base.php:74
 msgid "Staff photo"
 msgstr ""
 

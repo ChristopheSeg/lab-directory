@@ -104,10 +104,10 @@ class Lab_Directory_Common {
 		}
 		if ($slug)  {
 			if ($simple_url) {
-				$permalink .=  '&'. Lab_Directory_Admin_Menus::$lab_directory_url_slugs[$slug];
+				$permalink .=  '&'. Lab_Directory_Base::$lab_directory_url_slugs[$slug];
 			} else {
 				// Add a / if it does not exist in permalink ( permalink structure set to 'numeric'
-				$permalink = trim ($permalink, '/'). '/'. Lab_Directory_Admin_Menus::$lab_directory_url_slugs[$slug];
+				$permalink = trim ($permalink, '/'). '/'. Lab_Directory_Base::$lab_directory_url_slugs[$slug];
 			}
 	
 			if ($id)  {
