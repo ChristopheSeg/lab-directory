@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/{slug}\n"
 "POT-Creation-Date: 2018-03-27 14:59+0200\n"
-"PO-Revision-Date: 2018-03-27 15:03+0200\n"
+"PO-Revision-Date: 2018-04-03 13:08+0200\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -15,7 +15,7 @@ msgstr ""
 
 #: common/classes/lab-directory-base.php:62
 msgid "Lab Directory staff"
-msgstr ""
+msgstr "Personnel (lab-directory)"
 
 #: common/classes/lab-directory-base.php:63
 msgid "Staff"
@@ -24,7 +24,7 @@ msgstr "Personnel"
 #: common/classes/lab-directory-base.php:64
 #: common/classes/lab-directory-base.php:67
 msgid "New staff"
-msgstr ""
+msgstr "Nouvelle personne"
 
 #: common/classes/lab-directory-base.php:65
 msgid "Add a new staff"
@@ -63,7 +63,7 @@ msgstr "Liste des personnels"
 
 #: common/classes/lab-directory-base.php:74
 msgid "Staff photo"
-msgstr ""
+msgstr "Photo personnelle"
 
 #: common/classes/lab-directory-base.php:75
 msgid "Set staff photo"

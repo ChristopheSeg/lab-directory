@@ -1,16 +1,16 @@
 DONE:
-Class lab-directory-admin-menus renamed lab-directory_base and moved to common folder
 
 TODO:
 ==================================
-Change classes name to ld_something (not used) 
+staff search off par défaut ? ou ....
+Change "classes name" to ld_something (not used) 
+widget list message à la création hors admin dans frontend!!? 
+rewrite all sql query using wpdb->prepare
 
 admin edit staff: titre désactiver 
 //TODO OBSOLETE rewrite for new categories!! 
  photo staff où???? 
- 			
-modifier admin "Article mis à jour. Voir l’article" pour staff
-	
+ 				
 frontend: faut-il séparer widget du reste? Comment?  => classe
 	conditionnal load de code php shortode?? 
 	identifier les shotrtcode appelés en premier [lab-directory, widegt, hdr loop phdloop 

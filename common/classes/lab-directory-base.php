@@ -14,7 +14,7 @@ class Lab_Directory_Base {
 		
 		// search post_type in $_POST (case saving a form)
 		if (!self::$load_admin_class) {
-			if ( $_POST AND ($_POST['post_type'] == 'lab_directory_staff') ) {
+			if ( $_POST AND isset($_POST['post_type']) AND ($_POST['post_type'] == 'lab_directory_staff') ) {
 				// WHEN post_type=lab_directory_staff
 				self::$load_admin_class = true;
 			}
@@ -52,6 +52,7 @@ class Lab_Directory_Base {
 			'lab_directory_staff',
 			array(
 				'labels' => array(
+					/* translators: This is the plugin main menu name appearing in admin list. (if possible use less than 20 character)*/
 					'name' => __( 'Lab Directory staff', 'lab-directory' ),
 					'singular_name' => __( 'Staff', 'lab-directory' ),
 					'add_new' => __( 'New staff', 'lab-directory' ),

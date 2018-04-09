@@ -22,29 +22,42 @@ foreach ($spip_personnels as $spip_personnel)  {
  	$title = $lab_directory_title_firstname_first ? 
  			$spip_personnel->prenom . ' ' .$spip_personnel->nom:
  			$spip_personnel->nom . ' ' .$spip_personnel->prenom;
- 	$mails = my_unserialize($spip_personnel->mails);
- 	$wp_staff_id = get_wp_staff_id($title);
- 	$wp_user_id = get_wp_user_id($spip_personnel->login);
- 	echo '<br>' .
- 			' ldap='.$spip_personnel->ldap.
-  			' staff_id='.($wp_staff_id? $wp_staff_id: '--') .
- 			' wp_user_id='.($wp_user_id? $wp_user_id: '--') 
- 			. ' ' .  $title;
-
- 	if (! $wp_staff_id) {
- 		$sans_fiche_perso++;
- 		import_fiche($spip_personnel);
- 		if ($mails[0]) {
- 			$liste_emails_a_importer[] = $mails[0];
- 			$nb_emails_a_importer++;
- 		} else {
- 			$liste_emails_autres[] = $title;
- 		}
- 	} else {
- 		maj_fiche($spip_personnel,$wp_staff_id); 
- 	}
- 	if ($wp_user_id) {$nb_wp_user++;}
  	
+ 	$title2= $lab_directory_title_firstname_first ? 
+ 			$spip_personnel->nom . ' ' .$spip_personnel->prenom:
+ 			$spip_personnel->prenom . ' ' .$spip_personnel->nom;
+ 	
+ 	$mails = my_unserialize($spip_personnel->mails);
+ 	$wp_staff_id = get_wp_staff_id($title, $title2);
+ 	
+ 	if ($wp_staff_id == 'STOP') {
+ 		echo '<br>' .
+ 			' ldap='.$spip_personnel->ldap.
+ 			' staff_id=plusieurs fiches personnelles pour: '.  $title;
+ 				
+ 	} else {
+ 		// $wp_staff_id = id OR false
+ 		$wp_user_id = get_wp_user_id($spip_personnel->login);
+  		echo '<br>' .
+	 			' ldap='.$spip_personnel->ldap.
+	  			' staff_id='.($wp_staff_id? $wp_staff_id: '--') .
+	 			' wp_user_id='.($wp_user_id? $wp_user_id: '--') 
+	 			. ' ' .  $title;
+	
+	 	if (! $wp_staff_id) {
+	 		$sans_fiche_perso++;
+	 		import_fiche($spip_personnel, $title);
+	 		if ($mails[0]) {
+	 			$liste_emails_a_importer[] = $mails[0];
+	 			$nb_emails_a_importer++;
+	 		} else {
+	 			$liste_emails_autres[] = $title;
+	 		}
+	 	} else {
+	 		maj_fiche($spip_personnel,$wp_staff_id); 
+	 	}
+	 	if ($wp_user_id) {$nb_wp_user++;}
+ 	}	
  	
  } // end foreach personnels
  
@@ -133,20 +146,33 @@ function maj_fiche($personnel,$wp_staff_id) {
 	
 	// Equipe 
 	$teams= array( 
+		/*
+		 * 'idspip' => 'nom wp',
+		 */
 		'11' => 'Photonique',
-'12' => 'CSAM',
-'13' => 'MINT',
-'14' => '2XS',
-'51' => 'Dreampal',
-'53' => 'FOX',
-'101' => 'EMERAUDE',
-'104' => 'Administration', 
+		'12' => 'CSAM',
+		'13' => 'MINT',
+		'14' => '2XS',
+		'51' => 'Dreampal',
+		'53' => 'FOX',
+		'101' => 'EMERAUDE',
+		'104' => 'Administration', 
 		); 
-	$team = $teams[$personnel->idequipe];
-	$wp_team= get_term_by('name', $team, 'ld_taxonomy_team');
 
-	$wp_team_id= $wp_team->term_taxonomy_id;
-	// wp_set_object_terms( $wp_staff_id, $wp_team_id, 'ld_taxonomy_team' );
+	$team ='--';
+	if ($personnel->idequipe) { 
+		$team = $teams[$personnel->idequipe];
+
+		if ($wp_team = get_term_by('name', $team, 'ld_taxonomy_team') ) {
+			$wp_team_id = $wp_team->term_taxonomy_id;
+			wp_set_object_terms( $wp_staff_id, $wp_team_id, 'ld_taxonomy_team' );
+			$team= "=> {$wp_team->name}/$wp_team_id";
+		}
+	}
+	
+	// Photo
+	$photo = maj_photo($personnel->url_photo, $wp_staff_id,$personnel->titre);
+	echo ' '. $photo; 
 	// Import de tous les champs
 	foreach ($liste_champs as $champ_spip => $champ_wp) {
 		if ($personnel->$champ_spip=='0000-00-00 00:00:00') {$personnel->$champ_spip='';}
@@ -155,30 +181,29 @@ function maj_fiche($personnel,$wp_staff_id) {
 		}
 		
 		if ($personnel->$champ_spip) {
-			echo "<br>&nbsp;&nbsp;&nbsp;id=$wp_staff_id,  equipe=$team => {$wp_team->name}/$wp_team_id,  champ=$champ_wp, valeur= ". $personnel->$champ_spip;
-			/* 
-			if (is_array($personnel->$champ_spip)) {
-				echo "<br>&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp "; var_dump($personnel->$champ_spip); 
-			}*/
+			
 			if ($champ_wp == 'staff_statuss') {
+				echo "<br>&nbsp;&nbsp;&nbsp;id=$wp_staff_id,  equipe=$team,  champ=$champ_wp, valeur= array";
 				Lab_Directory::update_staff_statuss( $wp_staff_id, $personnel->$champ_spip);
 			} else {
+				echo "<br>&nbsp;&nbsp;&nbsp;id=$wp_staff_id,  equipe=$team,  champ=$champ_wp, valeur= ". (string)$personnel->$champ_spip;
 				update_post_meta( $wp_staff_id, $champ_wp, $personnel->$champ_spip);
 			}
 			
 		}
+		
 	}
 	
 }
 	
 
-function import_fiche($personnel) {
+function import_fiche($personnel, $title) {
 	echo ' =>IMPORT fiche';
 	$wp_staff_id='new';
 	// creation fiche, 
 
 	$new_lab_directory_staff_array = array(
-		'post_title' => $personnel->prenom . ' ' .$personnel->nom, 
+		'post_title' => $title, 
 		'post_content' => '',  // $lab_directory_staff->bio,
 		'post_type' => 'lab_directory_staff',
 		'post_status' => 'publish' );
@@ -270,6 +295,9 @@ function import_fiche($personnel) {
 			$personnel->jury_these=$jury;
 		}
 		
+		// Photo
+		$photo = maj_photo($personnel->url_photo, $wp_staff_id,$personnel->titre);
+		echo ' '. $photo;
 		// Import de tous les champs
 		foreach ($liste_champs as $champ_spip => $champ_wp) {
 			if ($personnel->$champ_spip=='0000-00-00 00:00:00') {$personnel->$champ_spip='';}
@@ -280,7 +308,6 @@ function import_fiche($personnel) {
 					update_post_meta( $wp_staff_id, $champ_wp, $personnel->$champ_spip);
 				}
 			
-				echo "<br>&nbsp;&nbsp;&nbsp;id=$wp_staff_id, champ=$champ_wp, valeur=";
 			echo "<br>&nbsp;&nbsp;&nbsp;id=$wp_staff_id, champ=$champ_wp, valeur=". $personnel->$champ_spip;
 			/* 
 			if (is_array($personnel->$champ_spip)) {
@@ -293,6 +320,30 @@ function import_fiche($personnel) {
 	}	
 }
 
+function maj_photo($url_photo='', $wp_staff_id=false, $prenom_nom ){
+	if (! $wp_staff_id) return; 
+	if (! $url_photo) return; 
+	$message = ' No photo';
+	
+	// Add staff photo
+	// Import photo from URL
+	$filename = sanitize_file_name( $prenom_nom );
+	// Remove old attachement
+	if(has_post_thumbnail( $staff_post_id )) {
+		$attachment_id = get_post_thumbnail_id( $staff_post_id );
+		wp_delete_attachment($attachment_id, true);
+	}
+	
+	$image = Lab_Directory::attach_external_image( $url_photo, $wp_staff_id, true, $filename,
+		array('post_title' => $prenom_nom));
+	if ( ! is_wp_error( $image ) ) {
+		$message= " Photo OK ($url_photo)";
+		// For future use !!
+		update_post_meta( $wp_staff_id, 'date_photo_updated', time() );
+	}
+	return $message; 
+}
+
 	function my_unserialize($vs) {
 
 	if (substr($vs, 0, 2)=='a:') {
@@ -302,30 +353,56 @@ function import_fiche($personnel) {
 	}
 	return $vs;
 }
-function get_wp_user_id($personnel) {
+function get_wp_user_id($login) {
 	global $wpdb;
+	if (!$login) return false; 
+	
 	$id = $wpdb->get_results(
 			"
 			SELECT ID
 			FROM $wpdb->users
-			WHERE login =('" . $login . "') " ) ;
+			WHERE user_login ='" . $login . "' " ) ;
 	if ( $wpdb->num_rows ==1 ) {
 		return $id[0]->ID; 
 	}
+
 	return false; 
 }
-
-function get_wp_staff_id($title) {
+/* 
+ * $title the title attributed to this staff
+ * $title2 alternative possible title depending on title settings
+ */
+function get_wp_staff_id($title, $title2) {
 	global $wpdb;
-	$id = $wpdb->get_results(
+	$title = esc_sql( $title );
+	$title2 = esc_sql( $title2 );
+	/* Search for all possible title in case title settings has been changed recently
+	 * do not use AND post_status='publish' to avoid import trashed profile
+	*/ 
+	$id =$resultats = $wpdb->get_results(
+	    $wpdb->prepare(
+	        "SELECT ID FROM {$wpdb->posts} WHERE ( post_title ='%s' OR post_title ='%s') 
+			AND post_type = 'lab_directory_staff'  " ,
+	        $title, $title2  )
+	); 
+	/*
+	$wpdb->get_results(
 			"
 			SELECT ID
 			FROM $wpdb->posts
-			WHERE post_title =('" . $title . "')
+			WHERE ( post_title ='$title' OR post_title ='$title2') 
 			AND post_type = 'lab_directory_staff' " ) ;
+	*/
+	
+	echo "<br>ligne=$wpdb->num_rows ==>SELECT ID	FROM $wpdb->posts WHERE ( post_title ='$title' OR post_title ='$title2')  AND post_type = 'lab_directory_staff' "; 
 	if ( $wpdb->num_rows ==1 ) {
 		return $id[0]->ID; 
 	}
+	// TODO if multiple staff profile found (may not occurs)
+	if ( $wpdb->num_rows >1 ) {
+		return 'STOP';
+	}
+	// Not yet registered 
 	return false; 
 }
 

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lab-directory\n"
 "POT-Creation-Date: 2018-03-27 15:00+0200\n"
-"PO-Revision-Date: 2018-03-27 15:02+0200\n"
+"PO-Revision-Date: 2018-04-03 13:06+0200\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -15,49 +15,49 @@ msgstr ""
 
 #: public/classes/lab-directory-shortcode.php:364
 msgid "Search by name or firstname"
-msgstr ""
+msgstr "Rechercher par nom ou prénom"
 
 #: public/classes/lab-directory-shortcode.php:389
 msgid "Sorry, there is no staff corresponding to this request !"
-msgstr ""
+msgstr "Désolé, il n'y a aucun personnel correspondant à cette requête!"
 
 #: public/classes/lab-directory-shortcode.php:435
 msgid "Sorry, there is no information about this staff HDR !"
-msgstr ""
+msgstr "Désolé, il n'y a aucune information sur la HDR de cette personne !"
 
 #: public/classes/lab-directory-shortcode.php:436
 msgid "whether our website is not up-to-date"
-msgstr ""
+msgstr "Soit notre site n'est pas à jour"
 
 #: public/classes/lab-directory-shortcode.php:437
 msgid "whether this staff has no HDR"
-msgstr ""
+msgstr "Soit cette personne n'a pas de HDR"
 
 #: public/classes/lab-directory-shortcode.php:481
 msgid "Sorry, there is no information about this PHD !"
-msgstr ""
+msgstr "Désolé, il n'y a aucune information sur la thèse de cette personne !"
 
 #: public/classes/lab-directory-shortcode.php:565
 msgid "Unknown date"
-msgstr ""
+msgstr "Date inconnue"
 
 #: public/classes/lab-directory-shortcode.php:566
 msgid "PHD"
-msgstr ""
+msgstr "Thèse"
 
 #: public/classes/lab-directory-shortcode.php:1312
 msgid "%s directory"
-msgstr ""
+msgstr "Equipe %s"
 
 #: public/classes/lab-directory-shortcode.php:1313
 msgid "Directory"
-msgstr ""
+msgstr "Annuaire"
 
 #. translators: This is used in pages and posts footer to display contact, %s
 #. is the team or laboratory (one categeory)
 #: public/classes/lab-directory-shortcode.php:1367
 msgid "%s contact : "
-msgstr ""
+msgstr "Contact %s :"
 
 #. translators: This is used in pages and posts footer to display manager, %s
 #. is the team or laboratory (one categeory)
@@ -69,19 +69,19 @@ msgstr "manageur %s :"
 #. in sidebar widget.
 #: public/classes/ld_widget_defenses.php:23
 msgid "Future Defenses list"
-msgstr ""
+msgstr "Prochaines soutenances"
 
 #: public/classes/ld_widget_defenses.php:26
 msgid "This widget displays a compact list of defenses"
-msgstr ""
+msgstr "Ce Widget affiche une liste compacte des soutenances"
 
 #: public/classes/ld_widget_defenses.php:49
 msgid "Next Defenses"
-msgstr ""
+msgstr "Prochaines soutenances"
 
 #: public/classes/ld_widget_defenses.php:57
 msgid "Title:"
-msgstr ""
+msgstr "Titre : "
 
 #: public/classes/ld_widget_defenses.php:62
 msgid "List for time period :"
@@ -90,14 +90,14 @@ msgstr ""
 #. translators: for all defenses
 #: public/classes/ld_widget_defenses.php:64
 msgid "all"
-msgstr ""
+msgstr "Toutes"
 
 #. translators: for future defenses
 #: public/classes/ld_widget_defenses.php:65
 msgid "future"
-msgstr ""
+msgstr "Future"
 
 #. translators: for past defenses
 #: public/classes/ld_widget_defenses.php:66
 msgid "past"
-msgstr ""
+msgstr "Passée"

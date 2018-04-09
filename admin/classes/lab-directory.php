@@ -420,7 +420,6 @@ class Lab_Directory {
 			}
 		}
 		// Set activated statuss to true
-		echo "<br> =====================save statuss";
 		return update_post_meta( $post_ID, 'staff_statuss', $meta_value );
 	}
 
@@ -1904,7 +1903,7 @@ div.lab_directory_staff_meta {
 	// Try to import from spip
 	//
 	static function import_spip_staff() {
-		require_once ( plugin_dir_path( __FILE__ ) . '../temp/import_spip.php' );
+		require_once (LAB_DIRECTORY_DIR . '/temp/import_spip.php' );
 		return;
 	}
 	
@@ -2683,8 +2682,8 @@ div.lab_directory_staff_meta {
 		if ( isset( $columns['slug'] ) )
 			unset( $columns['slug'] );
 		
-		$columns['manager_ids'] = __( 'Team manager', 'lab_directory' );
 		$columns['display_style'] = __( 'Display as', 'lab_directory' );
+		$columns['manager_ids'] = __( 'Team manager', 'lab_directory' );
 		
 		// Push Post column (total) at the end
 		if ( isset( $columns['posts'] ) ) {
@@ -2702,8 +2701,8 @@ div.lab_directory_staff_meta {
 		if ( isset( $columns['slug'] ) )
 			unset( $columns['slug'] );
 		
-		$columns['manager_ids'] = __( 'Laboratory manager', 'lab_directory' );
 		$columns['display_style'] = __( 'Display as', 'lab_directory' );
+		$columns['manager_ids'] = __( 'Laboratory manager', 'lab_directory' );
 		
 		// Push Post column (total) at the end
 		if ( isset( $columns['posts'] ) ) {
