@@ -354,14 +354,22 @@ class Lab_Directory_Shortcode {
 #filtre_dynamique_saisie {
     float: right;
     width: 250px;
-     
+	padding: 3px;   
 }
+
+#filtre_dynamique_effacer {
+    float: right;
+	padding: 3px; 
+	background: none;
+	color: #000;
+}
+	        			
 .text_surligne {
   color: #000;
   background-color: #fff59b;
 }
-  label, input {
-   float: right;
+	        			
+  input {
    width: auto;
    height: auto;
    padding: 3px;

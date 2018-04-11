@@ -19,7 +19,6 @@ div.ld_field {
 	float:left; 
 	clear: left;
 	display:block;
-	margin-bottom:4px;
 	min-width:70%; 
 }
 span.content_field { 

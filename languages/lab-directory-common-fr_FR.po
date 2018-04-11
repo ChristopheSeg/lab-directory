@@ -523,19 +523,19 @@ msgstr "Rechercher un laboratoire"
 #. be overrided depending on Lab-Directory settings..
 #: common/classes/lab-directory-common.php:231
 msgid "All Laboratories"
-msgstr "Tous les laboratoire"
+msgstr "Tous les laboratoires"
 
 #. translators: this is related to taxonomy-2 messages. This translation could
 #. be overrided depending on Lab-Directory settings..
 #: common/classes/lab-directory-common.php:233
 msgid "Parent Laboratory"
-msgstr "LAboratoire parent"
+msgstr "Laboratoire parent"
 
 #. translators: this is related to taxonomy-2 messages. This translation could
 #. be overrided depending on Lab-Directory settings..
 #: common/classes/lab-directory-common.php:235
 msgid "Parent Laboratory :"
-msgstr "Laboratoire parent"
+msgstr "Laboratoire parent :"
 
 #. translators: this is related to taxonomy-2 messages. This translation could
 #. be overrided depending on Lab-Directory settings..
