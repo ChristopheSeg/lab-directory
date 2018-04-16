@@ -1,7 +1,24 @@
 DONE:
+add some missing parameter initalisation
+add missing widget class loading on admin pages
 
 TODO:
 ==================================
+VOIR DEBUG.LOG kit web 
+taxonomies n'apparaissent pas dans la menu principal !! déplacer register tax dans base
+
+Ajouter Initialisation du plugin!!!! 
+
+		self::$lab_directory_url_slugs = get_option('lab_directory_url_slugs', false);
+		if(false === self::$lab_directory_url_slugs){
+			self::$lab_directory_url_slugs = self::default_template_slugs();
+		}
+				self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields', false );
+		if (false ===self::$staff_meta_fields ) {
+			self::$staff_meta_fields = self::get_default_meta_fields();
+		}
+
+
 staff search off par défaut ? ou ....
 Change "classes name" to ld_something (not used) 
 widget list message à la création hors admin dans frontend!!? 

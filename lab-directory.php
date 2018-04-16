@@ -23,6 +23,9 @@ define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-base.php' );
 Lab_Directory_Base::register_admin_menu_items();
 
+// Widget not splitted frontend/admin so considered as base
+require_once ( dirname( __FILE__ ) . '/public/classes/ld_widget_defenses.php' );
+
 
 if ( is_admin() ) {
 	 
@@ -56,7 +59,6 @@ if ( is_admin() ) {
 	// Load Frontend classes
 	require_once ( dirname( __FILE__ ) . '/public/classes/lab-directory-shortcode.php' );
 	Lab_Directory_Shortcode::register_shortcode();
-	require_once ( dirname( __FILE__ ) . '/public/classes/ld_widget_defenses.php' );
 	
 }
 

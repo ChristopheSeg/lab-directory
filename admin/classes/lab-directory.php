@@ -2720,7 +2720,7 @@ div.lab_directory_staff_meta {
 			$term_meta = get_option( "taxonomy_term_$term_id" );
 			
 			$content = array();
-			if ($term_meta) {
+			if ($term_meta AND isset($term_meta['manager_ids'])) {
 				foreach ( $term_meta['manager_ids'] as $ID ) {
 					$row = $wpdb->get_row( 
 						"SELECT post_title FROM $wpdb->posts
@@ -2764,14 +2764,8 @@ div.lab_directory_staff_meta {
 		if (is_object($tag) AND get_class($tag) == 'WP_Term') {
 			$t_id = $tag->term_id; // Get the ID of the term you're editing
 			$term_meta = get_option( "taxonomy_term_$t_id" ); // Do the check
-			$term_meta_manager_ids = $term_meta['manager_ids'];
-			$term_meta_display_style = $term_meta['display_style'];
-			if ( ! $term_meta['display_style'] ) {
-				$term_meta_display_style = 'Manager';
-			}
-			if ( ! $term_meta['manager_ids'] ) {
-				$term_meta_manager_ids = array();
-			}
+			$term_meta_manager_ids = isset($term_meta['manager_ids']) ? $term_meta['manager_ids']: array();
+			$term_meta_display_style = isset($term_meta['display_style']) ? $term_meta['display_style'] : 'Manager';
 		} else {
 			$term_meta_manager_ids = array();
 			$term_meta_display_style = 'Manager';
@@ -2861,6 +2855,7 @@ div.lab_directory_staff_meta {
 					$term_meta[$key] = $_POST['term_meta'][$key];
 				}
 			}
+			
 			// save the option array
 			update_option( "taxonomy_term_$t_id", $term_meta );
 		}

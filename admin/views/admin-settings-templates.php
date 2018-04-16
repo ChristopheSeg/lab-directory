@@ -61,7 +61,6 @@
 
 <?php 
 echo_form_messages($form_messages); 
-$template_slugs = Lab_Directory_Admin::retrieve_template_list();
 ?>
 
      	
@@ -69,7 +68,7 @@ $template_slugs = Lab_Directory_Admin::retrieve_template_list();
     <h2><?php echo __('Lab Directory Settings','lab-directory'). ' : '; _e('Templates used in Lab-Directory loops','lab-directory'); ?></h2>
    
         <?php _e('Browse template (url_slug):', 'lab-directory');
-    	foreach($template_slugs as $template_slug => $template_info) {
+    	foreach(Lab_Directory_Base::$template_list as $template_slug => $template_info) {
     		$url_slug = Lab_Directory_Base::$lab_directory_url_slugs[$template_slug];
     		$url_slug = ($url_slug ==$template_slug) ? '' : " ($url_slug) ";    	?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" onclick="show_group('<?php echo $template_slug; ?>'); return false;" value="<?php echo $template_slug.$url_slug; ?>"/>
@@ -79,7 +78,7 @@ $template_slugs = Lab_Directory_Admin::retrieve_template_list();
     <?php 
     // Display first item, hide others 
     $first = 'style="display: block;"';    
-    foreach($template_slugs as $template_slug => $template_file): 
+    foreach(Lab_Directory_Base::$template_list as $template_slug => $template_info) {
     $template_file =  'ld_' . $template_slug . '.php'; 
     $css_file =  'ld_' . $template_slug . '.css'; 
     $template_content = get_option( $template_file);
@@ -95,7 +94,7 @@ $template_slugs = Lab_Directory_Admin::retrieve_template_list();
 		<b><?php echo __('Template') . ' : ' . $template_slug. ' / ' . __('URLslug') . ' : ' . Lab_Directory_Base::$lab_directory_url_slugs[$template_slug]; ?></b> <i><?php echo $template_info; ?></i><br>
 		
 	  <div class="custom-template-css">
-	  <label for="custom_staff_templates[<?php echo $template['index']; ?>][html]">HTML : </label>
+	  <label for="custom_staff_templates[<?php echo $template_slug; ?>][html]">HTML : </label>
       <input type="button" onclick="empty_template('<?php echo $template_slug; ?>'); return false;" value="Delete (Empty) template"/>
 		&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" onclick="load_default_template('<?php echo $template_slug; ?>'); return false;" value="Load default template (<?php echo $template_file; ?>)"/>
 	  <textarea id="<?php echo $template_slug . '_html'; ?>" name="custom_lab_directory_staff_templates[<?php echo $template_slug; ?>][html]" ><?php echo html_entity_decode(stripslashes($template_content)); ?></textarea>
@@ -104,7 +103,7 @@ $template_slugs = Lab_Directory_Admin::retrieve_template_list();
       </p>
       </div>
       <div class="custom-template-css">
-      <label for="custom_staff_templates[<?php echo $template['index']; ?>][css]">Additionnal CSS : </label>
+      <label for="custom_staff_templates[<?php echo $template_slug; ?>][css]">Additionnal CSS : </label>
       <input type="button" onclick="empty_css('<?php echo $template_slug; ?>'); return false;" value="Delete (Empty) CSS"/>
 		&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" onclick="load_default_css('<?php echo $template_slug; ?>'); return false;" value="Load default CSS (<?php echo $css_file; ?>)"/>
       <textarea id="<?php echo $template_slug . '_css'; ?>" name="custom_lab_directory_staff_templates[<?php echo $template_slug; ?>][css]" ><?php echo html_entity_decode(stripslashes($css_content)); ?></textarea>
@@ -118,7 +117,8 @@ $template_slugs = Lab_Directory_Admin::retrieve_template_list();
   <div class="clear"></div>
    
    
-    <?php  $first = ''; endforeach; ?>
+    <?php  $first = ''; 
+    } //endforeach; ?>
 
   <div class="clear"></div>
 

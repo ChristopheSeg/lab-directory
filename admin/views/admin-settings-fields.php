@@ -66,7 +66,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
     	
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_hide_unactivated(); return false;"> <?php _e('Show or Hide unactivated fields'); ?></button>
     	<?php foreach( $lab_directory_group_names as $group =>$name) { 
-    	$activated = ($group_activations[$group]? '':' (2)')?>
+    	$activated = (isset($group_activations[$group])? '':' (2)')?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_group('<?php echo $group; ?>'); return false;"> <?php echo $name; echo $activated?></button>
     	<?php } ?>
     	&nbsp;&nbsp;&nbsp;&nbsp; <button onclick="show_group(); return false;"> <?php _e('All groups'); ?></button>
@@ -150,7 +150,7 @@ $lab_directory_group_names = Lab_Directory::get_lab_directory_default_group_name
             <td>
                	<?php echo self::lab_directory_create_select('lab_directory_staff_meta_fields_groups[' . $index . ']', 
               		$lab_directory_group_names, $field['group'], false, 'input-in-td', false, false); 
-					echo ($group_activations[$field['group']]? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
+					echo (isset($group_activations[$field['group']])? '':' <a href="#footnote" title="Note"><sup>(2)</sup></a>');    
                	?>
 			</td>
             <td>

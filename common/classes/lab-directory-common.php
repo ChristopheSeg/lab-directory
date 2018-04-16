@@ -30,7 +30,11 @@ class Lab_Directory_Common {
 		
 		self::$default_post_language = get_option('WPLANG')? get_option('WPLANG'): get_locale() ;
 		self::$default_post_language_slug = substr(self::$default_post_language, 0, 2)  ;
-		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
+		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields', false );
+		if (false ===self::$staff_meta_fields ) {
+			self::$staff_meta_fields = self::get_default_meta_fields();
+		}
+		
 		
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
@@ -177,7 +181,7 @@ class Lab_Directory_Common {
 	}
 	
 	static function initiate_staff_meta_fields() {
-		self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
+		// self::$staff_meta_fields = get_option( 'lab_directory_staff_meta_fields' );
 	
 		// Add acronym tooltip in each metafield parameters
 		self::load_ld_acronyms();

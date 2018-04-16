@@ -1361,20 +1361,21 @@ class Lab_Directory_Shortcode {
     static function ld_content_filter( $content ) {
     	global $wp_query, $post;
     
-    	// Add ld_footer contentf to Pages and posts
+    	// Add ld_footer content to Pages and posts
+    	
     	if ( ( get_option( 'lab_directory_use_ld_footer_pages' ) and is_page() ) ||
     		( get_option( 'lab_directory_use_ld_footer_posts' ) and is_single() ) ) {
     				
-    			$post_categories = wp_get_object_terms( $post->ID, array( 'category' ) );
+    			$post_categories = wp_get_object_terms( 
+    					$post->ID, 
+    					get_taxonomies(array('public' => true),'names') ); // array( 'category' ) );
     			$outputs = array();
-    				
+    			
     			foreach ( $post_categories as $category ) {
     				$output = '';
     				foreach ( Lab_Directory_Common::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
-    					echo "";
     					if ( $term = get_term_by( 'name', $category->name, $slug ) ) {
     						$term_meta = get_option( 'taxonomy_term_' . $term->term_taxonomy_id );
-    
     						if ( $term_meta['display_style'] != 'None' and $term_meta['manager_ids'] ) {
     							foreach ( $term_meta['manager_ids'] as $id ) {
     								$mails = get_post_meta( $id, 'mails', true );

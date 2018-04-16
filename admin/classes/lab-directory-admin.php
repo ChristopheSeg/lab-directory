@@ -582,8 +582,6 @@ class Lab_Directory_Admin {
 				update_option( 'lab_directory_use_format_switcher', isset( $_POST['lab_directory_use_format_switcher'] ) ? '1' : '0'  );
 				update_option( 'lab_directory_use_staff_search', isset( $_POST['lab_directory_use_staff_search'] ) ? '1' : '0'  );
 				
-				// Url slugs; 
-				$template_slugs = self::retrieve_template_list();
 				$lab_directory_url_slugs = array(); 
 				
 				foreach ($_POST['lab_directory_url_slugs'] as $key => $value)  {
@@ -1049,18 +1047,7 @@ class Lab_Directory_Admin {
 	    return $select;
 		
 	}
-	
-	static function retrieve_template_list() {
-		return array(
-			'staff_grid' => __('This template is used to display staff directory as a grid', 'lab-directory'),
-			'staff_list' => __('This template is used to display staff directory as a list', 'lab-directory'),
-			'staff_trombi' => __('This template is used to display staff directory as a photo gallery', 'lab-directory'),
-			'defense_list' => __('This template is used to display a defenses list', 'lab-directory'),
-			'staff' => __('This template is used to display a single staff profile', 'lab-directory'),
-			'staff_hdr' => __('This template is used to display HDR defense information for a single staff', 'lab-directory'),
-			'staff_phd' => __('This template is used to display PHD defense information for a single staff', 'lab-directory'),
-		);
-	}
+
 	
 	static function load_lab_directory_admin_textdomain() {
 		

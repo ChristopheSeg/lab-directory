@@ -69,6 +69,8 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 <form method="post">
 <h2><?php _e('Lab Directory : General settings','lab-directory'); ?></h2>
 
+
+
 <div class="mid_left">
     <b>LDAP syncing</b><br/><br/>
 	<input name="lab_directory_use_ldap" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ldap' ) ); ?> /> Use LDAP and LDAP sync
@@ -123,7 +125,22 @@ $lang2 = get_option( 'lab_directory_lang2',true);
     <p><input name="lab_directory_use_taxonomy2" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_taxonomy2' ) ); ?> /> Use Taxonomy 2 (<?php echo $taxonomies['ld_taxonomy_laboratory']['labels']['name']; ?>)</p>
 	<p><input name="lab_directory_use_ld_footer_pages" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_pages' ) ); ?> /> Display manager contact on pages.</p>
 	<p><input name="lab_directory_use_ld_footer_posts" type="checkbox" value="1" <?php checked( '1', get_option( 'lab_directory_use_ld_footer_posts' ) ); ?> /> Display manager contact on posts.</p>
-</div>
+
+    <?php 
+    /* 
+     * Searching for ohter taxonomy is easy, but defining a manager for each of these external taxonomies can be tricky, 
+   $args = array(
+	  'public'   => true,
+	  '_builtin' => false
+	  
+	); 
+    $wp_taxs= get_taxonomies($args); 
+    foreach ($wp_taxs as $wp_tax => $tax_value) {
+    	echo '<p>' . $wp_tax . '</p>';
+    }
+      */
+    ?>
+    </div>
 <div class="mid_left">
 	<b>Title for staff pages</b><br/>
 	<label><input type="radio" name="lab_directory_title_firstname_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> />Firstname Name</label>
@@ -152,9 +169,8 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 			<td>corresponding template description</td>
 		</tr>
 		<?php  
-		$template_slugs = Lab_Directory_Admin::retrieve_template_list();
 		$lab_directory_url_slugs = get_option('lab_directory_url_slugs');
-		foreach ($template_slugs as $key => $info)  {
+		foreach(Lab_Directory_Base::$template_list as $key => $info)  {
 		$value = $lab_directory_url_slugs[$key];
 		?>
 		<tr>
