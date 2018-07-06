@@ -1,8 +1,16 @@
 DONE:
-add some missing parameter initalisation
-add missing widget class loading on admin pages
+FIX PHD/HDR jury not saved
 
 TODO:
+
+voir si possible utiliser taxonomies du kit web (pods)
+BUG: si [lab-directory id=4] sur une page normale, le lien modifier pointe vers staff profile !!
+
+Thèmes endommagés
+	Les thèmes suivants sont installés mais incomplets.
+	Nom 	Description 		
+	lab-directory 	La feuille de style est absente.
+
 ==================================
 VOIR DEBUG.LOG kit web 
 taxonomies n'apparaissent pas dans la menu principal !! déplacer register tax dans base

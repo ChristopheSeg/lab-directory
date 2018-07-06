@@ -1,4 +1,3 @@
-staff_PHD.PHP
 [lab_directory_phd_loop label = true]
 	[ld_photo]
 	[ld_firstname_name add_link = true]

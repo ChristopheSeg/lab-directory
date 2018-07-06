@@ -19,7 +19,7 @@ define( 'LAB_DIRECTORY_URL', plugins_url('', __FILE__ ) );
 /* Always load admin menus and corresponding languages mo file
  * This also register post_type lab_Directory_Staff, add tags and rewrite rules
  */
-
+ 
 require_once ( dirname( __FILE__ ) . '/common/classes/lab-directory-base.php' );
 Lab_Directory_Base::register_admin_menu_items();
 

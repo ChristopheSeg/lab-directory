@@ -576,7 +576,7 @@ msgid "Form saved"
 msgstr ""
 
 #: admin/classes/lab-directory.php:221
-msgid "modify staff profile"
+msgid "modify this staff profile"
 msgstr ""
 
 #: admin/classes/lab-directory.php:250

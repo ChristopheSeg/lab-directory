@@ -168,6 +168,8 @@ class Lab_Directory_Common {
 			'director' => __( 'Directeur', 'lab-directory' ),
 			'directress' => __( 'Directrice', 'lab-directory' ),
 			'directors' => __( 'Directeurs', 'lab-directory' ),
+			'supervisors' => __( 'Supervisors', 'lab-directory' ),
+			'supervisor' => __( 'Supervisor', 'lab-directory' ),
 			'examiner' => _x( 'Examiner', 'male', 'lab-directory' ),
 			'examiner_f' => _x( 'Examiner', 'female', 'lab-directory' ),
 			'examiners' => __( 'Examiners', 'lab-directory' ),
@@ -493,10 +495,11 @@ class Lab_Directory_Common {
 	
 		if (isset(Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) AND Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) {
 			global $wp_admin_bar;
+			
 			$wp_admin_bar->add_menu( array(
 				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
-				'id' => 'edit', // this remove the previous edit link
-				'title' =>  __('modify staff profile'), // link title
+				'id' => 'editstaff', // this remove the previous edit link
+				'title' =>  __('modify this staff profile'), // link title
 				'href' => Lab_Directory_Common::$main_ld_permalink['edit_staff_url'], // name of file
 				'meta' => array('class' => 'wp-admin-bar-edit') // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 			));

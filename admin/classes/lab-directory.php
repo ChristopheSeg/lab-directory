@@ -1047,9 +1047,9 @@ div.lab_directory_staff_meta {
 			foreach ( $used_groups as $key => $group_name ) {
 				// Then do it for each field in a group
 				foreach ( Lab_Directory_Settings::get_lab_directory_staff_meta_fields() as $field ) {
-					$field_type = $field['type'];
+					
 					if ( $field['group'] == $key ) {
-						
+						$field_type=$field['type'];
 						// TODO disable input depending on capability , LDAP...
 						
 						// Disable input when field is synced with LDAP
@@ -1077,13 +1077,13 @@ div.lab_directory_staff_meta {
 
 	static function lab_directory_save_meta_boxes_save_meta( $post_id, $field, $field_name ) {
 		$slug = 'lab_directory_staff_meta_' . $field['slug'];
+
 		// Do not save if meta field is disabled
-		if ( ! isset( $_POST[$slug] ) ) {
+		if ( ($field['type']!='jury') AND (! isset( $_POST[$slug] ) ) ) {
 			return;
 		}
 		// Unsanitized value
 		$value = $_POST[$slug];
-		
 		switch ( $field['type'] ) {
 			case 'text' :
 				$value = sanitize_text_field( $value );
@@ -1121,20 +1121,25 @@ div.lab_directory_staff_meta {
 				$functions = $_POST[$slug . '_functions'];
 				$titles = $_POST[$slug . '_titles'];
 				$index = 0;
+				if (! isset( $names ) ) {
+					return;
+				}
 				
 				$value = array();
 				foreach ( $orders as $order ) {
 					if ( $names[$index] ) {
+						$function = sanitize_text_field( $functions[$index] ); 
+						$function = $function == 'none' ? '' : $function;
 						$value[] = array( 
 							'order' => (int) $order, 
-							'function' => sanitize_text_field( $functions[$index] ), 
+							'function' => $function, 
 							'name' => sanitize_text_field( $names[$index] ), 
 							'title' => sanitize_text_field( $titles[$index] ) );
 					}
 					$index++;
 				}
-				//TODO is self OK?  
-				usort( $value, __NAMESPACE__ . '\self::ld_compare_jury_order' );
+				// Sort jury members
+				usort( $value, __NAMESPACE__ . 'self::ld_compare_jury_order' );
 				break;
 			case 'social_network' :
 				

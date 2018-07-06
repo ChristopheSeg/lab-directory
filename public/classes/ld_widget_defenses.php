@@ -37,10 +37,11 @@ class ld_widget_defenses extends WP_Widget {
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
 
-			// This is where you run the code and display the output
-            Lab_Directory_Shortcode::$current_template = 'defense_widget_list'; 
-            echo  Lab_Directory_Shortcode::retrieve_template_html('defense_widget_list');
-			echo $args['after_widget'];
+		// This is where you run the code and display the output
+        Lab_Directory_Shortcode::$current_template = 'defense_widget_list'; 
+
+		echo Lab_Directory_Shortcode::retrieve_template_html('defense_widget_list');
+		echo $args['after_widget'];
 	}
 	 
 	// Widget Backend
@@ -49,7 +50,7 @@ class ld_widget_defenses extends WP_Widget {
 			$instance[ 'title' ] = __( 'Next Defenses', 'lab-directory' );
 		}
 		if ( ! isset( $instance[ 'period' ] ) ) {
-			$instance[ 'period' ] = 'future';
+			$instance[ 'period' ] = 'futur';
 		}
 		// Widget admin form
 		?>

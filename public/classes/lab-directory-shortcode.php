@@ -22,6 +22,8 @@ class Lab_Directory_Shortcode {
 			'label' => false,
 			'translate' => false,
 			'template' => '',
+			'period' => 'all', // All obligatoire ici ! 
+			'link_to_all' => 'false',
 		);
     static $lab_directory_main_shortcode_params = array();
     
@@ -59,12 +61,11 @@ class Lab_Directory_Shortcode {
         add_shortcode( 'lab_directory_hdr_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_hdr_loop_shortcode' ) );
         add_shortcode( 'lab_directory_phd_loop', array( 'Lab_Directory_Shortcode', 'lab_directory_phd_loop_shortcode' ) );
         
-        // Delete wpautop after shortcode are loaded
+        // Delete wpautop after shortcode are loaded (only for lab_directory post_type
         // http://sww.co.nz/solution-to-wordpress-adding-br-and-p-tags-around-shortcodes/
-        remove_filter( 'the_content', 'wpautop' );
-        // TODO Delaying is not enough !! Question: Does removing wpautop breaking some page/post ???
-        // add_filter( 'the_content', 'wpautop' , 220);
+        add_filter( 'the_content', array( 'Lab_Directory_Shortcode', 'lab_directory_remove_filter_wpautop') );
         
+            
         //List of other shortcode tags (they should use the ld_ suffix)
         $other_shortcodes = array(
             'ld_name_header',
@@ -79,9 +80,10 @@ class Lab_Directory_Shortcode {
         	'ld_categories_nav',
         	'ld_widget_hdr_link', 
         	'ld_widget_phd_link',
+        	'ld_widget_all_defenses_list',
         	'ld_social_link',
         );
-
+        
         //Add shortcodes for all $predefined_shortcodes, link to function by
         //the name of {$code}_shortcode
         foreach($other_shortcodes as $code){
@@ -116,6 +118,12 @@ class Lab_Directory_Shortcode {
 		//Register default stylesheet for conditionnal loading if Lab-Direcotry shortcode are used
         wp_register_style( 'lab-directory-default-css', LAB_DIRECTORY_URL . '/public/css/default.css' );
 
+	}
+	
+	static function lab_directory_remove_filter_wpautop( $content )
+	{
+		'lab_directory' === get_post_type() && remove_filter( 'the_content', 'wpautop' );
+		return $content;
 	}
 
     /*** Begin shortcode functions ***/
@@ -423,7 +431,6 @@ class Lab_Directory_Shortcode {
     static function lab_directory_hdr_loop_shortcode( $atts, $content = NULL ) {
         
     	global $post; 
-    		
     	// Concatenate main loop params if a main loop was preceeding the staff loop and loop attributes
     	if (self::$lab_directory_main_shortcode_params) {
 	    	$atts = shortcode_atts( self::$lab_directory_main_shortcode_params, $atts);
@@ -454,12 +461,33 @@ class Lab_Directory_Shortcode {
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
             }
         }  else {
-  
-        	$output .= '<h4>' . __('Sorry, there is no information about this staff HDR !', 'lab-directory') .  '</h4>';
-        	$output .= '<ul><li>' .  __('whether our website is not up-to-date', 'lab-directory') . '</li>
-        		<li>' .  __('whether this staff has no HDR', 'lab-directory') . '</li></ul>';
+        	if (self::$current_template =='defense_widget_list') {
+        		switch ($atts['period']){
+        			case 'futur':
+        				$output .= '<p>' . __('No HDR scheduled', 'lab-directory') . '</p>';
+        				break;
+        			default:
+        				$output .= '<p>' . __('Empty HDR list', 'lab-directory') . '</p>';
+        				break;
+        		}
+        		
+        	} elseif (self::$current_template =='defense_list') {
+       			$output .= '<p>' . __('There is no HDR in this list.', 'lab-directory') . '</p>';
+        	} else {
+	        	$output .= '<h4>' . __('Sorry, there is no information about this staff HDR !', 'lab-directory') .  '</h4>';
+	        	$output .= '<ul><li>' .  __('whether our website is not up-to-date', 'lab-directory') . '</li>
+	        		<li>' .  __('whether this staff has no HDR', 'lab-directory') . '</li></ul>';
+        	}
+
         }
         
+        // Display link to all 
+        if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
+        	$output .= '<p><a href="' .  
+		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
+		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></p>';
+        }
+    
         wp_reset_query();
 
         // delete save atts before exiting loop
@@ -501,9 +529,34 @@ class Lab_Directory_Shortcode {
     			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
     		}
     	}  else {
-        	$output .= '<h4>' . __('Sorry, there is no information about this PHD !', 'lab-directory') .  '</h4>';
+    		if (self::$current_template =='defense_widget_list') {
+    			switch ($atts['period']){
+    				case 'futur':
+    					$output .= '<p>' . __('No PHD scheduled', 'lab-directory') . '</p>';
+    					break;
+    				default:
+    					$output .= '<p>' . __('Empty PHD list', 'lab-directory') . '</p>';
+    					break;
+    			}
+    		
+    		} elseif (self::$current_template =='defense_list') {
+    			$output .= '<p>' . __('There is no PHD in this list.', 'lab-directory') . '</p>';
+    		} else {
+    			$output .= '<h4>' . __('Sorry, there is no information about this staff PHD !', 'lab-directory') .  '</h4>';
+    			$output .= '<ul><li>' .  __('whether our website is not up-to-date', 'lab-directory') . '</li>
+	        		<li>' .  __('whether this staff has no HD', 'lab-directory') . '</li></ul>';
+    		}
+    		
         }
-    	wp_reset_query();
+        
+        // Display link to all 
+        if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
+        	$output .= '<p><a href="' .  
+		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
+		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></p>';
+        }
+ 
+        wp_reset_query();
 
     	// delete save atts before exiting loop
     	self::$lab_directory_main_shortcode_params = false;
@@ -592,6 +645,7 @@ class Lab_Directory_Shortcode {
     		array('add_div' => false, 'label' => 'false', 'phd' => true, 'inner_text' => $text));
         return self::div_it($output, $tag, $atts);
     }
+  
     
     static function ld_photo_shortcode($atts, $content = NULL, $tag = '' ){
     	$atts = shortcode_atts( array(
@@ -980,7 +1034,7 @@ class Lab_Directory_Shortcode {
 			'cat_field' => 'ID',
 			'cat_relation' => 'OR',
 			'staff_slug' => '',
-			'period' => 'all',
+			'period' => 'futur',
 		);
 
 		$params = shortcode_atts( $default_params, $params );
@@ -1083,7 +1137,7 @@ class Lab_Directory_Shortcode {
 			'cat_field' => 'ID',
 			'cat_relation' => 'OR',
 			'staff_slug' => '',
-			'period' => 'all',			
+			'period' => 'futur',			
 		);
 		
 		$params = shortcode_atts( $default_params, $params );
@@ -1319,16 +1373,19 @@ class Lab_Directory_Shortcode {
     					$wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff']] . "' AND post_type='lab_directory_staff'") ;
     			}
     			if ( isset( $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_hdr']] ) ) {
-    				$posts[0]->post_title = "HDR: " . $wpdb->get_var(
+    				$posts[0]->post_title = "HDR : " . $wpdb->get_var(
     					"SELECT post_title FROM $wpdb->posts WHERE post_name = '" .
     					$wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_hdr']] . "' AND post_type='lab_directory_staff'") ;
     			}
     			if ( isset( $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_phd']] ) ) {
-    				$posts[0]->post_title = "PHD: " . $wpdb->get_var(
+    				$posts[0]->post_title = "PHD : " . $wpdb->get_var(
     					"SELECT post_title FROM $wpdb->posts WHERE post_name = '" .
     					$wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_phd']] . "' AND post_type='lab_directory_staff'") ;
     			}
-    
+    			if ( isset( $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['defense_list']] ) ) {
+    				$posts[0]->post_title = __('HDR and PHD list','lab-directory');
+    			}
+    			 
     			// Set title  directory by team/laboratory (taxonomy)
     			if ( isset( $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_grid']] ) ) {
     				$taxonomy = $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_grid']] ;
@@ -1376,7 +1433,7 @@ class Lab_Directory_Shortcode {
     				foreach ( Lab_Directory_Common::lab_directory_get_taxonomies() as $slug => $ld_taxonomy ) {
     					if ( $term = get_term_by( 'name', $category->name, $slug ) ) {
     						$term_meta = get_option( 'taxonomy_term_' . $term->term_taxonomy_id );
-    						if ( $term_meta['display_style'] != 'None' and $term_meta['manager_ids'] ) {
+    						if ( $term_meta['display_style'] != 'None' and isset($term_meta['manager_ids'] )) {
     							foreach ( $term_meta['manager_ids'] as $id ) {
     								$mails = get_post_meta( $id, 'mails', true );
     								$name = get_post_field( 'post_name', $id);

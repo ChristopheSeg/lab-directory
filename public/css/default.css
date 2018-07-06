@@ -6,6 +6,10 @@
 .clearfix {
   clear: both;
 }
+#wpadminbar #wp-admin-bar-editstaff > .ab-item::before {
+    content: "\f336";
+    top: 2px;
+}
 
 table.jury {
 	table-layout: auto;	
