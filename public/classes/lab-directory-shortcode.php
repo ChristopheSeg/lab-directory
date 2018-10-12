@@ -80,7 +80,7 @@ class Lab_Directory_Shortcode {
         	'ld_categories_nav',
         	'ld_widget_hdr_link', 
         	'ld_widget_phd_link',
-        	'ld_widget_all_defenses_list',
+        	// 'ld_widget_all_defenses_list',
         	'ld_social_link',
         );
         
@@ -462,13 +462,10 @@ class Lab_Directory_Shortcode {
             }
         }  else {
         	if (self::$current_template =='defense_widget_list') {
-        		switch ($atts['period']){
-        			case 'futur':
-        				$output .= '<p>' . __('No HDR scheduled', 'lab-directory') . '</p>';
-        				break;
-        			default:
-        				$output .= '<p>' . __('Empty HDR list', 'lab-directory') . '</p>';
-        				break;
+        		if (substr($atts['period'], 0, 5) == 'futur'){
+        			$output .= '<li>' . __('No HDR scheduled', 'lab-directory') . '</li>';
+        		} else {
+        			$output .= '<li>' . __('Empty HDR list', 'lab-directory') . '</li>';		
         		}
         		
         	} elseif (self::$current_template =='defense_list') {
@@ -483,9 +480,10 @@ class Lab_Directory_Shortcode {
         
         // Display link to all 
         if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
-        	$output .= '<p><a href="' .  
+        	$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">'; 
+        	$output .= '<li><a href="' .  
 		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
-		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></p>';
+		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></li></div>';
         }
     
         wp_reset_query();
@@ -530,30 +528,28 @@ class Lab_Directory_Shortcode {
     		}
     	}  else {
     		if (self::$current_template =='defense_widget_list') {
-    			switch ($atts['period']){
-    				case 'futur':
-    					$output .= '<p>' . __('No PHD scheduled', 'lab-directory') . '</p>';
-    					break;
-    				default:
-    					$output .= '<p>' . __('Empty PHD list', 'lab-directory') . '</p>';
-    					break;
-    			}
+    		    if (substr($atts['period'], 0, 5) == 'futur'){
+        			$output .= '<li>' . __('No PHD scheduled', 'lab-directory') . '</li>';
+        		} else {
+        			$output .= '<li>' . __('Empty PHD list', 'lab-directory') . '</li>';	
+        		}
     		
     		} elseif (self::$current_template =='defense_list') {
     			$output .= '<p>' . __('There is no PHD in this list.', 'lab-directory') . '</p>';
     		} else {
     			$output .= '<h4>' . __('Sorry, there is no information about this staff PHD !', 'lab-directory') .  '</h4>';
     			$output .= '<ul><li>' .  __('whether our website is not up-to-date', 'lab-directory') . '</li>
-	        		<li>' .  __('whether this staff has no HD', 'lab-directory') . '</li></ul>';
+	        		<li>' .  __('whether this staff has no HDR', 'lab-directory') . '</li></ul>';
     		}
     		
         }
         
         // Display link to all 
         if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
-        	$output .= '<p><a href="' .  
+        	$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">'; 
+        	$output .= '<li><a href="' .  
 		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
-		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></p>';
+		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></li></div>';
         }
  
         wp_reset_query();
@@ -775,7 +771,6 @@ class Lab_Directory_Shortcode {
 		$output =''; 
        
        if  ($taxonomies) {
-			
 		  foreach ($taxonomies  as $key => $taxonomy ) {
 		  	if ($output) {$output .= '<br>'; }
 		  	$output .= $taxonomy['labels']['name'] . ' : ';
@@ -875,7 +870,6 @@ class Lab_Directory_Shortcode {
        		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_list']];
        	
        	}elseif ( isset($wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_grid']]) ) {
-       		echo "<br> staff grid";
        		$template = 'staff_grid';
        		$params['category_name'] = $wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['staff_grid']];
        	
@@ -1098,10 +1092,18 @@ class Lab_Directory_Shortcode {
 		
 		// restrict to past or futur period
 		if (isset($params['period'] ) AND ($params['period']!='all' )) {
+			if (substr($params['period'], 0, 5) == 'futur') { 
+				$params['delay'] = (int) substr($params['period'], 5, strlen($params['period'])-1); 
+				$params['period'] = 'futur';
+			} else {
+				$params['delay']=0; 
+			}
+			
 			if ($params['period']== 'futur') {
+				$from = time() + ($params['delay'] * 24 * 60 * 60); 
 				$query_args['meta_query'][] = array(
-					'key'     => 'hdr_date',
-					'value'   => date( "Y-m-d" ),
+					'key'     => 'phd_date',
+					'value'   => date( "Y-m-d", $from ),
 					'compare' => '>=',
 				);
 				$query_args['order'] = 'ASC';				
@@ -1203,10 +1205,18 @@ class Lab_Directory_Shortcode {
 	
 			// restrict to past or futur period
 		if (isset($params['period'] ) AND ($params['period']!='all' )) {
-		if ($params['period']== 'futur') {
+			if (substr($params['period'], 0, 5) == 'futur') { 
+				$params['delay'] = (int) substr($params['period'], 5, strlen($params['period'])-1); 
+				$params['period'] = 'futur';
+			} else {
+				$params['delay']=0; 
+			}
+			
+			if ($params['period']== 'futur') {
+				$from = time() + ($params['delay'] * 24 * 60 * 60); 
 				$query_args['meta_query'][] = array(
 					'key'     => 'phd_date',
-					'value'   => date( "Y-m-d" ),
+					'value'   => date( "Y-m-d", $from ),
 					'compare' => '>=',
 				);
 				$query_args['order'] = 'ASC';				
@@ -1227,6 +1237,7 @@ class Lab_Directory_Shortcode {
 				);
 			}
 		}
+
 		$output = new WP_Query( $query_args );
 		return $output;
 	}

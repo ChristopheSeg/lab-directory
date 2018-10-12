@@ -1,6 +1,6 @@
 //jquery-ui-tabs
 jQuery(document).ready(function($) {
-    $( ".labDirectoryTabsClass" ).tabs();
+    $('.labDirectoryTabsClass').tabs();
 
    //hover states on the static widgets
     $('#dialog_link, ul#icons li').hover(

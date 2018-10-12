@@ -81,7 +81,7 @@ jQuery(document).ready(function($){
 			value="<?php echo isset($translation['link']) ? $translation['link']: ''; ?>"/>
 		</td>
 		<td>
-              <a href="#" class="remove-field"><span class="dashicons dashicons-trash"></span></a>
+              <a href="#" class="remove-filter"><span class="dashicons dashicons-trash"></span></a>
         </td>
 		</tr>
 		<?php } // } ?>
@@ -194,7 +194,7 @@ jQuery(document).ready(function($){
        <p> Example without link: 
        <a href="#" data-html="true" data-toggle="tooltip" title="This is the Acronym description used for tooltip" id="info_employment_type" class="helptip">ACRONYM</a></p>
        <p>Example with link: 
-       <a href="http://www.ircica.univ-lille1.fr/" data-html="true" data-toggle="tooltip" title="Institut de Recherche sur les Composants logiciels et matériels pour l’Information et la Communication Avancée - USR 3380 du CNRS" id="info_employment_type" class="helptip">IRCICA</a>
+       <a href="https://www.ircica.univ-lille.fr/" data-html="true" data-toggle="tooltip" title="Institut de Recherche sur les Composants logiciels et matériels pour l’Information et la Communication Avancée - USR 3380 du CNRS" id="info_employment_type" class="helptip">IRCICA</a>
        </p>
        
 <?php } ?>

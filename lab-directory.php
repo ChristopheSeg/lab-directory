@@ -29,7 +29,8 @@ require_once ( dirname( __FILE__ ) . '/public/classes/ld_widget_defenses.php' );
 
 if ( is_admin() ) {
 	 
-	// Common classes are not needed for non lad directory staff pages 
+	
+	// Common classes are not needed for non lab directory staff pages 
 	//TODO conditional load for admin settings OR edit staff (need ad'hoc separation in 2 classes!! 
 	if (Lab_Directory_Base::$load_admin_class) {
 				

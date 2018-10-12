@@ -1,4 +1,5 @@
 <?php
+
 // Register and load the widget
 function load_ld_widget_defenses() {
 	register_widget( 'ld_widget_defenses' );
@@ -60,7 +61,7 @@ class ld_widget_defenses extends WP_Widget {
 </p>
 <p>
 
-<label for="<?php echo $this->get_field_id( 'period' ); ?>"><?php _e( 'List for time period :' ); ?></label>  
+<label for="<?php echo $this->get_field_id( 'period' ); ?>"><?php _e( 'List for this time period :' ); ?></label>  
         <select id="<?php echo $this->get_field_id('period'); ?>" name="<?php echo $this->get_field_name('period'); ?>">
             <option <?php selected($instance['period'], 'all');?> value="all"><?php /* translators: for all defenses*/echo __('all');?></option>
             <option <?php selected($instance['period'], 'future');?> value="future"><?php /* translators: for future defenses*/echo __('future','lab-directory');?></option>

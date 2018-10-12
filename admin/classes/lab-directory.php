@@ -85,10 +85,10 @@ class Lab_Directory {
 		
 		add_filter( 'admin_post_thumbnail_html', array( 'Lab_Directory', 'lab_directory_staff_photo_meta_box' ), 10, 3 );
 		add_filter( 
-			"manage_edit-lab_directory_staff_columns", 
+			'manage_edit-lab_directory_staff_columns', 
 			array( 'Lab_Directory', 'set_lab_directory_staff_admin_columns' ), 10, 3 );
 		add_filter( 
-			"manage_lab_directory_staff_posts_custom_column", 
+			'manage_lab_directory_staff_posts_custom_column', 
 			array( 'Lab_Directory', 'custom_lab_directory_staff_admin_columns' ), 
 			10, 
 			3 );
@@ -210,9 +210,12 @@ class Lab_Directory {
 	 	if ( (isset (Lab_Directory_Common::$main_ld_permalink['count']))  AND 
 	 		Lab_Directory_Common::$main_ld_permalink['count'] > 1) {
 	 		// several post or page containing [lab-directory] are defined 
+	 		/* 
+	 		 * This error is no longer shown since using several language, this page is duplicated... 
 	 		$class = 'notice notice-error is-dismissible';
 	 		$message = __('Important ! In order to use Lab-Directory, you must define one and only one page or post containing the lab directory shortcode [lab-directory] .', 'lab-directory' );
-	 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );	
+	 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+	 		*/
 	 	}
 	 		
 	 	if (Lab_Directory_Common::$main_ld_permalink != '') return;
@@ -289,6 +292,8 @@ class Lab_Directory {
 
 
 	static function set_lab_directory_staff_admin_columns() {
+		
+		
 		$new_columns = array( 
 			'cb' => '<input type="checkbox" />', 
 			'title' => __( 'Title' ), 
@@ -310,7 +315,9 @@ class Lab_Directory {
 	}
 
 	static function custom_lab_directory_staff_admin_columns( $column_name, $post_id ) {
+		
 		$out = '';
+		
 		switch ( $column_name ) {
 			case 'featured_image' :
 				$attachment_array = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ) );
@@ -355,7 +362,7 @@ class Lab_Directory {
 		$wp_scripts = wp_scripts();
 		wp_enqueue_style( 
 			'lab-directory-admin-ui-css', 
-			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver .
+			(is_ssl() ? 'https' : 'http') . '://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver .
 				 '/themes/smoothness/jquery-ui.css', 
 				false, 
 				'', 
@@ -391,6 +398,11 @@ class Lab_Directory {
 		wp_enqueue_style( 'timepicker-addon-css' );
 		wp_enqueue_style( 'lab-directory-admin-ui-css' );
 		
+		// TODO test access rights after plugins loaded
+		if (!current_user_can( 'administrator' )) {
+			return; 
+		}
+
 		
 		add_meta_box( 
 			'lab_directory_staff-meta-box', 
@@ -990,6 +1002,11 @@ div.lab_directory_staff_meta {
 			return;
 		}
 		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
@@ -1078,8 +1095,11 @@ div.lab_directory_staff_meta {
 	static function lab_directory_save_meta_boxes_save_meta( $post_id, $field, $field_name ) {
 		$slug = 'lab_directory_staff_meta_' . $field['slug'];
 
-		// Do not save if meta field is disabled
+		// Do not save if meta field is disabled or unset
 		if ( ($field['type']!='jury') AND (! isset( $_POST[$slug] ) ) ) {
+			return;
+		}
+		if ( ! isset( $_POST[$slug]  ) ) {
 			return;
 		}
 		// Unsanitized value
@@ -1908,6 +1928,11 @@ div.lab_directory_staff_meta {
 	// Try to import from spip
 	//
 	static function import_spip_staff() {
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		require_once (LAB_DIRECTORY_DIR . '/temp/import_spip.php' );
 		return;
 	}
@@ -1997,6 +2022,12 @@ div.lab_directory_staff_meta {
 	// OBSOLETE Keep it for a futeure import from CSV 
 	static function import_old_lab_directory_staff() {
 		global $wpdb;
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		
 		$old_categories_table = $wpdb->prefix . 'lab_directory_categories';
 		$old_lab_directory_table = $wpdb->prefix . 'lab_directory';
@@ -2179,6 +2210,7 @@ div.lab_directory_staff_meta {
 			// unset( $actions['edit'] );
 			// unset( $actions['view'] );
 			// TODO permissions ??
+			
 			unset( $actions['trash'] );
 			unset( $actions['inline hide-if-no-js'] );
 		}
@@ -2659,6 +2691,11 @@ div.lab_directory_staff_meta {
 	}
 
 	static function lab_directory_staff_photo_meta_box( $content, $post_id, $thumbnail_id ) {
+		
+		// 	TODO adjust access rights TODO2 this do not remove metabox but only its content !!
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
 		if ( get_post_meta( $post_id, 'ldap', true ) > 0 ) {
 			if ( $thumbnail_id ) {
 				$content = preg_match( '#(<img.*?>)#', $content, $matches ) ? $matches[0] : '';

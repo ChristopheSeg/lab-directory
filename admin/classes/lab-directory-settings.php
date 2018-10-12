@@ -739,7 +739,8 @@ class Lab_Directory_Settings {
 	 * Cette fonction utilise la liste des méta champs et les paramètres de
 	 * configuration relatifs aux attributs pour construire un tableau de correspondance
 	 * entre ces champs et les attibuts à extraire du type
-	 * N.B. la clé est le slug du meta champ
+	 *       N.B. la clé est le slug du meta champ
+	 *       
 	 * array(
 	 * --------
 	 * ["name"]=> array(8) {

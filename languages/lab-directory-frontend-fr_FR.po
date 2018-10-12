@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lab-directory\n"
-"POT-Creation-Date: 2018-03-27 15:00+0200\n"
-"PO-Revision-Date: 2018-04-03 13:06+0200\n"
+"POT-Creation-Date: 2018-08-29 12:10:19+00:00\n"
+"PO-Revision-Date: 2018-08-29 15:53+0200\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -11,57 +11,93 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.0.6\n"
 
-#: public/classes/lab-directory-shortcode.php:364
+#: public/classes/lab-directory-shortcode.php:394
 msgid "Search by name or firstname"
 msgstr "Rechercher par nom ou prénom"
 
-#: public/classes/lab-directory-shortcode.php:389
+#: public/classes/lab-directory-shortcode.php:420
 msgid "Sorry, there is no staff corresponding to this request !"
 msgstr "Désolé, il n'y a aucun personnel correspondant à cette requête!"
 
-#: public/classes/lab-directory-shortcode.php:435
+#: public/classes/lab-directory-shortcode.php:467
+msgid "No HDR scheduled"
+msgstr "Aucune HDR n'est programmée"
+
+#: public/classes/lab-directory-shortcode.php:470
+msgid "Empty HDR list"
+msgstr "Liste d'HDR vide"
+
+#: public/classes/lab-directory-shortcode.php:475
+msgid "There is no HDR in this list."
+msgstr "Il n'y a aucune HDR dans cette liste"
+
+#: public/classes/lab-directory-shortcode.php:477
 msgid "Sorry, there is no information about this staff HDR !"
 msgstr "Désolé, il n'y a aucune information sur la HDR de cette personne !"
 
-#: public/classes/lab-directory-shortcode.php:436
+#: public/classes/lab-directory-shortcode.php:478
+#: public/classes/lab-directory-shortcode.php:546
 msgid "whether our website is not up-to-date"
 msgstr "Soit notre site n'est pas à jour"
 
-#: public/classes/lab-directory-shortcode.php:437
+#: public/classes/lab-directory-shortcode.php:479
+#: public/classes/lab-directory-shortcode.php:547
 msgid "whether this staff has no HDR"
 msgstr "Soit cette personne n'a pas de HDR"
 
-#: public/classes/lab-directory-shortcode.php:481
-msgid "Sorry, there is no information about this PHD !"
-msgstr "Désolé, il n'y a aucune information sur la thèse de cette personne !"
+#: public/classes/lab-directory-shortcode.php:488
+#: public/classes/lab-directory-shortcode.php:556
+msgid "See all HDR and PHD"
+msgstr "Voir toutes les thèses et HDR"
 
-#: public/classes/lab-directory-shortcode.php:565
+#: public/classes/lab-directory-shortcode.php:535
+msgid "No PHD scheduled"
+msgstr "Aucune thèse n'est programmée"
+
+#: public/classes/lab-directory-shortcode.php:538
+msgid "Empty PHD list"
+msgstr "Liste de thèse vide"
+
+#: public/classes/lab-directory-shortcode.php:543
+msgid "There is no PHD in this list."
+msgstr "Il n'y a aucune HDR dans cette liste"
+
+#: public/classes/lab-directory-shortcode.php:545
+msgid "Sorry, there is no information about this staff PHD !"
+msgstr "Désolé, il n'y a aucune information sur la Thèse de cette personne !"
+
+#: public/classes/lab-directory-shortcode.php:626
+#: public/classes/lab-directory-shortcode.php:641
 msgid "Unknown date"
 msgstr "Date inconnue"
 
-#: public/classes/lab-directory-shortcode.php:566
+#: public/classes/lab-directory-shortcode.php:642
 msgid "PHD"
 msgstr "Thèse"
 
-#: public/classes/lab-directory-shortcode.php:1312
+#: public/classes/lab-directory-shortcode.php:1384
+msgid "HDR and PHD list"
+msgstr "Liste des Thèses et HDR"
+
+#: public/classes/lab-directory-shortcode.php:1402
 msgid "%s directory"
 msgstr "Equipe %s"
 
-#: public/classes/lab-directory-shortcode.php:1313
+#: public/classes/lab-directory-shortcode.php:1403
 msgid "Directory"
 msgstr "Annuaire"
 
 #. translators: This is used in pages and posts footer to display contact, %s
 #. is the team or laboratory (one categeory)
-#: public/classes/lab-directory-shortcode.php:1367
+#: public/classes/lab-directory-shortcode.php:1458
 msgid "%s contact : "
 msgstr "Contact %s :"
 
 #. translators: This is used in pages and posts footer to display manager, %s
 #. is the team or laboratory (one categeory)
-#: public/classes/lab-directory-shortcode.php:1375
+#: public/classes/lab-directory-shortcode.php:1466
 msgid "%s manager : "
 msgstr "manageur %s :"
 
@@ -75,29 +111,32 @@ msgstr "Prochaines soutenances"
 msgid "This widget displays a compact list of defenses"
 msgstr "Ce Widget affiche une liste compacte des soutenances"
 
-#: public/classes/ld_widget_defenses.php:49
+#: public/classes/ld_widget_defenses.php:50
 msgid "Next Defenses"
 msgstr "Prochaines soutenances"
 
-#: public/classes/ld_widget_defenses.php:57
+#: public/classes/ld_widget_defenses.php:58
 msgid "Title:"
 msgstr "Titre : "
 
-#: public/classes/ld_widget_defenses.php:62
-msgid "List for time period :"
-msgstr ""
+#: public/classes/ld_widget_defenses.php:63
+msgid "List for this time period :"
+msgstr "List pour cette période : "
 
 #. translators: for all defenses
-#: public/classes/ld_widget_defenses.php:64
+#: public/classes/ld_widget_defenses.php:65
 msgid "all"
 msgstr "Toutes"
 
 #. translators: for future defenses
-#: public/classes/ld_widget_defenses.php:65
+#: public/classes/ld_widget_defenses.php:66
 msgid "future"
 msgstr "Future"
 
 #. translators: for past defenses
-#: public/classes/ld_widget_defenses.php:66
+#: public/classes/ld_widget_defenses.php:67
 msgid "past"
 msgstr "Passée"
+
+#~ msgid "Sorry, there is no information about this PHD !"
+#~ msgstr "Désolé, il n'y a aucune information sur la thèse de cette personne !"

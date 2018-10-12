@@ -64,6 +64,7 @@
       <li><code>[lab_directory_phd_loop period=??]</code> (1) - this loop extract staff having a PHD profiles (used in defense list template)</li>
 		  <ul style ="padding-left:15px;">
 		  <li>(1) parameter "period" is only used in defense_list , PHD and HDR loops: <code>period=past</code> <code>period=futur</code> <code>period=all</code> filter for defense date in the past futur or all (default = all).</li>
+		  <li>(1) <code>period=futur-60</code> <code>period=futur+5</code> filter for futur defense starting with a delay of -30 or +5 days as compared to current date.</li>
 		  <li>(1) defense_list PHD and HDR loops do not use <code>staff_search</code> <code>orderby</code> and <code>order</code>. They are ordered by descending defense date.</li>
 		  </ul>    
   </ul>  

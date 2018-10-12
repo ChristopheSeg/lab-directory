@@ -107,7 +107,7 @@ function show_group(group) {
 			</td>
 			<?php if ($lang_name!=$locale_name)  {?>
 				<td>
-					<?php echo $locale_translations[$original_translation]? $locale_translations[$original_translation] : $slug_name; ?>
+					<?php echo isset($locale_translations[$original_translation])? $locale_translations[$original_translation] : ''; ?>
 				</td>
 			<?php }?>	
 			</tr>

@@ -210,6 +210,7 @@ class Lab_Directory_Admin {
 		 */
 	static function ld_admin_help_add_new_staff($edit=false) {
 		
+		
 		$screen = get_current_screen();
 		if ($edit) { 
 		 	$content = '<p>' . __('This page is used to edit staff profile. Some fields may be locked depending on LDAP Syncing and user permissions.','lab-directory') . '</p>';
@@ -236,7 +237,7 @@ class Lab_Directory_Admin {
 			'title'	=> __('Staff Details', 'lab-directory' ),
 			'content' => $content,
 		) );
-		$content = '<p>' . __('Staff status define which group of mea filelds will be shown. Note that a staff access to certains pages is restricted/allowed on status base. Do not give some staff improper status which could lead to giving unwanted permissions to him. ','lab-directory') . '</p>';
+		$content = '<p>' . __('Staff status define which group of meta fields will be shown. Note that a staff access to certains pages is restricted/allowed on status base. Do not give some staff improper status which could lead to giving unwanted permissions to him. ','lab-directory') . '</p>';
 		$screen->add_help_tab( array(
 			'id'	=> __('staff_status'),
 			'title'	=> __('Staff status', 'lab-directory' ),
@@ -334,6 +335,11 @@ class Lab_Directory_Admin {
 	}
    
 	static function settings() {
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
 		
 		// Enqueue style and scripts
 		wp_enqueue_script( 'jquery-ui-tabs' );
@@ -434,6 +440,11 @@ class Lab_Directory_Admin {
 		}
 		static function settings_translations($lang, $lang_name, $locale, $locale_name) {
 		
+			// TODO adjust access rights
+			if (!current_user_can( 'administrator' )) {
+				return;
+			}
+			
 			$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 			$form_messages = array('form_saved' => false);
 			wp_enqueue_script( 'jquery-ui-tabs' );
@@ -500,6 +511,12 @@ class Lab_Directory_Admin {
 		}
 		
 	static function settings_taxonomies($lang, $lang_name, $locale, $locale_name) {
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false);
 		wp_enqueue_script( 'jquery-ui-tabs' );
@@ -543,6 +560,11 @@ class Lab_Directory_Admin {
 		
 	static function settings_general() {
 
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		wp_enqueue_style( 'font-awesome');
 		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
@@ -617,6 +639,11 @@ class Lab_Directory_Admin {
 	
 	static function settings_templates() {
 	
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false);
 	
@@ -660,6 +687,11 @@ class Lab_Directory_Admin {
 	
 	static function settings_fields() {
 
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
 
@@ -696,6 +728,11 @@ class Lab_Directory_Admin {
 
 	static function settings_ldap() {
 	
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false); 
 
@@ -737,6 +774,11 @@ class Lab_Directory_Admin {
 
 	static function settings_groups() {
 		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$default_group_names = Lab_Directory::get_lab_directory_default_group_names();
 		$group_activations = get_option( 'lab_directory_group_activations' );
 		if (!is_array($group_activations)) {
@@ -777,6 +819,12 @@ class Lab_Directory_Admin {
 	}
 	
 	static function settings_permissions() {
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		global $current_user;
 		wp_enqueue_style( 'font-awesome');
 		
@@ -839,6 +887,11 @@ class Lab_Directory_Admin {
 	
 	static function settings_test_sync() {
 	
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		$lab_directory_staff_settings = Lab_Directory_Settings::shared_instance();
 		$form_messages = array('form_saved' => false);
 	
@@ -911,10 +964,22 @@ class Lab_Directory_Admin {
 	}
 	
 	static function help() {
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+			
 		require_once( LAB_DIRECTORY_DIR . '/admin/views/admin-help.php' );
 	}
 
 	static function import() {
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		
 		$did_import_old_lab_directory_staff = false;
 		
@@ -990,6 +1055,11 @@ class Lab_Directory_Admin {
 		<?php
 	}
 	static function addstaff() {
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			return;
+		}
+		
 		require_once( LAB_DIRECTORY_DIR . '/admin/views/edit.php' );
 	}
 	

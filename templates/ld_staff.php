@@ -2,7 +2,6 @@
 	[ld_photo]
 	[ld_name]
 	[ld_name_firstname]
-	[ld_position]
 	[ld_function]
 	[ld_mails]
 	[ld_other_mails] 

@@ -1,4 +1,12 @@
 <?php
+/********************************************************/
+// Adding Dashicons in WordPress Front-end
+/********************************************************/
+add_action( 'wp_enqueue_scripts', 'load_dashicons_front_end' );
+function load_dashicons_front_end() {
+	wp_enqueue_style( 'dashicons' );
+}
+
 class Lab_Directory_Base {
 	
 	static $load_admin_class = false;
@@ -51,7 +59,7 @@ class Lab_Directory_Base {
 		// Load text_domain for admin menus
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Base', 'load_Lab_Directory_Base_textdomain' ) );
 		
-		// Add an action lmink in Lab-Directory extension menu
+		// Add an action link in Lab-Directory extension menu
 		add_filter( 'plugin_action_links_lab-directory/lab-directory.php',  array( 'Lab_Directory_Base',  'lab_directory_add_action_links')  );
 		
 		// IMPORTANT Add Query_vars and Tags here. That it used when flushing permalink outside lab-directory
@@ -69,8 +77,7 @@ class Lab_Directory_Base {
 	 */
 	static function register_ld_post_type() {
 	
-		register_post_type(
-			'lab_directory_staff',
+		$settings =
 			array(
 				'labels' => array(
 					/* translators: This is the plugin main menu name appearing in admin list. (if possible use less than 20 character)*/
@@ -99,13 +106,27 @@ class Lab_Directory_Base {
 				'public' => true,
 				'has_archive' => false,
 				'menu_icon' => 'dashicons-id',
-			) );
+			);
+		
+		// TODO adjust access rights (remove staff photo metabox)
+		if (!current_user_can( 'administrator' )) {
+			$settings['supports'] = array('');
+		}
+		
+		register_post_type( 'lab_directory_staff',$settings );
 	}
+	
 	static function add_admin_menu_items() {
 		
 		/* About add_action: Lab_Directory_Admin is not loaded, 
 		 * but these action are only usefull when Lab_Directory_Admin will be loaded
 		 */
+		
+		// TODO adjust access rights
+		if (!current_user_can( 'administrator' )) {
+			remove_menu_page('edit.php?post_type=lab_directory_staff');
+			return;
+		}
 		
 		$ld_admin_page = add_submenu_page( 'edit.php?post_type=lab_directory_staff', 'Lab Directory Settings', 'Settings', 'publish_posts',
 			'lab-directory-settings', array( 'Lab_Directory_Admin', 'settings' ) ); 

@@ -74,14 +74,14 @@ class Lab_Directory_Common {
 		}
 	
 		if (count($ld_posts) >= 1) {
-			//Save first post in $main_ld_permalink[0] (in case lang is not found) but this can be in any languages!
+			//Save first lab-directory post in $main_ld_permalink[0] (in case lang is not found) but this can be in any languages!
 			self::$main_ld_permalink['count'] = count($ld_posts); 
 			self::$main_ld_permalink[0]['ID']= $ld_posts[0]->ID;
 			self::$main_ld_permalink[0]['permalink']= get_permalink($ld_posts[0]->ID);
 		}
 		self::$main_ld_permalink['query_string'] = '';
-		$current_url = trim($_SERVER['SCRIPT_URI'], '/'). $_SERVER['QUERY_STRING'];
-	
+		$current_url = get_site_url() . $_SERVER['REQUEST_URI'] . $_SERVER['QUERY_STRING'];
+
 		// Polylang case
 		if (function_exists ('pll_languages_list') ) {
 			$languages = pll_languages_list('slug');
@@ -207,6 +207,8 @@ class Lab_Directory_Common {
 	
 		$t1 = get_option( 'lab_directory_use_taxonomy1' );
 		$t2 = get_option( 'lab_directory_use_taxonomy2' );
+		
+		
 		if ( $t1 or $all ) {
 			// Taxonomy 1
 			$taxonomies['ld_taxonomy_team'] = array(
@@ -237,10 +239,16 @@ class Lab_Directory_Common {
 					/* translators: this is related to taxonomy-2 messages. This translation could be overrided depending on Lab-Directory settings..  */
 					'team_manager' => __( 'Team manager', 'lab-directory' ) ),
 				'show_admin_column' => true,
-				'rewrite' => array(
+ 				'rewrite' => array(
 					'slug' => 'lab_directory_staff-teams',
 					'with_front' => false,
 					'hierarchical' => true ) );
+			
+			// TODO adjust access rights (remove staff photo metabox)
+			if (!current_user_can( 'administrator' )) {
+				$taxonomies['ld_taxonomy_team']['meta_box_cb']=false;
+			}
+				
 		}
 		if ( $t2 or $all ) {
 			// Taxonomy 2
@@ -275,6 +283,12 @@ class Lab_Directory_Common {
 					'slug' => 'lab_directory_staff-laboratories',
 					'with_front' => false,
 					'hierarchical' => true ) );
+ 				
+			// TODO adjust access rights (remove staff photo metabox)
+			if (!current_user_can( 'administrator' )) {
+				$taxonomies['ld_taxonomy_laboratory']['meta_box_cb']=false;
+			}
+				
 		}
 		return $taxonomies;
 	}

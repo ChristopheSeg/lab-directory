@@ -448,7 +448,7 @@ msgstr ""
 
 #: admin/classes/lab-directory-admin.php:258
 msgid ""
-"Staff status define which group of mea filelds will be shown. Note that a "
+"Staff status define which group of meta fields will be shown. Note that a "
 "staff access to certains pages is restricted/allowed on status base. Do not "
 "give some staff improper status which could lead to giving unwanted "
 "permissions to him. "

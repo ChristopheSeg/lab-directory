@@ -7,8 +7,9 @@ Stable Tag: tags/1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
- Easily display a list of lab_directory_staff/faculty/team members. Supports lab_directory_staff categories as well.
-This plugin is build from a fork a lab-directory from adamtootle
+Easily display a list of lab_directory_staff/faculty/team members. Supports lab_directory_staff categories as well.
+
+This plugin is a fork of staff-directory from adamtootle
 == Description ==
 
 Lab Directory is designed to help you easily display a list of lab_directory_staff/faculty/team members.
@@ -27,7 +28,7 @@ Questions?
 
 Most preferred:
 
-Submit pull requests to the [Github repo](https://github.com/adamtootle/lab-directory).
+Submit pull requests to the [Github repo](https://github.com/adamtootle/staff-directory).
 
 Least preferred (less frequented by the author):
 
