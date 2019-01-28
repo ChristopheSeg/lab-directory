@@ -1,4 +1,10 @@
 DONE:
+New: [ld_phd_list_filter] shortcode add a filter on PHD/HDR list 
+Fix language not taken into account into every lab-directory link
+New: ld_phd_online ld_hdr_onlineshortcode 
+Fix "translation" of summaries and subjects to defaut language, language 1, and language2 
+Fix Datepicker not compatible with plugin post_expire
+New custom fields: phd_end_date phd_url phd_summary_url
 FIX PHD/HDR jury not saved
 FIX tab.js error
 FIX SCRIPT_URI index not found
@@ -6,23 +12,20 @@ FIX Mix content issue (http:// used to load script)
 Fix HDR PHD  widget list improved
 New: add a delay parameter to futur defense list
 Fix: missing frontend dashicons css
+New: add a default title to widget
+
+
 TODO:
-
+Pb de title-tag pour annuaire lab-directory: modifier le title -tag ET vois si pb avec Yoast SEO filter
+Dashicons non working with AMP (not laoded, find better iscon? 
+Templates écrasé si mise à jour plugin: comment procéder? 
 liste hdr vide à supprimer !!
-Thèse: ou est la traduction ?? 
-
-Thèese:sujet affiché, saut de ligne supprimés!! 
-
 
 Comment créer un plugin avec mise à jour?  (retirer les répertoires et fichiers inutiles? )
 
 voir si possible utiliser taxonomies du kit web (pods)
 BUG: si [lab-directory id=4] sur une page normale, le lien modifier pointe vers staff profile !!
 
-Thèmes endommagés
-	Les thèmes suivants sont installés mais incomplets.
-	Nom 	Description 		
-	lab-directory 	La feuille de style est absente.
 
 Security Note: Consider blocking direct access to your plugin PHP files by adding the following line at the top of each of them. Also be sure to refrain from executing sensitive standalone PHP code before calling any WordPress functions.
 This can be achieved in a few ways. You can either check to see if the ABSPATH constant is defined, or check if a function such as add_action exists. Either method can be used to ensure PHP execution is only allowed when it is included as part of the core system.

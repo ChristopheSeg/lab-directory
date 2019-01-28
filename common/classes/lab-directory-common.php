@@ -35,6 +35,12 @@ class Lab_Directory_Common {
 			self::$staff_meta_fields = self::get_default_meta_fields();
 		}
 		
+		// add filter TODO Yoast SEO also use a filter!! 
+		// add_filter('pre_get_document_title', 'change_my_title', 999, 1 );
+		// Our function
+		function change_my_title($title) {
+			return 'My new title';
+		}
 		
 		add_action( 'init', array( 'Lab_Directory_Common', 'initiate_main_ld_permalink' ) );
 		add_action( 'init', array( 'Lab_Directory_Common', 'create_lab_directory_staff_taxonomies' ) );
@@ -55,7 +61,7 @@ class Lab_Directory_Common {
 		
 		add_filter( 'post_type_link', array( 'Lab_Directory_Common', 'lab_directory_post_type_link'), 10, 2 );
 
-		add_action( 'wp_before_admin_bar_render', array( 'Lab_Directory_Common', 'lab_directory_admin_bar_render' ) );
+		add_action( 'admin_bar_menu', array( 'Lab_Directory_Common', 'lab_directory_admin_bar_render' ), 80 );
 
 	}
 	
@@ -84,7 +90,8 @@ class Lab_Directory_Common {
 
 		// Polylang case
 		if (function_exists ('pll_languages_list') ) {
-			$languages = pll_languages_list('slug');
+			$languages = pll_languages_list(array('fields' => 'locale'));
+
 			foreach ($languages as $language){
 				self::$main_ld_permalink[$language]['ID'] = pll_get_post(self::$main_ld_permalink[0]['ID'], $language);
 				self::$main_ld_permalink[$language]['permalink'] = get_permalink(self::$main_ld_permalink[$language]['ID'] );
@@ -97,10 +104,26 @@ class Lab_Directory_Common {
 		//TODO add wpml compatibility
 	}
 		
-	static function get_ld_permalink($slug='',$id='', $lang=0, $query_string_only= false) {
+	/* 
+	 * $lang =0 : search for default language permalink
+	 * $lang='' : search for $lang permalink
+	 */
+	 
+	 static function get_ld_permalink($slug='',$id='', $lang=0, $query_string_only= false) {
 		
-		if (!isset(self::$main_ld_permalink[$lang]['permalink']) ) return ' '; 
-		$permalink = self::$main_ld_permalink[$lang]['permalink'];
+		if ( $lang == '') {
+			// TODO plugin WPML support! 
+			$lang = pll_current_language('locale'); 
+		}
+
+		
+		if (isset(self::$main_ld_permalink[$lang]['permalink']) ){
+			$permalink = self::$main_ld_permalink[$lang]['permalink'];
+		} elseif (isset(self::$main_ld_permalink[0]['permalink']) ){
+			$permalink = self::$main_ld_permalink[0]['permalink'];
+		}
+		if (! $permalink) {return ' '; }
+
 		
 		$simple_url = (strpos($permalink, '?') !== false);
 		if ($query_string_only) {
@@ -295,7 +318,7 @@ class Lab_Directory_Common {
 	
 	static function lab_directory_post_type_link( $url, $post ) {
 		if ( 'lab_directory_staff' == get_post_type( $post ) ) {
-			$url = Lab_Directory_Common::get_ld_permalink('staff',$post->post_name, 0, false);
+			$url = Lab_Directory_Common::get_ld_permalink('staff',$post->post_name, '', false);
 		}
 		return $url;
 	}
@@ -385,6 +408,12 @@ class Lab_Directory_Common {
 		}
 	}
 	static function initiate_default_meta_field_names() {
+		if (is_admin() ) {
+			$lang0 = ' (' .  get_locale() . ')';
+		} else {
+			// Do not display lang_i on frontend 
+			$lang0 = '';
+		}
 		$lang1 = ' (' . get_option( 'lab_directory_lang1', true ) . ')';
 		$lang2 = ' (' . get_option( 'lab_directory_lang2', true ) . ')';
 	
@@ -408,43 +437,48 @@ class Lab_Directory_Common {
 			'office' => __( 'Office', 'lab-directory' ),
 			'team' => __( 'Team', 'lab-directory' ),
 			'exit_date' => __( 'End activity date', 'lab-directory' ),
-			'hdr_subject' => __( 'HDR subject', 'lab-directory' ),
+			'hdr_subject' => __( 'HDR subject', 'lab-directory' ) . $lang0,
 			'hdr_subject_lang1' => __( 'HDR subject', 'lab-directory' ) . $lang1,
 			'hdr_subject_lang2' => __( 'HDR subject', 'lab-directory' ) . $lang2,
 			'hdr_date' => __( 'HDR defense date', 'lab-directory' ),
 			'hdr_location' => __( 'HDR defense location', 'lab-directory' ),
+			'hdr_url' => __( 'HDR document URL', 'lab-directory' ),
+			'hdr_summary_url' => __( 'HDR summary URL', 'lab-directory' ),
 			'hdr_jury' => __( 'HDR jury', 'lab-directory' ),
-			'hdr_resume' => __( 'HDR resume', 'lab-directory' ),
+			'hdr_resume' => __( 'HDR resume', 'lab-directory' ) . $lang0,
 			'hdr_resume_lang1' => __( 'HDR resume', 'lab-directory' ) . $lang1,
 			'hdr_resume_lang2' => __( 'HDR resume', 'lab-directory' ) . $lang2,
 			'phd_start_date' => __( 'PHD start date', 'lab-directory' ),
-			'phd_subject' => __( 'PHD subject', 'lab-directory' ),
+			'phd_end_date' => __( 'PHD end date', 'lab-directory' ),
+			'phd_subject' => __( 'PHD subject', 'lab-directory' ) . $lang0,
 			'phd_subject_lang1' => __( 'PHD subject', 'lab-directory' ) . $lang1,
 			'phd_subject_lang2' => __( 'PHD subject', 'lab-directory' ) . $lang2,
 			'phd_date' => __( 'PHD defense date', 'lab-directory' ),
 			'phd_location' => __( 'PHD defense location', 'lab-directory' ),
 			'phd_jury' => __( 'PHD jury', 'lab-directory' ),
-			'phd_resume' => __( 'PHD resume', 'lab-directory' ),
+			'phd_url' => __( 'PHD document URL', 'lab-directory' ),
+			'phd_summary_url' => __( 'PHD summary URL', 'lab-directory' ),
+			'phd_resume' => __( 'PHD resume', 'lab-directory' ) . $lang0,
 			'phd_resume_lang1' => __( 'PHD resume', 'lab-directory' ) . $lang1,
 			'phd_resume_lang2' => __( 'PHD resume', 'lab-directory' ) . $lang2,
 			'post_doc_start_date' => __( 'Post Doct. start date', 'lab-directory' ),
 			'post_doc_end_date' => __( 'Post Doct. end date', 'lab-directory' ),
-			'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ),
+			'post_doc_subject' => __( 'Post Doct. subject', 'lab-directory' ) . $lang0,
 			'post_doc_subject_lang1' => __( 'Post Doct. subject', 'lab-directory' ) . $lang1,
 			'post_doc_subject_lang2' => __( 'Post Doct. subject', 'lab-directory' ) . $lang2,
 			'internship_start_date' => __( 'Internship start date', 'lab-directory' ),
 			'internship_end_date' => __( 'Internship end date', 'lab-directory' ),
-			'internship_subject' => __( 'Internship subject', 'lab-directory' ),
+			'internship_subject' => __( 'Internship subject', 'lab-directory' ) . $lang0,
 			'internship_subject_lang1' => __( 'Internship subject', 'lab-directory' ) . $lang1,
 			'internship_subject_lang2' => __( 'Internship subject', 'lab-directory' ) . $lang2,
-			'internship_resume' => __( 'Internship resume', 'lab-directory' ),
+			'internship_resume' => __( 'Internship resume', 'lab-directory' ) . $lang0,
 			'internship_resume_lang1' => __( 'Internship resume', 'lab-directory' ) . $lang1,
 			'internship_resume_lang2' => __( 'Internship resume', 'lab-directory' ) . $lang2,
 			'studying_school' => __( 'Trainee Studying school', 'lab-directory' ),
 			'studying_level' => __( 'Trainee Studying level', 'lab-directory' ),
 			'invitation_start_date' => __( 'Invitation Start date', 'lab-directory' ),
 			'invitation_end_date' => __( 'Invitation End date', 'lab-directory' ),
-			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ),
+			'invitation_goal' => __( 'Invitation goal', 'lab-directory' ) . $lang0,
 			'invitation_goal_lang1' => __( 'Invitation goal', 'lab-directory' ) . $lang1,
 			'invitation_goal_lang2' => __( 'Invitation goal', 'lab-directory' ) . $lang2,
 			'invited_position' => __( 'Contractant Position', 'lab-directory' ),
@@ -454,7 +488,7 @@ class Lab_Directory_Common {
 			/* translators Fixed term contract information */
 			'cdd_end_date' => __( 'Contract end date', 'lab-directory' ),
 			/* translators Fixed term contract information */
-			'cdd_goal' => __( 'Contract goal', 'lab-directory' ),
+			'cdd_goal' => __( 'Contract goal', 'lab-directory' ) . $lang0,
 			'cdd_goal_lang1' => __( 'Contract goal', 'lab-directory' ) . $lang1,
 			'cdd_goal_lang2' => __( 'Contract goal', 'lab-directory' ) . $lang2,
 			/* translators Fixed term contract information */
@@ -484,7 +518,11 @@ class Lab_Directory_Common {
 			'name_firstname' => __( 'Name Firstname', 'lab-directory' ),
 			'firstname_name' => __( 'Firstname Name', 'lab-directory' ),
 			'social_link' =>  __( 'Social link', 'lab-directory' ),
-			);
+			'phd_online' =>  __( 'PHD online', 'lab-directory' ),
+			'hdr_online' =>  __( 'HDR online', 'lab-directory' ),
+			'phd_link' => __( 'PHD page', 'lab-directory' ),
+			'hdr_link' => __( 'HDR page', 'lab-directory' ),
+		);
 	}
 	
 	
@@ -505,15 +543,13 @@ class Lab_Directory_Common {
 	}
 	
 	// add links/menus to the admin bar '<span class="dashicons dashicons-edit"></span>'.
-	static function lab_directory_admin_bar_render() {
+	static function lab_directory_admin_bar_render($wp_admin_bar) {
 	
 		if (isset(Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) AND Lab_Directory_Common::$main_ld_permalink['edit_staff_url']) {
-			global $wp_admin_bar;
-			
-			$wp_admin_bar->add_menu( array(
+			$wp_admin_bar->add_node( array(
 				'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
 				'id' => 'editstaff', // this remove the previous edit link
-				'title' =>  __('modify this staff profile'), // link title
+				'title' =>  __('Edit staff profile'), // link title
 				'href' => Lab_Directory_Common::$main_ld_permalink['edit_staff_url'], // name of file
 				'meta' => array('class' => 'wp-admin-bar-edit') // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 			));

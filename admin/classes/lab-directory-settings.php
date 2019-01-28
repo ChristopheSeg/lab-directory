@@ -187,21 +187,21 @@ class Lab_Directory_Settings {
 		}
 		
 		if ( $test ) {
-			write_log( 'TEST LDAP', 'Annuaire', _LOG_INFO );
+			write_log( 'LAB-DIRECTORY: TEST LDAP');
 			
 			$form_messages['ok'][] = "Debut du TEST IMPORT LDAP<br>\n 
 					Filtre de test: $search_filter<br>\n
 					Email de test: $search_mail<br>\n";
 		} else {
-			write_log( 'Lancement du cron MAJ annuaire', 'Annuaire', _LOG_INFO );
+			write_log( 'LAB-DIRECTORY: Lancement du cron MAJ annuaire');
 		}
 		// LDAP server
 		$ldap_server = get_option( 'lab_directory_ldap_server' );
 		$dn = $ldap_server['ldap_dn'];
 		
 		if ( ! $dn or ! $ldap_server ) {
-			write_log( 'Serveur LDAP mal configuré' );
-			write_log( 'Session LDAP annulée!' );
+			write_log( 'LAB-DIRECTORY: Serveur LDAP mal configuré' );
+			write_log( 'LAB-DIRECTORY: Session LDAP annulée!' );
 			if ( $test ) {
 				$form_messages['erreur'][] = "Veuillez configurer le serveur LDAP avant d'effectuer ce test<br />\n";
 				return;
@@ -220,8 +220,8 @@ class Lab_Directory_Settings {
 			// Filtrage de synchronisation
 			$filter = $ldap_server['ldap_filter'];
 			if ( ! $filter ) {
-				write_log( 'Filtres LDAP non configuré', 'Annuaire', _LOG_ERREUR );
-				write_log( 'Session LDAP terminé!', 'Annuaire', _LOG_INFO );
+				write_log( 'LAB-DIRECTORY: Erreur, Filtres LDAP non configuré');
+				write_log( 'LAB-DIRECTORY: Session LDAP terminé!');
 				if ( $test ) {
 					$form_messages['erreur'][] = "Veuillez configurer les filtres LDAP avant d'effectuer ce test<br />\n";
 					return;
@@ -291,15 +291,15 @@ class Lab_Directory_Settings {
 			if ( $time ) {
 				// TODO INEFFICACE!! on prolonge la durée du script PHP (en synchronisation totale seulement)
 				set_time_limit( $time );
-				write_log( "Script allongé : set_time_limit($time); " );
+				write_log( "LAB-DIRECTORY: Script allongé : set_time_limit($time); " );
 			}
 		}
 		
 		$ds = @ldap_connect( $ldap_server['ldap_server'] );
 		if ( ! $ds ) {
-			write_log( 'Impossible de se connecter au serveur LDAP' );
-			write_log( "Erreur LDAP n° " . ldap_errno( $ds ) . " : " . ldap_error( $ds ) );
-			write_log( 'TEST LDAP terminé!' );
+			write_log( 'LAB-DIRECTORY: Impossible de se connecter au serveur LDAP' );
+			write_log( "LAB-DIRECTORY: Erreur LDAP n° " . ldap_errno( $ds ) . " : " . ldap_error( $ds ) );
+			write_log( 'LAB-DIRECTORY: TEST LDAP terminé!' );
 			if ( $test ) {
 				$form_messages['erreur'][] = "Erreur LDAP n° " . ldap_errno( $ds ) . " : " . ldap_error( $ds ) .
 					 "<br />\n";
@@ -308,7 +308,7 @@ class Lab_Directory_Settings {
 			return;
 		}
 		
-		write_log( 'Connexion au serveur LDAP OK' );
+		write_log( 'LAB-DIRECTORY: Connexion au serveur LDAP OK' );
 		if ( $test ) {
 			$form_messages['ok'][] = "Connexion au serveur LDAP OK.";
 		}
@@ -316,8 +316,8 @@ class Lab_Directory_Settings {
 		// search the LDAP users
 		$r = @ldap_bind( $ds ); // connexion anonyme, typique
 		if ( ! $r ) {
-			write_log( 'Liaison (bind) au serveur LDAP Impossible' );
-			write_log( 'SESSION LDAP terminé!' );
+			write_log( 'LAB-DIRECTORY: Liaison (bind) au serveur LDAP Impossible' );
+			write_log( 'LAB-DIRECTORY: SESSION LDAP terminé!' );
 			ldap_close( $ds );
 			if ( $test ) {
 				$form_messages['erreur'][] = "Erreur LDAP n° " . ldap_errno( $ds ) . " : " . ldap_error( $ds );
@@ -326,8 +326,8 @@ class Lab_Directory_Settings {
 			return;
 		}
 		
-		write_log( 'Connecté et lié au serveur LDAP' );
-		write_log( 'filtre de synchronisation : ' . $filter );
+		write_log( 'LAB-DIRECTORY:  et lié au serveur LDAP' );
+		write_log( 'LAB-DIRECTORY: filtre de synchronisation : ' . $filter );
 		if ( $test ) {
 			$form_messages['ok'][] = "Connecté et lié au serveur LDAP";
 			
@@ -343,8 +343,8 @@ class Lab_Directory_Settings {
 		
 		$sr = ldap_search( $ds, $dn, $filter, $LDAPattributes );
 		if ( ! $sr ) {
-			write_log( 'Impossible de se lier (bind) au serveur LDAP' );
-			write_log( 'SESSION  LDAP terminé!' );
+			write_log( 'LAB-DIRECTORY: Impossible de se lier (bind) au serveur LDAP' );
+			write_log( 'LAB-DIRECTORY: SESSION  LDAP terminé!' );
 			if ( $test ) {
 				$form_messages['erreur'][] = "Erreur LDAP n° " . ldap_errno( $ds ) . " : " . ldap_error( $ds ) .
 					 "<br />\n filtre=" . $filter . "<br />\n";
@@ -357,7 +357,7 @@ class Lab_Directory_Settings {
 		}
 		$entrees_ldap = (array) ldap_get_entries( $ds, $sr );
 		$nb_fiches = $entrees_ldap["count"];
-		write_log( 'Il y a ' . $nb_fiches . ' entrées dans l\'annuaire LDAP' );
+		write_log( 'LAB-DIRECTORY: Il y a ' . $nb_fiches . ' entrées dans l\'annuaire LDAP' );
 		if ( $test ) {
 			$form_messages['ok'][] = '<b>Il y a ' . $nb_fiches . " entrées dans l'annuaire LDAP </b>";
 		}
@@ -603,10 +603,8 @@ class Lab_Directory_Settings {
 				if ( $import ) {
 					
 					if ( $staff_post_id ) {
-						write_log( 
-							"Do : Enr. LDAP n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname ", 
-							'Annuaire', 
-							_LOG_INFO );
+						write_log("LAB-DIRECTORY: Do : Enr. LDAP n°$i MAJ[id=$staff_post_id] :  $temp $name $firstname " 
+							);
 						$success = Lab_Directory_Settings::update_lab_directory_staff( $champ_valeurs, $staff_post_id );
 						if ( $success ) {
 							$form_messages['ok'][] = "<b>Done Enr. LDAP n°$i MAJ[id=$staff_post_id] :</b>  " . $temp .
@@ -614,11 +612,9 @@ class Lab_Directory_Settings {
 								 $champ_valeurs['mails'];
 						}
 					} else {
-						write_log( 
-							"Do : Enr. LDAP n°$i CREATION[] : " . $temp . $champ_valeurs['firstname'] . ' ' .
-								 $champ_valeurs['name'], 
-								'Annuaire', 
-								_LOG_INFO );
+						write_log("LAB-DIRECTORY: Do : Enr. LDAP n°$i CREATION[] : " . $temp . $champ_valeurs['firstname'] . ' ' .
+								 $champ_valeurs['name'] 
+								);
 						// la fiche est invalidée par défaut!
 						$champ_valeurs['fiche_validee'] = '0';
 						// TODO modify register
@@ -655,9 +651,8 @@ class Lab_Directory_Settings {
 					}
 					if ( ! $success ) {
 						write_log( 
-							'Erreur  lors de la MAJ ou de la CREATION id_personnel=' . $staff_post_id, 
-							'Annuaire', 
-							_LOG_ERREUR );
+							'LAB-DIRECTORY: Erreur  lors de la MAJ ou de la CREATION id_personnel=' . $staff_post_id
+							);
 						if ( $test ) {
 							$form_messages['erreur'][] = '<b>==> Erreur  lors de la MAJ ou de la CREATION id_personnel=' .
 								 $staff_post_id . "</b>";
@@ -675,7 +670,7 @@ class Lab_Directory_Settings {
 			}
 		}
 		
-		write_log( 'SESSION LDAP terminée!', 'Annuaire', _LOG_INFO );
+		write_log( 'LAB-DIRECTORY: SESSION LDAP terminée!');
 		
 		if ( $test ) {
 			$form_messages['ok'][] = 'SESSION LDAP terminée';
@@ -792,7 +787,7 @@ class Lab_Directory_Settings {
 	 * $LDAPattributes=array("modifyTimeStamp","uid","cn","sn","givenname");
 	 *
 	 */
-	function ldapattributes( $active_meta_fields = null ) {
+	static function ldapattributes( $active_meta_fields = null ) {
 		if ( ! $active_meta_fields ) {
 			return false;
 		}
@@ -876,9 +871,14 @@ class Lab_Directory_Settings {
 					'social_network',
 					'hdr_date',
 					'hdr_jury',
+					'hdr_url',
+					'hdr_summary_url',
 					'phd_start_date',
+					'phd_end_date',
 					'phd_date',
 					'phd_jury',
+					'phd_url',
+					'phd_summary_url',
 					'post_doc_start_date',
 					'post_doc_end_date',
 					'internship_start_date',
@@ -907,9 +907,14 @@ class Lab_Directory_Settings {
 					'social_network',
 					'hdr_date',
 					'hdr_jury',
+					'hdr_url',
+					'hdr_summary_url',
 					'phd_start_date',
+					'phd_end_date',
 					'phd_date',
 					'phd_jury',
+					'phd_url',
+					'phd_summary_url',
 					'post_doc_start_date',
 					'post_doc_end_date',
 					'internship_start_date',

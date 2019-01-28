@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Lab Directory\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/{slug}\n"
 "POT-Creation-Date: 2018-08-29 12:10:19+00:00\n"
-"PO-Revision-Date: 2018-08-29 15:54+0200\n"
+"PO-Revision-Date: 2019-01-08 15:55+0100\n"
 "Last-Translator: CSeguinot <christophe.seguinot@univ-lille1.fr>\n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -89,7 +89,7 @@ msgstr "Titre"
 
 #: common/classes/lab-directory-common.php:392
 msgid "Phone number"
-msgstr "Numéro de téléphone"
+msgstr "Téléphone"
 
 #: common/classes/lab-directory-common.php:472
 msgid "Social link"
@@ -142,11 +142,11 @@ msgstr "Directeurs"
 
 #: common/classes/lab-directory-common.php:171
 msgid "Supervisors"
-msgstr "Encadrants"
+msgstr "Co-encadrants"
 
 #: common/classes/lab-directory-common.php:172
 msgid "Supervisor"
-msgstr "Encadrant"
+msgstr "Co-encadrant"
 
 #: common/classes/lab-directory-common.php:173
 msgctxt "male"
@@ -423,7 +423,7 @@ msgstr "Jury de thèse"
 #: common/classes/lab-directory-common.php:414
 #: common/classes/lab-directory-common.php:415
 msgid "PHD resume"
-msgstr "Résum\" de thèse"
+msgstr "Résumé de thèse"
 
 #: common/classes/lab-directory-common.php:416
 msgid "Post Doct. start date"
@@ -573,7 +573,7 @@ msgstr "Nom Prénom"
 
 #: common/classes/lab-directory-common.php:471
 msgid "Firstname Name"
-msgstr "PRénom Nom"
+msgstr "Prénom Nom"
 
 #: common/classes/lab-directory-common.php:502
 msgid "modify this staff profile"

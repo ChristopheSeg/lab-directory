@@ -31,6 +31,7 @@ class Lab_Directory_Shortcode {
 	
 	static function register_shortcode() {
 
+		
 		// Custom field translation filter
 		add_action( 'plugins_loaded', array( 'Lab_Directory_Shortcode', 'initiate_translations' ) );
 		
@@ -46,8 +47,8 @@ class Lab_Directory_Shortcode {
 		// load single-page/profile template
 		add_filter( 'single_template', array( 'Lab_Directory_Shortcode', 'load_profile_template' ) );
 		
-		// add single post content hook (title and content )
-		add_filter( 'the_content', array( 'Lab_Directory_Shortcode', 'ld_content_filter' ) );
+		// add single post content hook (title and content ) prority 9 to execute before AMP
+		add_filter( 'the_content', array( 'Lab_Directory_Shortcode', 'ld_content_filter' ) , 9);
 		add_filter( 'posts_results', array( 'Lab_Directory_Shortcode', 'ld_posts_results_filter' ) );
 				
 		// add the pll_translation_url filter
@@ -65,6 +66,7 @@ class Lab_Directory_Shortcode {
         // http://sww.co.nz/solution-to-wordpress-adding-br-and-p-tags-around-shortcodes/
         add_filter( 'the_content', array( 'Lab_Directory_Shortcode', 'lab_directory_remove_filter_wpautop') );
         
+       
             
         //List of other shortcode tags (they should use the ld_ suffix)
         $other_shortcodes = array(
@@ -78,9 +80,14 @@ class Lab_Directory_Shortcode {
             'ld_team', 
         	'ld_laboratory',
         	'ld_categories_nav',
+        	'ld_hdr_link', 
+        	'ld_phd_link',
         	'ld_widget_hdr_link', 
         	'ld_widget_phd_link',
-        	// 'ld_widget_all_defenses_list',
+        	'ld_phd_online',
+        	'ld_hdr_online',
+        	'ld_phd_list_filter',
+        // 'ld_widget_all_defenses_list',
         	'ld_social_link',
         );
         
@@ -133,20 +140,32 @@ class Lab_Directory_Shortcode {
     /* 
      * add a div to all shortcode  
      */
-    static function div_it($output, $tag= '', $atts= array()) {
+    static function div_it($output, $tag= '', $atts= array(), $class='') {
+    
     	
     	if ( ! $output)  {return '';}
-
+    	if ($tag=='') {
+    		// do not div it 
+    		return $output;
+    	}
+    	/* echo "<br>===>". __(Lab_Directory_Common::$default_meta_field_names[substr($tag,3)]);
+    	var_dump(__(Lab_Directory_Common::$default_meta_field_names[substr($tag,3)], 'lab-directory'));
+    	var_dump($atts);
+    	*/ 
+    	 
     	$label = '';
     	if ( ( self::$lab_directory_main_shortcode_params['label'] ===true OR 
         	self::$lab_directory_main_shortcode_params['label'] =='true') AND
         (  ! isset($atts['label']) OR ($atts['label'] !== false AND $atts['label'] != 'false'  ) ) )
         {
-    		$label = ' with_label';
+			$label = ' with_label';
     		$output ='<span class="label_field">' . __(Lab_Directory_Common::$default_meta_field_names[substr($tag,3)], 'lab-directory') . '</span> <span class="content_field ' . $label . '">' .$output .  '</span>'; 
     	}
     	if ( isset($atts['add_div']) AND ($atts['add_div'] === true OR $atts['add_div'] == 'true' ) ) {
-    		return '<div class=" '. $tag . $label . ' ld_field">' . $output . '</div>';
+    		if ($class) {
+    			$class = ' ' . $class . ' ';
+    		}
+    		return '<div class=" '. $tag . $label . $class .  ' ld_field">' . $output . '</div>';
     	}
     	return $output;
     }
@@ -238,23 +257,34 @@ class Lab_Directory_Shortcode {
     
     static function translate($base_slug, $tag='', $ld_lang='', $atts=array()) {
     	
-    	global $lang; // Find ordering for languages
-    	$lang1 = get_option( 'lab_directory_lang1');
-    	$lang2 = get_option( 'lab_directory_lang2');
+    	// Find ordering for languages
+    	$default_first = get_option('lab_directory_locale_first', true);
+    	$lang0 = Lab_Directory_Common::$default_post_language;
+    	$lang = get_locale(); 
+    	$lang1 = get_option('lab_directory_use_lang1') ? get_option( 'lab_directory_lang1'): '';
+    	$lang2 = get_option('lab_directory_use_lang2') ? get_option( 'lab_directory_lang2'): '';
+    	$other_languages = false == (($lang == $lang1) or ($lang == $lang2) or ($lang == $lang0));
+    	$orders = array(); 
     	
-    	$orders = array('','_lang1','_lang2'); 
-    	if ($lang1 AND $lang1==$lang){
-    		$orders = array('_lang1','','_lang2');
-    	} elseif ($lang2 AND $lang2==$lang){
-    		$orders = array('_lang2','','_lang1');
-    	} elseif (get_option( 'lab_directory_locale_first','1')) {
-    		$orders = array('','_lang1','_lang2');
-    	} else {
-    		$orders = array('_lang1','','_lang2');
-    	}
-   	
+    	if ( ($lang == $lang0) or ($other_languages AND $default_first ) ) {
+    		// order = default, Language 1, Language 2
+    		$orders[$lang0]= '';
+    		if ($lang1 AND $lang1 != $lang0) {$orders[$lang1]= '_lang1';}
+    		if ($lang2 AND $lang2 != $lang0) {$orders[$lang2]= '_lang2';}	
+    	} elseif ($lang == $lang2) {
+    		// order = Language 2, default, Language 1
+    		if ($lang2) {$orders[$lang2]= '_lang2';}
+    		if ($lang2!=$lang0) { $orders[$lang0]= '';}
+    	   	if ($lang1 AND $lang1 != $lang0) {$orders[$lang1]= '_lang1';}
+   		} else {
+    		// order = Language 1, default, Language 2
+    		if ($lang1) {$orders[$lang1]= '_lang1';}
+    		if ($lang1 != $lang0) { $orders[$lang0]= '';}
+    	   	if ($lang2 AND $lang2 != $lang0) {$orders[$lang2]= '_lang2';}
+   		}
+
     	if ( ($atts['translate'] === true) OR ($atts['translate'] == 'true') ) {
-    		// Find first avalaible according to language ordering
+    		// Find first available according to language ordering
     		foreach ($orders as $ld_lang){
     			if ($temp = get_post_meta( get_the_ID(), $base_slug.$ld_lang, true ) ) {
     				return $temp;
@@ -266,16 +296,27 @@ class Lab_Directory_Shortcode {
    			
     		// Find All avaliable translation in language order
     		$output = array();
-    		foreach ($orders as $ld_lang) {
+    		foreach ($orders as $lang => $ld_lang) {
     			if ($value = get_post_meta( get_the_ID(), $base_slug.$ld_lang, true ) ) {
-    				$output[]= $value;
+    				$flag_path = WP_CONTENT_DIR . '/plugins/polylang/flags/' . substr($lang, 0, 2) . '.png';
+    				if ( file_exists( $flag_path) ){
+    					$flag = '<img src="/wp-content/plugins/polylang/flags/' . substr($lang, 0, 2) . '.png" />&nbsp;'; 
+    				} else {
+    					$flag= '<span class="dashicons dashicons-arrow-right"></span>';
+    				}
+    				
+    				$flag_path = WP_CONTENT_DIR . '/plugins/polylang/flags/' . strtolower(substr($lang, 3)) . '.png';
+
+    				if ( file_exists( $flag_path) ){
+    					$flag = '<img src="/wp-content/plugins/polylang/flags/' . strtolower(substr($lang, 3)) . '.png" />&nbsp;';
+    				}
+    				$output[]= $flag . $value;
     			}
     		}
     		// ADD emnpty label: <span class="label_champ">  </span>
     		if (!empty($output)) {
 		        if (count($output)>1 ) {
-	    				return '<span class="dashicons dashicons-arrow-right"></span>' .implode('<br /><span class="dashicons dashicons-arrow-right"></span>', 
-	    					$output);
+	    				return implode('<br>', $output);
     			} else {
 	    				return $output[0];
     			}    			
@@ -283,12 +324,14 @@ class Lab_Directory_Shortcode {
     		} else {
     			return '';
     		}
+   		} else {
+   			foreach ($orders as $lang => $ld_lang) {
+   				if ($value = get_post_meta( get_the_ID(), $base_slug.$ld_lang, true ) ) {
+   					return $value;
+   				}
+   			}
    		}
    		
-   		// (else) if ($atts['translate'] === false OR $atts['translate'] == 'false') {
-    	return get_post_meta( get_the_ID(), $base_slug.$ld_lang, true );
-    		
-    	// return "<br> base slug=$base_slug  tag=$tag lang=$lang" . get_post_meta( get_the_ID(), $base_slug, true );
     }
     
  
@@ -333,21 +376,21 @@ class Lab_Directory_Shortcode {
 	  	
 	        		// 'staff_trombi'
 	        		if (self::$current_template != 'staff_trombi') {
-	        			$link = Lab_Directory_Common::get_ld_permalink('staff_trombi', $atts['category_name'], 0, false);
+	        			$link = Lab_Directory_Common::get_ld_permalink('staff_trombi', $atts['category_name'], '', false);
 	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-camera"></span></a>&nbsp;';
 	        		} else {
 	        			$output .= '<span class="dashicons dashicons-camera"></span>&nbsp;';
 	        		}
 	        		// 'staff_grid'
 	        		if (self::$current_template != 'staff_grid') {
-	        			$link = Lab_Directory_Common::get_ld_permalink( 'staff_grid', $atts['category_name'], 0, false);
+	        			$link = Lab_Directory_Common::get_ld_permalink( 'staff_grid', $atts['category_name'], '', false);
 	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-grid-view"></span></a>&nbsp;';
 	        		}else {
 	        			$output .= '<span class="dashicons dashicons-grid-view"></span>&nbsp;';
 	        		}
 	        		// 'staff_list'
 	        		if (self::$current_template != 'staff_list') {
-	        			$link = Lab_Directory_Common::get_ld_permalink('staff_list', $atts['category_name'], 0, false);
+	        			$link = Lab_Directory_Common::get_ld_permalink('staff_list', $atts['category_name'], '', false);
 	        			$output .= '<a href ="' . $link . '"><span class="dashicons dashicons-list-view"></span></a>&nbsp;';
 	        		}else {
 	        			$output .= '<span class="dashicons dashicons-list-view"></span>&nbsp;';
@@ -457,8 +500,18 @@ class Lab_Directory_Shortcode {
 	   		
             while ( $query->have_posts() ) {
                 $query->the_post();
+                // Save the edit staff url
+                if ($query->post_count==1 AND (self::$current_template != 'defense_widget_list') ) {
+                	Lab_Directory_Common::$main_ld_permalink['edit_staff_url'] = get_edit_post_link(get_the_ID());
+                }
                 
-    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
+    			$item_content = do_shortcode($content); 
+    			$item_classes = array(); 
+    			// Extract class form content
+    			preg_match('/(hdr_[0-9]{4})/', $item_content, $item_classes);
+    			$item_classes = $item_classes? $item_classes[0] : '';
+    			// Then add class to div 
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item ld_hdr '. $item_classes .'">' . $item_content . '</div>';
             }
         }  else {
         	if (self::$current_template =='defense_widget_list') {
@@ -482,7 +535,7 @@ class Lab_Directory_Shortcode {
         if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
         	$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">'; 
         	$output .= '<li><a href="' .  
-		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
+		        	Lab_Directory_Common::get_ld_permalink('defense_list','', '', false) .
 		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></li></div>';
         }
     
@@ -507,7 +560,7 @@ class Lab_Directory_Shortcode {
 	    self::$lab_directory_main_shortcode_params = $atts; 
     	
 	    $query = Lab_Directory_Shortcode::lab_directory_phd_query($atts);
-    	$output = "";
+		$output = "";
     
     	if ( $query->have_posts() ) {
     		// add template CSS part if atts['css'] is given
@@ -523,8 +576,18 @@ class Lab_Directory_Shortcode {
     
     		while ( $query->have_posts() ) {
     			$query->the_post();
-    			$content = str_replace('<br />', '', $content);
-    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">' . do_shortcode($content) . '</div>';
+    		    // Save the edit staff url 
+    			if ($query->post_count==1 AND (self::$current_template != 'defense_widget_list') ) {
+					Lab_Directory_Common::$main_ld_permalink['edit_staff_url'] = get_edit_post_link(get_the_ID());
+				}
+				$content = str_replace('<br />', '', $content);
+    			$item_content = do_shortcode($content); 
+    			$item_classes = array(); 
+    			// Extract class form content
+    			preg_match('/(phd_[0-9]{4})/', $item_content, $item_classes);
+    			$item_classes = $item_classes? $item_classes[0] : '';
+    			// Then add class to div 
+    			$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item ld_phd '. $item_classes .'">' . $item_content . '</div>';
     		}
     	}  else {
     		if (self::$current_template =='defense_widget_list') {
@@ -548,7 +611,7 @@ class Lab_Directory_Shortcode {
         if ( ($atts['link_to_all']=='true' ) OR ($atts['link_to_all']===true) ) { 
         	$output .= '<div class="ld_single_item ld_' . self::$current_template . '_item">'; 
         	$output .= '<li><a href="' .  
-		        	Lab_Directory_Common::get_ld_permalink('defense_list','', 0, false) .
+		        	Lab_Directory_Common::get_ld_permalink('defense_list','', '', false) .
 		        	'">' . __('See all HDR and PHD', 'lab-directory') . '</a></li></div>';
         }
  
@@ -586,7 +649,7 @@ class Lab_Directory_Shortcode {
 	  
 	    if ( ($atts['add_link']=='true' ) OR ($atts['add_link']===true) )  { 
     		$output = "<a href='" . Lab_Directory_Common::get_ld_permalink(  
-    			'staff', get_post_field( 'post_name', get_the_ID() ) ) . "'>" . $output . '</a>';
+    			'staff', get_post_field( 'post_name', get_the_ID() ), '' ) . "'>" . $output . '</a>';
 	    }	    
     }
 
@@ -617,29 +680,186 @@ class Lab_Directory_Shortcode {
     	
     	), $atts);    	
     	
-    	$format = (isset($atts['format_date']) AND ($atts['format_date'] != '')) ? $atts['format_date']: 'd/m/Y';
     	$date = get_post_meta( get_the_ID(), 'hdr_date', true );
-    	$date = $date? date ($format, strtotime($date)) : __('Unknown date','lab_directory');
-    	$text = $date . ' ' . __('HDR', 'lab-directory')  . 
-    		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',));
+    	$now = date('Y-m-d');
+		
+		if ($date) {
+			if ($date <= $now){
+				$format = (isset($atts['format_date']) AND ($atts['format_date'] != '')) ? $atts['format_date']: 'd-m-Y';
+    			/* translators: %1$s date; %2$s staff or student name and firstname */
+				$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$text = sprintf( __( 'HDR %1$s %2$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+			} else {
+				$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y H:i';
+				$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$location = get_post_meta( get_the_ID(), 'hdr_location', true );
+				if (! $location) {
+					$location = '--';
+				}
+				/* translators: %1$s date; %2$s staff or student name and firstname %3s defense location*/
+				$text = sprintf( __( 'HDR %1$s %2$s @ %3$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)), $location);
+			}
+		} else {
+			$text='';
+		}
+	
     	$output = self::ld_profile_link_shortcode(
     		array('add_div' => false, 'label' => 'false', 'hdr' => true, 'inner_text' => $text));
         return self::div_it($output, $tag, $atts);
 	}
-    
-    static function ld_widget_phd_link_shortcode($atts, $content = NULL, $tag = '' ){
-    	$atts = shortcode_atts( array(
+	
+	static function ld_widget_phd_link_shortcode($atts, $content = NULL, $tag = '' ){
+		$atts = shortcode_atts( array(
+			'add_div'     => true,
+			'label' => 'false',
+		), $atts);
+		$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
+		$date = get_post_meta( get_the_ID(), 'phd_date', true );
+		$now = date('Y-m-d');
+	
+		if ($date) {
+			if ($date <= $now){
+				$format = (isset($atts['format_date']) AND ($atts['format_date'] != '')) ? $atts['format_date']: 'd/m/Y';
+				/* translators: link to PHD in "next defenses" widget %1$s date; %2$s staff or student name and firstname */
+				$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$text = sprintf( __( 'PHD %1$s %2$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+			} else {
+				$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y H:i';
+				
+				$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$location = get_post_meta( get_the_ID(), 'phd_location', true );
+				if (! $location) {
+					$location = '--';
+				}
+				/* translators: link to PHD in "next defenses" widget %1$s date; %2$s staff or student name and firstname %3s defense location*/
+				$text = sprintf( __( 'PHD %1$s %2$s @ %3$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)), $location);
+			}
+		} else {
+			$text='';
+		}
+	
+		$output = self::ld_profile_link_shortcode(
+			array('add_div' => false, 'label' => 'false', 'phd' => true, 'inner_text' => $text));
+		return self::div_it($output, $tag, $atts);
+	}
+	
+	static function ld_hdr_link_shortcode($atts, $content = NULL, $tag = '' ){
+	    
+		if ( strpos(get_post_meta( get_the_ID(), 'staff_statuss', true ), 'HDR') === false ) {
+    		return '';
+    	}
+    	
+		$atts = shortcode_atts( array(
+			'add_div'  => true,
+			'label' => 'true',
+		), $atts);
+		 
+		$format = (isset($atts['format_date']) AND ($atts['format_date'] != '')) ? $atts['format_date']: 'd/m/Y';
+		$date = get_post_meta( get_the_ID(), 'hdr_date', true );
+		$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
+		$now = date('Y-m-d');
+		$class = 'hdr_0000'; 
+	    if ($date) {
+	    	$class = 'hdr_' . substr($date, 0, 4);
+    		if ($date <=$now){
+				/* translators: %1$s date; %2$s staff or student name and firstname */
+    			$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$text = sprintf( __( 'HDR defended on %1$s by %2$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+    		} else {
+     			$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y H:i';
+    			$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				$location = get_post_meta( get_the_ID(), 'hdr_location', true );
+				if (! $location) {
+					$location = '--';	
+				}
+    			/* translators: %1$s date; %2$s staff or student name and firstname %3s defense location*/
+    			$text = sprintf( __( 'HDR defense on %1$s by %2$s at %3$s' ), $date2,
+    				self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)), $location); 
+    		}
+		} else {
+			$text='';	
+		}
+		if ($text != '') {
+			$output = self::ld_profile_link_shortcode(
+				array('add_div' => false, 'label' => 'false', 'hdr' => true, 'inner_text' => $text));
+			return self::div_it($output, $tag, $atts, $class);
+		}
+		return ''; 
+	}
+        
+    static function ld_phd_link_shortcode($atts, $content = NULL, $tag = '' ){
+    	
+    	// Warning staff_statuss 'doctorate' and 'post-doctorate'
+    	if(! preg_match('/^doctorate|,doctorate,/', get_post_meta( get_the_ID(), 'staff_statuss', true )) ) {
+    			return '';
+    	}
+		$atts = shortcode_atts( array(
     		'add_div'     => true,
-    		'label' => 'false',
+    		'label' => 'true',
     	), $atts);
-    	$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
     	$date = get_post_meta( get_the_ID(), 'phd_date', true );
-    	$date = $date? date ($format, strtotime($date)) : __('Unknown date','lab_directory');
-    	$text = $date . ' ' . __('PHD', 'lab-directory')  . 
-    		' : ' . self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false')) . '</a>';
-    	$output = self::ld_profile_link_shortcode(
-    		array('add_div' => false, 'label' => 'false', 'phd' => true, 'inner_text' => $text));
-        return self::div_it($output, $tag, $atts);
+		$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y';
+		$now = date('Y-m-d');
+		$class = 'phd_0000'; 
+    	$text='';
+	    if ($date) {
+	    	$class = 'phd_' . substr($date, 0, 4);
+	    	if ($date <=$now){
+    			$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+				// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				/* translators: %1$s date; %2$s staff or student name and firstname */
+    			$text = sprintf( __( 'PHD defended on %1$s by %2$s' ), $date2,
+					self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+    		} else {
+				$format = isset($atts['format_date']) ? $atts['format_date']: 'd/m/Y H:i';
+    			$date2 = $date? date ($format, strtotime($date)) : __(' -- ','lab_directory');
+    			// remove 00:00 time
+				$date2 = str_replace(' 00:00', '', $date2);
+				/* translators: %1$s date; %2$s staff or student name and firstname %3s defense location*/
+    			$location = get_post_meta( get_the_ID(), 'phd_location', true );
+    			if (! $location) {
+					$location = '--';	
+				}
+				$text = sprintf( __( 'PHD defense on %1$s by %2$s at %3$s' ), $date2,
+    				self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)), $location);     			
+    		}
+		} else {
+		    $date = get_post_meta( get_the_ID(), 'phd_end_date', true );
+    		if ($date){
+    			/* translators: %1$s date of PHD contract end; %2$s staff or student name and firstname */
+    			$text = sprintf( __( 'PHD contract ending on %1$s : %2$s' ), date ($format, strtotime($date)),
+    				self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+    		} else {
+    			/* translators: %s staff or student name and firstname  */
+    			$text = sprintf( __( 'PHD not yet defended : %s' ),
+    				self::ld_name_firstname_shortcode(array('add_div' => false, 'label' => 'false',)));
+    
+    		}
+    	}
+ 		if ($text != '') {
+			$output = self::ld_profile_link_shortcode(
+				array('add_div' => false, 'label' => 'false', 'phd' => true, 'inner_text' => $text));
+ 				return self::div_it($output, $tag, $atts, $class);
+		}
+		return ''; 
     }
   
     
@@ -723,7 +943,7 @@ class Lab_Directory_Shortcode {
         	$template = 'staff';
         }
         $profile_link = Lab_Directory_Common::get_ld_permalink( 
-        	$template, get_post_field( 'post_name', get_the_ID() ) );
+        	$template, get_post_field( 'post_name', get_the_ID() ), '' , '' );
         
         
         
@@ -732,6 +952,7 @@ class Lab_Directory_Shortcode {
         } else {
             $output = "<a href='" . $profile_link . "' target='" . $atts['target'] . "'>" . $atts['inner_text'] . '</a>';
         }
+    	
         return self::div_it($output, $tag, $atts);
     }
 
@@ -780,14 +1001,72 @@ class Lab_Directory_Shortcode {
 			) );
 		    
 		    foreach ( $terms as $term) {
-		    	$output .= '<a href="' . Lab_Directory_Common::get_ld_permalink(self::$current_template, $term->slug) . '" >' .$term->name . '</a> | ';
+		    	$output .= '<a href="' . Lab_Directory_Common::get_ld_permalink(self::$current_template, $term->slug, '') . '" >' .$term->name . '</a> | ';
             }
-            $output .= '<a href="' . Lab_Directory_Common::get_ld_permalink(self::$current_template, '') . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
+            $output .= '<a href="' . Lab_Directory_Common::get_ld_permalink(self::$current_template, '', '') . '" >' . $taxonomy['labels']['all_items'] . '</a> ';
          }
         }  
         return $output;
     }
  
+    
+	static function ld_phd_online_shortcode($atts, $content = NULL, $tag = '' ){
+    
+    	$atts = shortcode_atts( array(
+    		'add_div' => true,
+    	), $atts);
+    	
+    	$phd_url = esc_url(get_post_meta( get_the_ID(), 'phd_url', true ));
+    	$phd_summary_url = esc_url(get_post_meta( get_the_ID(), 'phd_summary_url', true ));
+    	$output = ''; 
+    	if ( $phd_url) {
+    		$pos = strpos($phd_url, 'www.theses.fr');
+    		if ($pos !== false) {
+    			$site= ' (theses.fr)';
+    		}
+    		$output.= "<a href='" . $phd_url . "' target='_blank' title='" . __('phd_online', 'lab-directory') . "'><span class=\"dashicons dashicons-format-aside\"></span>" . __( 'PHD documents', 'lab-directory' )  . '</a>' .$site . '&nbsp;&nbsp;&nbsp;&nbsp;';
+    	}
+    	if ( $phd_summary_url) {
+    	    $site = ''; 
+    	    $pos = strpos($phd_url, 'www.theses.fr');
+    		if ($pos !== false) {
+    			$site= ' (theses.fr)';
+    		}
+    		$output.= "<a href='" . $phd_summary_url . "' target='_blank' title='" . __('phd_online', 'lab-directory') . "'><span class=\"dashicons dashicons-format-aside\"></span>" . __( 'PHD summaries', 'lab-directory' )  . '</a>';
+    	}
+    	
+    	return self::div_it($output, $tag, $atts);
+    	
+    }
+
+    static function ld_hdr_online_shortcode($atts, $content = NULL, $tag = '' ){
+    
+    	$atts = shortcode_atts( array(
+    		'add_div' => true,
+    	), $atts);
+    	 
+    	$hdr_url = esc_url(get_post_meta( get_the_ID(), 'hdr_url', true ));
+    	$hdr_summary_url = esc_url(get_post_meta( get_the_ID(), 'hdr_summary_url', true ));
+    	$output = '';
+    	if ( $hdr_url) {
+    		$pos = strpos($hdr_url, 'hal.archives-ouvertes.fr');
+    		if ($pos !== false) {
+    			$site= ' (HAL)';
+    		}
+    		$output.= "<a href='" . $hdr_url . "' target='_blank' title='" . __('hdr_online', 'lab-directory') . "'><span class=\"dashicons dashicons-format-aside\"></span>" . __( 'HDR documents', 'lab-directory' )  . '</a>' .$site . '&nbsp;&nbsp;&nbsp;&nbsp;';
+    	}
+    	if ( $hdr_summary_url) {
+    		$site = '';
+    		$pos = strpos($hdr_url, 'hal.archives-ouvertes.fr');
+    		if ($pos !== false) {
+    			$site= ' (HAL)';
+    		}
+    		$output.= "<a href='" . $hdr_summary_url . "' target='_blank' title='" . __('hdr_online', 'lab-directory') . "'><span class=\"dashicons dashicons-format-aside\"></span>" . __( 'HDR summaries', 'lab-directory' )  . '</a>';
+    	}
+    	 
+    	return self::div_it($output, $tag, $atts);
+    	 
+    }
     
     static function ld_phd_jury_shortcode($atts, $content = NULL, $tag = '' ){
     
@@ -847,7 +1126,16 @@ class Lab_Directory_Shortcode {
     	return self::div_it($output, $tag, $atts);
     }
     
-
+    static function ld_phd_list_filter_shortcode($atts, $content = NULL, $tag = '' ){
+    
+    	// Ad a div Javascript will add a list of button to filter PHD end HDR list
+    	$output = "<div class =\"phd_filter\" id =\"phd_filter\">\n"; 
+   		
+    	$output .= "</div>\n";
+    
+    	
+    	return $output;
+    }
 	 
 	 /* 
 	  * [lab-directory] main shortcode
@@ -887,7 +1175,9 @@ class Lab_Directory_Shortcode {
        		
        	}elseif ( isset($wp_query->query_vars[Lab_Directory_Base::$lab_directory_url_slugs['defense_list']]) ) {
        		$template = 'defense_list';
-       	
+       		// Add js for defense list page
+       		wp_enqueue_script( 'phd_list', LAB_DIRECTORY_URL . '/public/js/phd_list.js', array( 'jquery' ));
+		
        	}
        	else{  // Use default template if template not set by query vars
        		$template = isset($template)? $template : get_option( 'lab_directory_default_template', 'staff_grid');
@@ -912,6 +1202,8 @@ class Lab_Directory_Shortcode {
         return $output; 
         
 	}
+	
+	
 
     /*** End shortcode functions ***/
 	/*
@@ -1102,7 +1394,7 @@ class Lab_Directory_Shortcode {
 			if ($params['period']== 'futur') {
 				$from = time() + ($params['delay'] * 24 * 60 * 60); 
 				$query_args['meta_query'][] = array(
-					'key'     => 'phd_date',
+					'key'     => 'hdr_date',
 					'value'   => date( "Y-m-d", $from ),
 					'compare' => '>=',
 				);
@@ -1126,6 +1418,7 @@ class Lab_Directory_Shortcode {
 		}
 		
 		$output = new WP_Query( $query_args );
+		
 		return $output;
 	}
 	
@@ -1197,7 +1490,8 @@ class Lab_Directory_Shortcode {
 			'relation' => 'AND',
 			array(
 				'key'     => 'staff_statuss',
-				'value'   => 'doctorate',
+				// value doctorate, and post-doctorate, are both possible! /^doctorate|,doctorate,/
+				'value'   => '^doctorate|,doctorate,',
 				// Warning, WP>=4.8.3: LIKE do not works in meta_key search https://core.trac.wordpress.org/ticket/42746
 				'compare' => 'REGEXP',
 			),
@@ -1453,10 +1747,10 @@ class Lab_Directory_Shortcode {
     									Lab_Directory_Common::$staff_meta_fields['mails']['multivalue'],
     									'display' );
     
-    									$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Common::get_ld_permalink('staff', $name ) .
-    									'"><span class="dashicons dashicons-phone"></span>' . get_the_title( $id ) . '</a>';
+    									$output .= '&nbsp;&nbsp;&nbsp;<a href="' . Lab_Directory_Common::get_ld_permalink('staff', $name ,'') .
+    									'"><span class="dashicons dashicons-businessman"></span>' . get_the_title( $id ) . '</a>';
     									if ( $mails ) {
-    										$output .= '&nbsp;<a href="mailto:' . $mails .
+    										$output .= '&nbsp;&nbsp;<a href="mailto:' . $mails .
     										'"><span class="dashicons dashicons-email"></span></a>';
     									}
     							}

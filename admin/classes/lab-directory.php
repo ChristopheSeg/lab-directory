@@ -100,7 +100,7 @@ class Lab_Directory {
 			'add_meta_boxes_lab_directory_staff', 
 			array( 'Lab_Directory', 'add_lab_directory_staff_custom_meta_boxes' ) );
 		
-		add_action( 'save_post_lab_directory_staff', array( 'Lab_Directory', 'save_meta_boxes' ) );
+		add_action( 'save_post_lab_directory_staff', array( 'Lab_Directory', 'save_meta_boxes' ));
 	
 		add_action( 'admin_enqueue_scripts', array( 'Lab_Directory', 'lab_directory_scripts_and_css_for_tabs' ) );
 		
@@ -358,6 +358,7 @@ class Lab_Directory {
 			array( 'jquery' ) );
 		
 		wp_enqueue_style( 'timepicker-addon-css', LAB_DIRECTORY_URL . '/admin/css/jquery.datetimepicker.css' );
+		wp_enqueue_style( 'mytimepicker-css', LAB_DIRECTORY_URL . '/admin/css/datetimepicker.css' );
 		
 		$wp_scripts = wp_scripts();
 		wp_enqueue_style( 
@@ -587,6 +588,10 @@ class Lab_Directory {
 	display: none;
 }
 
+#titlediv {
+	display: none;
+}
+
 label.lab_directory_staff-label {
 	width: 150px;
 	display: inline-block;
@@ -626,6 +631,7 @@ div.lab_directory_staff_meta {
 	font-size: 0.9em;
 	margin: 1em 0;
 }
+
 </style>
 <?php
 		// Display Form
@@ -699,6 +705,7 @@ div.lab_directory_staff_meta {
 		$studying_levels, 
 		$jury_functions, 
 		$ldap_synced ) {
+		
 		$field_type = $field['type'];
 		
 		// TODO disable input depending on capability , LDAP...
@@ -779,12 +786,21 @@ div.lab_directory_staff_meta {
 		switch ( $field_type ) {
 			case 'text' :
 			case 'mail' :
-			case 'url' :
 			case 'phone_number' :
 				echo $label;
 				// $required is only used for name and firstname
 				?>
 <input type="text"
+	name="lab_directory_staff_meta_<?php echo $field['slug']; ?>"
+	<?php echo $required; ?> value="<?php echo $value; ?>" />
+<?php
+				echo $mv;
+				break;
+			case 'url' :
+				echo $label;
+				// $required is only used for name and firstname
+				?>
+<input class="large-text" type="text"
 	name="lab_directory_staff_meta_<?php echo $field['slug']; ?>"
 	<?php echo $required; ?> value="<?php echo $value; ?>" />
 <?php
@@ -991,8 +1007,7 @@ div.lab_directory_staff_meta {
 	}
 
 	static function save_meta_boxes( $post_id ) {
-		global $wpdb;
-		
+		global $wpdb, $post;
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -1010,20 +1025,23 @@ div.lab_directory_staff_meta {
 		if ( ! current_user_can( 'edit_post', get_the_id() ) ) {
 			return;
 		}
-
+		
 		if ( get_post_status( $post_id ) == 'draft' ) {
 			// Add New staff
 			$ldap_synced = false;
 			update_post_meta( $post_id, 'ldap', '0' );
-			$post_title = get_option( 'lab_directory_title_firstname_first' ) ? get_post_meta( 
-				$post_id, 
-				'firstname', 
-				true ) . ' ' . get_post_meta( $post_id, 'name', true ) : get_post_meta( $post_id, 'name', true ) . ' ' .
-				 get_post_meta( $post_id, 'firstname', true );
-			$wpdb->update( 
-				$wpdb->posts, 
-				array( 'post_status' => 'publish', 'post_title' => $post_title ), 
-				array( 'ID' => $post_id ) );
+			$post_title = get_option( 'lab_directory_title_firstname_first' ) ? 
+				$_POST['lab_directory_staff_meta_firstname'] . ' ' . 
+				$_POST['lab_directory_staff_meta_name'] : 
+				$_POST['lab_directory_staff_meta_name'] . ' ' .
+				$_POST['lab_directory_staff_meta_firstname'];
+  
+			// Update the post title  the database
+  			wp_update_post( array(
+				      'ID'           => $post_id,
+				      'post_title'   => $post_title,
+				      'post_status'  => 'publish',
+				  ) );
 			clean_post_cache( $post_id );
 		} else {
 			// Edit staff
@@ -1031,6 +1049,18 @@ div.lab_directory_staff_meta {
 		}
 		
 		if ( $_POST['save'] == 'Update' ) { // Now we save all (status + All tabs) at the same time if ( $_POST['save'] == 'Update_Status' ) {
+			// Update Title sanitize_text_field(
+			$post_title = get_option( 'lab_directory_title_firstname_first' ) ? 
+				get_post_meta( $post_id,'firstname',true ) . ' ' . 
+				get_post_meta( $post_id, 'name', true ) : 
+				get_post_meta( $post_id, 'name', true ) . ' ' .
+				get_post_meta( $post_id, 'firstname', true );
+		
+			$wpdb->update( 
+				$wpdb->posts, 
+				array( 'post_title' => $post_title ), 
+				array( 'ID' => $post_id ) );
+			
 			// Update staff status
 			$statuss = self::get_lab_directory_default_statuss();
 			$staff_statuss = array();
@@ -1094,14 +1124,12 @@ div.lab_directory_staff_meta {
 
 	static function lab_directory_save_meta_boxes_save_meta( $post_id, $field, $field_name ) {
 		$slug = 'lab_directory_staff_meta_' . $field['slug'];
-
-		// Do not save if meta field is disabled or unset
+		
+		// Do not save if meta field is disabled or unset (EXCEPTED FOR JURY)
 		if ( ($field['type']!='jury') AND (! isset( $_POST[$slug] ) ) ) {
 			return;
 		}
-		if ( ! isset( $_POST[$slug]  ) ) {
-			return;
-		}
+		
 		// Unsanitized value
 		$value = $_POST[$slug];
 		switch ( $field['type'] ) {
@@ -1118,10 +1146,12 @@ div.lab_directory_staff_meta {
 				$value = esc_textarea( $value );
 				break;
 			case 'date' :
+				// format 'Y-m-d' imposed for ordering
 				$value = self::lab_directory_strtotime( $value, "Y-m-d" );
 				break;
 			case 'datetime' :
-				$value = self::lab_directory_strtotime( $value, "Y-m-d h:m" );
+				// format 'Y-m-d H:i' imposed for ordering
+				$value = self::lab_directory_strtotime( $value, "Y-m-d H:i" );
 				break;
 			case 'mail' :
 				$value = sanitize_email( $value );
@@ -1140,6 +1170,7 @@ div.lab_directory_staff_meta {
 				$names = $_POST[$slug . '_names'];
 				$functions = $_POST[$slug . '_functions'];
 				$titles = $_POST[$slug . '_titles'];
+				
 				$index = 0;
 				if (! isset( $names ) ) {
 					return;
@@ -1534,6 +1565,24 @@ div.lab_directory_staff_meta {
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
 			array( 
+				'order' => 23, 
+				'type' => 'url', 
+				'slug' => 'hdr_url', 
+				'group' => 'HDR', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array(
+				'order' => 23,
+				'type' => 'url',
+				'slug' => 'hdr_summary_url',
+				'group' => 'HDR',
+				'ldap_attribute' => '',
+				'multivalue' => 'SV',
+				'show_frontend' => '1',
+				'activated' => '1' ),
+			array( 
 				'order' => 21, 
 				'type' => 'editor', 
 				'slug' => 'hdr_resume', 
@@ -1569,6 +1618,33 @@ div.lab_directory_staff_meta {
 				'multivalue' => 'SV', 
 				'show_frontend' => '1', 
 				'activated' => '1' ), 
+			array( 
+				'order' => 22, 
+				'type' => 'date', 
+				'slug' => 'phd_end_date', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ),
+			array( 
+				'order' => 23, 
+				'type' => 'url', 
+				'slug' => 'phd_url', 
+				'group' => 'doctorate', 
+				'ldap_attribute' => '', 
+				'multivalue' => 'SV', 
+				'show_frontend' => '1', 
+				'activated' => '1' ), 
+			array(
+				'order' => 23,
+				'type' => 'url',
+				'slug' => 'phd_summary_url',
+				'group' => 'doctorate',
+				'ldap_attribute' => '',
+				'multivalue' => 'SV',
+				'show_frontend' => '1',
+				'activated' => '1' ),
 			array( 
 				'order' => 23, 
 				'type' => 'longtext', 

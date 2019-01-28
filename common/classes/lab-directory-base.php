@@ -101,8 +101,9 @@ class Lab_Directory_Base {
 					'items_list_navigation' => __( 'Navigation in staff list', 'lab-directory' ),
 					'items_list' => __( 'Staff list', 'lab-directory' ) ),
 	
-				'supports' => array( /* 'title', 'editor', */ 'thumbnail' ),  // disabled for ldap=1
-	
+				// disable title and content support
+				'supports' => array(/*  'title',  'editor', */ 'thumbnail' ),  // disabled for ldap=1
+				
 				'public' => true,
 				'has_archive' => false,
 				'menu_icon' => 'dashicons-id',

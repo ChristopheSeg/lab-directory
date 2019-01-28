@@ -201,7 +201,7 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 		<td>default language</td>
 		<td></td>
 		<td><?php echo $language_list[$locale]['native_name']; ?>, <?php echo $language_list[$locale]['english_name']; ?></td>
-		<td>locale lang1 lang2</td>
+		<td>Default, Language 1, Language 2</td>
 	</tr>
 	<tr>
 		<td>Language 1</td>
@@ -209,29 +209,29 @@ $lang2 = get_option( 'lab_directory_lang2',true);
 			checked( '1', get_option( 'lab_directory_use_lang1' ) );
 			echo count($languages)>0? ' ' : _e('Not available', 'lab-directory'); ?> /></td>
 		<td><?php if (count($languages)>0) {	echo self:: lab_directory_create_select('lab_directory_lang1', 
-			$languages, $lang1, false, null, true, false);} ?>
+			$languages, $lang1, false, null, false, false);} ?>
 		</td>
-		<td>Language 1, locale, Language 2</td>
+		<td>Language 1, default, Language 2</td>
 	</tr><tr>
 		<td>Language 2</td>
 		<td><input name="lab_directory_use_lang2" type="checkbox" value="1" <?php 
 			checked( '1', get_option( 'lab_directory_use_lang2' ) );
 			echo count($languages)>1? ' ' : _e('Not available', 'lab-directory'); ?> /></td>
-		<td><?php if (count($languages)>1) {	echo self:: lab_directory_create_select('lab_directory_lang1', 
-			$languages, $lang2, false, null, true, false);} else { _e('Not available', 'lab-directory');} ?>
-		</td>	<td>Language 2, locale, Language 1</td>
+		<td><?php if (count($languages)>1) {	echo self:: lab_directory_create_select('lab_directory_lang2', 
+			$languages, $lang2, false, null, false, false);} else { _e('Not available', 'lab-directory');} ?>
+		</td>	<td>Language 2, default, Language 1</td>
 		<td></td>
 	</tr>
 	<tr>
 		<td>others languages</td>
 		<td><input type="radio" name="lab_directory_locale_first" value="1" <?php checked('1', $lab_directory_locale_first); ?> /></td>
-		<td>Locale first</td>
-		<td>locale, Language 1, Language 2</td>
+		<td>Default first</td>
+		<td>Default, Language 1, Language 2</td>
 	</tr><tr>
 		<td>others languages</td>
 		<td><input type="radio" name="lab_directory_locale_first" value="0" <?php checked('0', $lab_directory_locale_first); ?> /></td>
 		<td>Language 1 first</td>
-		<td>Language 1, locale, Language 2</td>
+		<td>Language 1, default, Language 2</td>
 	</tr>
 	</table> 
 	

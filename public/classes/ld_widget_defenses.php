@@ -31,7 +31,15 @@ class ld_widget_defenses extends WP_Widget {
 	// Creating widget front-end
 
 	public function widget( $args, $instance ) {
-		$title = apply_filters( 'widget_title', $instance['title'] );
+		if ($instance['title']) {
+			$title = apply_filters( 'widget_title', $instance['title'] );
+		} else {
+			if ( isset( $instance[ 'period' ])   AND $instance[ 'period' ] == 'future') {
+				$title = __( 'Next Defenses', 'lab-directory' );
+			} else {
+				$title = __( 'Defenses', 'lab-directory' );
+			}
+		}
 
 		// before and after widget arguments are defined by themes
 		echo $args['before_widget'];
@@ -51,17 +59,17 @@ class ld_widget_defenses extends WP_Widget {
 			$instance[ 'title' ] = __( 'Next Defenses', 'lab-directory' );
 		}
 		if ( ! isset( $instance[ 'period' ] ) ) {
-			$instance[ 'period' ] = 'futur';
+			$instance[ 'period' ] = 'future';
 		}
 		// Widget admin form
 		?>
 <p>
-<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label> 
+<label><?php _e( 'Widget default title:', 'lab-directory' ) ?><br/> "<?php _e( 'Next Defenses', 'lab-directory' ) ?>" "<?php _e( 'Defenses', 'lab-directory' ) ?>"</label><br>
+</label><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title (leave blank to use default Title)', 'lab-directory' ); ?></label> 
 <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance[ 'title' ] ); ?>" />
 </p>
 <p>
-
-<label for="<?php echo $this->get_field_id( 'period' ); ?>"><?php _e( 'List for this time period :' ); ?></label>  
+<label for="<?php echo $this->get_field_id( 'period' ); ?>"><?php _e( 'List for this time period :' , 'lab-directory'); ?></label>  
         <select id="<?php echo $this->get_field_id('period'); ?>" name="<?php echo $this->get_field_name('period'); ?>">
             <option <?php selected($instance['period'], 'all');?> value="all"><?php /* translators: for all defenses*/echo __('all');?></option>
             <option <?php selected($instance['period'], 'future');?> value="future"><?php /* translators: for future defenses*/echo __('future','lab-directory');?></option>
